@@ -1,0 +1,28 @@
+; -*- lisp -*-
+;;
+; *** i don't really use ERC anymore, emacs22 has rcirc builtin
+;;
+; ERC - emacs IRC client
+(add-to-list 'load-path (concat package-dir "erc"))
+(require 'erc)
+(setq erc-server "irc.freenode.net" 
+      erc-port 6667 
+      erc-nick "batoms"
+      erc-user-full-name "Brett Atoms"
+      erc-email-userid "batoms"    ; for when ident is not activated
+      erc-prompt-for-password nil) ; OPN doesn't require passwords
+
+(setq erc-autojoin-channels-alist
+      '(("freenode.net" "#sqlalchemy")
+	("gimp.org" "#pygtk" "#gtk")))
+
+(setq erc-current-nick-highlight-type 'nick)
+;(setq erc-keywords '("\\berc[-a-z]*\\b" "\\bemms[-a-z]*\\b"))
+
+(setq erc-track-exclude-types '("JOIN" "PART" "QUIT" "NICK" "MODE"))
+(setq erc-track-use-faces t)
+(setq erc-track-faces-priority-list
+      '(erc-current-nick-face erc-keyword-face))
+(setq erc-track-priority-faces-only 'all)
+
+(message "loaded erc configuration")

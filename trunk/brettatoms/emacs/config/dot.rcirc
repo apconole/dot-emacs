@@ -1,0 +1,11 @@
+; -*- lisp -*-
+;
+; rcirc configuration
+;
+
+;; my nick
+(setq rcicrc-nick "batoms")
+
+;; Join these channels at startup.
+(setq rcirc-startup-channels-alist
+      '(("\\.gimp\\.net$" "#pygtk" "#gtk")))

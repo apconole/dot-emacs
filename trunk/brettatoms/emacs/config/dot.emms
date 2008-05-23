@@ -1,0 +1,24 @@
+; -*- lisp -*-
+
+; EMMS config
+
+(add-to-list 'load-path (concat package-dir "emms"))
+(require 'emms-setup)
+(emms-standard)
+;; (setq emms-player-list '(emms-player-gtreamer))
+;; 			 emms-player-ogg123
+;; 			 emms-player-mpg123
+;; 			 emms-player-mplayer-playlist
+;; 			 emms-player-mplayer))
+(emms-default-players)
+
+;; When asked for emms-play-directory,
+;; always start from this one 
+(setq emms-source-file-default-directory "~/Music/")
+(global-set-key (kbd "\C-c e p") 'emms-play-playlist-directory)
+(global-set-key (kbd "\C-c e s") 'emms-stop)
+(global-set-key (kbd "\C-c e i") 'emms-pause)
+(global-set-key (kbd "\C-c e l") 'emms-playlist-mode-switch-buffer)
+(global-set-key (kbd "\C-c e c") 'emms-playlist-clear)
+(global-set-key (kbd "\C-c e ]") 'emms-next)
+(global-set-key (kbd "\C-c e [") 'emms-previous)

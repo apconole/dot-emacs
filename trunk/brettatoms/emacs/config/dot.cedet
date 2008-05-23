@@ -1,0 +1,33 @@
+; -*- lisp -*-
+
+;
+; CEDET - Collection of Emacs Development Environment Tools
+; http://cedet.sourceforge.net/ 
+(add-to-list 'load-path (concat package-dir "cedet"))
+(load-file (concat package-dir "cedet/common/cedet.el"))
+;; (semantic-load-enable-code-helpers)
+;; (setq semantic-load-turn-useful-things-on t)
+;; (global-set-key (kbd "\C-c \\") 'semantic-ia-complete-tip)
+(require 'ede)
+(global-ede-mode t)
+
+;
+; ** these are things i copied from custom.el
+;
+; '(global-semantic-decoration-mode nil nil (semantic-decorate-mode))
+; '(global-semantic-highlight-edits-mode nil nil (semantic-util-modes))
+; '(global-semantic-idle-completions-mode t nil (semantic-idle))
+; '(global-semantic-idle-scheduler-mode t nil (semantic-idle))
+; '(global-semantic-idle-summary-mode t nil (semantic-idle))
+; '(global-semantic-show-parser-state-mode nil nil (semantic-util-modes))
+; '(global-semantic-show-unmatched-syntax-mode nil nil (semantic-util-modes))
+; '(global-semantic-stickyfunc-mode t nil (semantic-util-modes))
+; '(global-senator-minor-mode t nil (senator))
+; '(semanticdb-global-mode t nil (semanticdb))
+
+;
+; ECB - Emacs Code Browser
+;
+;(add-to-list 'load-path (concat package-dir "ecb"))
+;(require 'ecb)
+;(require 'ecb-autoloads)

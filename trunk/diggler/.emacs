@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-05-19 23:20:06 (djcb)>
+;; Time-stamp: <2008-05-24 22:12:18 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -9,7 +9,7 @@
 ;; the Free Software Foundation; either version 2, or (at your option)
 ;; any later version.
 
-;; .emacs for Dirk-Jan C. Binnema <djc-@djcbsoftware.nl>
+;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 ;; works for emacs >= 21.x, and tried with the latest-and-greatest (emacs23);
 ;; to get this, on ubuntu, add to /etc/apt/sources.list:
 ;;
@@ -563,7 +563,7 @@ Otherwise, analyses point position and answers."
   (local-set-key (kbd "C-c C-j l")  'set-justification-left)
   (local-set-key (kbd "C-c C-j f")  'set-justification-full))
 
-;; remove parts of old email, and replace with [snip: ... ]
+;; remove parts of old email, and replace with <snip (n lines): ... >
 (defun snip-mail (r-begin r-end summary)
   (interactive "r\nsSummary:")
   (let ((line-num (count-lines r-begin r-end)))
@@ -582,6 +582,7 @@ Otherwise, analyses point position and answers."
 		. post-mode)) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 
@@ -716,7 +717,6 @@ Otherwise, analyses point position and answers."
 
 (add-hook 'cperl-mode-hook 'djcb-cperl-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-
 
 
 
@@ -1009,7 +1009,7 @@ Otherwise, analyses point position and answers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode
 ;; based on http://www.emacswiki.org/cgi-bin/wiki/WriteRoom
 ;; toggle full screen with F11; require 'wmctrl'
@@ -1018,7 +1018,18 @@ Otherwise, analyses point position and answers."
   (defun djcb-full-screen-toggle ()
     (interactive)
     (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; conky
+
+(defun djcb-conky ()
+  (set (make-local-variable 'compile-command) "killall -HUP conky"))
+;; conky
+(add-to-list 'auto-mode-alist '("\\.conkyrc" . djcb-conky))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

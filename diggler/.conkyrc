@@ -1,0 +1,61 @@
+# -*-mode: sh; outline-minor-mode:t-*- 
+# Time-stamp: <2008-05-24 22:02:15 (djcb)>
+#
+# Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
+
+# This file is free software; you can redistribute it and/or modify
+# it undr the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# .conkyrc for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+
+#avoid flicker
+double_buffer yes
+
+
+#own window to run simultanious 2 or more conkys
+own_window yes
+own_window_transparent yes
+own_window_type override
+own_window_hints undecorate,sticky,skip_taskbar,skip_pager
+
+#borders
+draw_borders no
+border_margin 1
+
+#shades
+draw_shades no
+
+#position
+gap_x 1
+gap_y 1
+alignment bottom_left
+
+#behaviour
+update_interval 5 
+
+
+#colour
+default_color bfbfbf
+#default_shade_color 000000
+## own_window_colour 484432
+own_window_colour 000000
+
+#font
+use_xft yes
+#xftfont hooge 05_55 cyr2:size=7
+xftfont nu:size=9
+override_utf8_locale yes # for the musical symbol
+
+#to prevent window from moving
+use_spacer none
+##minimum_size 1276 0
+minimum_size 2560 0
+
+#mpd
+#mpd_host localhost
+#mpd_port 6600
+
+TEXT
+${voffset -1} ${color 4F4F4F} ${time  %F %R} ${color 4F4F4F} | ${color 4F4F4F}${exec hostname} | ${color 4F4F4F}mem: ${color 4F4F4F}${font}${mem}  | ${color 4F4F4F}eth0: ${upspeed eth0}/${downspeed eth0} KB/s | ♫ ${exec /home/djcb/scripts/rb-now}

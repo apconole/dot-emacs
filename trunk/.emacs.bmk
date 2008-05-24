@@ -1,0 +1,44 @@
+;;;; Emacs Bookmark Format Version 1 ;;;;
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("slrnrc"
+   ((filename . "~/.slrnrc")
+     (front-context-string)
+     (rear-context-string . "us.fi\"\n#endif\n\n\n")
+     (position . 1384)))
+  ("muttrc"
+    ((filename . "~/.mutt/muttrc")
+      (front-context-string . "# This file is f")
+      (rear-context-string . "l/dot-zsh.html\n\n")
+      (position . 161)))
+  ("todo"
+    ((filename . "~/.emacs-notes/todo.org")
+      (front-context-string . "\n* things to do\n")
+      (rear-context-string . "1:51:36 (djcb)>\n")
+      (position . 60)))
+  ("zshenv"
+    ((filename . "~/.zshenv")
+      (front-context-string . "\n# This file is ")
+      (rear-context-string . "nl/dot-zsh.html\n")
+      (position . 166)))
+  ("zshrc"
+    ((filename . "~/.zshrc")
+      (front-context-string . "alias sagr=\"sudo")
+      (rear-context-string . "pt-get install\"\n")
+      (position . 3387)))
+  ("books"
+    ((filename . "~/.emacs-notes/book-2008.org")
+      (front-context-string . "* books 2008; Ti")
+      (rear-context-string)
+      (position . 1)))
+  ("maemo"
+    ((filename . "~/Documents/maemo.html")
+      (front-context-string . "<em>Photo from <")
+      (rear-context-string)
+      (position . 1)))
+  ("emacs"
+    ((filename . "~/.emacs")
+      (front-context-string . ";; -*-mode: Emac")
+      (rear-context-string)
+      (position . 1))))

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-05-24 22:12:18 (djcb)>
+;; Time-stamp: <2008-05-25 23:24:41 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -1021,13 +1021,13 @@ Otherwise, analyses point position and answers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; conky
-
-(defun djcb-conky ()
-  (set (make-local-variable 'compile-command) "killall -HUP conky"))
-;; conky
-(add-to-list 'auto-mode-alist '("\\.conkyrc" . djcb-conky))
+(when (executable-find "conky") ; apt-get install conky
+  (defun djcb-conky ()
+    (interactive)
+    (shell-command "killall -HUP conky")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

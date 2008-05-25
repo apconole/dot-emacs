@@ -2,11 +2,16 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("slrnrc"
-   ((filename . "~/.slrnrc")
-     (front-context-string)
-     (rear-context-string . "us.fi\"\n#endif\n\n\n")
-     (position . 1384)))
+(("conky"
+   ((filename . "~/.conkyrc")
+     (front-context-string . "# -*-mode: sh; o")
+     (rear-context-string)
+     (position . 1)))
+  ("slrnrc"
+    ((filename . "~/.slrnrc")
+      (front-context-string)
+      (rear-context-string . "us.fi\"\n#endif\n\n\n")
+      (position . 1384)))
   ("muttrc"
     ((filename . "~/.mutt/muttrc")
       (front-context-string . "# This file is f")

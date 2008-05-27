@@ -1,5 +1,5 @@
 # -*-mode: sh; outline-minor-mode:t-*- 
-# Time-stamp: <2008-05-25 13:32:50 (djcb)>
+# Time-stamp: <2008-05-26 23:37:01 (djcb)>
 #
 # Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 
@@ -58,4 +58,4 @@ minimum_size 2560 0
 #mpd_port 6600
 
 TEXT
-${voffset -1} ${color 4F4F4F} ${time  %F %R} ${color 4F4F4F} | ${color 4F4F4F}${exec hostname} | load: ${cpu}% | ${color 4F4F4F}mem: ${color 4F4F4F}${font}${mem}  | ${color 4F4F4F}eth0: ${upspeed eth0}/${downspeed eth0} KB/s | ♫ ${exec /home/djcb/scripts/rb-now}
+${voffset -1} ${color 6F6F6F} ${time  %F %R} ${color 4F4F4F} | ${color 6F6F6F}${exec hostname} | ${color 4F4F4F}load:${color 6F6F6F} ${cpu}% | ${color 4F4F4F}mem: ${color 6F6F6F}${mem} | ${color 4F4F4F}eth0: ${color 6F6F6F}${upspeed eth0}${color 4F4F4F}/${color 6F6F6F}${downspeed eth0} KB/s | ${color 6F6F6F}♫ ${exec /home/djcb/scripts/rb-now}

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-05-25 23:24:41 (djcb)>
+;; Time-stamp: <2008-05-26 23:33:26 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -32,7 +32,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; where I store my personal elisp stuff
-(defvar elisp-path '( "~/.elisp/" "~/.elisp/circe/")) 
+(defvar elisp-path '( "~/.elisp/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -789,8 +789,6 @@ Otherwise, analyses point position and answers."
     '(("^[^\n]\\{100\\}\\(.*\\)$"
 	1 font-lock-warning-face prepend))))
 
-;; run at cc-mode initalization
-(add-hook 'c-initialization-hook 'djcb-c-initialization)
 ;; run befor all c-mode flavours
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) 
 ;; run befor c mode
@@ -922,51 +920,7 @@ Otherwise, analyses point position and answers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; circe, IRC client for emacs
-(require 'circe)
-(autoload 'circe "circe" "connect to IRC server" t)
-(setq 
-  circe-default-realname "djcb"
-  circe-default-nick "djcb"
-  circe-default-username "djcb"
-   circe-ignore-list nil
-  circe-server-coding-system '(latin-1 . undecided)
-  circe-server-auto-join-channels
-  '(("^FreeNode$" "#emacs" "#maemo")
-     ("^GimpNet" "#gtk+")))
-
-(setq lui-max-buffer-size 30000)
-
-(eval-after-load "circe"
-  '(progn
-     (require 'lui-irc-colors)
-     (add-to-list 'lui-pre-output-hook 'lui-irc-colors)))
-     ;(add-to-list 'circe-receive-message-functions  'fc-bitlbee-auth)))
-
-;; (defun fc-bitlbee-auth (nick user host command args)
-;;   "Authenticate to a bitlbee server."
-;;   (when (and (string= command "JOIN")
-;;              (circe-server-my-nick-p nick))
-;;     (with-circe-server-buffer
-;;       (when (string= circe-server-network "bitlbee")
-;;         (circe-server-send
-;;          (format "PRIVMSG #bitlbee :identify %s"
-;;                  bitlbee-passwd))))))
-
-(defun irc ()
-  "Connect to IRC."
-  (interactive)
-  (circe "irc.freenode.net" "6667" "FreeNode")
-  (circe "irc.gimp.org" "6667" "GimpNet"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some html-related functions
 (defun djcb-html-tag-region-or-point (el)
   "tag the region or the point if there is no region"

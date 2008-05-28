@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-05-26 23:33:26 (djcb)>
+;; Time-stamp: <2008-05-28 11:29:52 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -270,7 +270,7 @@
     (set-face-background 'show-paren-match-face (face-background 'default))
     (set-face-foreground 'show-paren-match-face "white")
     (set-face-attribute 'show-paren-match-face nil 
-      :weight 'extra-bold :underline t :overline nil :slant 'italic)))
+      :weight 'extra-bold :underline nil :overline nil :slant 'italic)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

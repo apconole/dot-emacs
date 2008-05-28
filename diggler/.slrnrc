@@ -1,0 +1,56 @@
+% .slrnrc for djcb -*-mode:slang-*-
+% Time-stamp: <2008-05-11 14:26:29 (djcb)>
+%
+% Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
+% URL: http://www.djcbsoftware.nl/dot-zsh.html
+
+% This file is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2, or (at your option)
+% any later version.
+
+% This file is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+
+% my .slrnrc
+
+% of course we use emacs for editing
+set editor_command "emacsclient +%d '%s'"
+
+% my score/'kill' file
+set scorefile ".slrn-score"
+
+% Xbrowser / non_Xbrowser will be used when opening URLs
+% with the 'U'-key in the article browser
+set Xbrowser "firefox %s&"
+set non_Xbrowser "elinks %s"
+
+% where to save my posts
+% unfortunately, slrn uses mbox, not maildir...
+set save_posts         "Maildir/news/saved"
+set save_replies       "Maildir/news/sent"
+set postpone_directory "Maildir/news/postponed"
+set save_directory     "Maildir/news/saved" 
+
+% set the signature based on the machine I'm using
+% .zshenv or .bash_profile should set MACHINE
+#if$MACHINE wintersun
+	set realname "Dirk-Jan C. Binnema"
+	set signature ".sigs/nokia.sig"
+	set hostname "nokia.com"
+	set replyto "dirk-jan.binnema [at] nokia [dot] com"
+	server "nntpcache.nokia.com" ".jnewsrc-nntpcache.nokia.com"
+#else % all others
+	set realname "Dirk-Jan C. Binnema"
+	set signature ".sigs/djcb.sig" 
+	set hostname "djcbsoftware.nl"
+	set replyto "djcb [at] djcbsofware [dot] nl"
+	server "news.kolumbus.fi"    ".jnewsrc-news.kolumbus.fi"
+#endif
+
+
+interpret ".slrn-macros"
+
+% the end 

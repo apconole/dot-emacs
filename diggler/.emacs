@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-05-28 11:29:52 (djcb)>
+;; Time-stamp: <2008-06-08 12:19:05 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -188,19 +188,6 @@
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
 
 
-;; remember some stuff across sessions
-;; http://www.emacswiki.org/cgi-bin/wiki/DeskTop
-;; I set it to _not_ save *any* buffers, because usually those old buffers
-;; are not relevant when i open emacs again.
-(when-available 'desktop-save-mode
-   (progn 
-     (desktop-save-mode t)
-     (setq 
-       history-length 250
-       desktop-buffers-not-to-save ".*") ;; indeed, don't save *any* buffers
-     (add-to-list 'desktop-globals-to-save 'file-name-history)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows specific settings                                               
 ;; when running on windows, set the face explicitely (no regedit) 
@@ -211,7 +198,6 @@
   ;; by default; start with 80x30 frames; FIXME: this conflicts with vm
   (add-to-list 'default-frame-alist '(height .60))     ; 30 lines
   (add-to-list 'default-frame-alist '(width . 100)))     ; 80 columns     
-
 ;; note: for X, we use ~/.Xresources for the fonts; it's faster
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -223,7 +209,7 @@
 ;; just the way I like it :)
 ;; TODO: make a color-theme-evergrey out of these?
 (when (not console-p) 
-  (set-background-color "#333333") ; dark grey
+  (set-background-color "black") 
   (set-foreground-color "#bbbbbb") ; light grey
   
   (set-face-foreground 'font-lock-string-face  "#123467") ; 
@@ -267,10 +253,10 @@
 (when-available 'show-paren-mode
   (progn
     (show-paren-mode t)
-    (set-face-background 'show-paren-match-face (face-background 'default))
+    (set-face-background 'show-paren-match-face "#333333")
     (set-face-foreground 'show-paren-match-face "white")
     (set-face-attribute 'show-paren-match-face nil 
-      :weight 'extra-bold :underline nil :overline nil :slant 'italic)))
+      :weight 'normal :underline t :overline nil :slant 'normal)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -581,6 +567,19 @@ Otherwise, analyses point position and answers."
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; poor man's zooming
+(defvar current-font-size 9)
+(defun fontname(size) 
+  (concat "Deja Vu Sans Mono-" (format "%d" size)))
+(defun zoom (n)
+  (interactive)
+  (setq current-font-size (+ n current-font-size))
+  (set-face-font 'default (fontname (+ n current-font-size))))
+(global-set-key (kbd "C-+") '(lambda()(interactive(zoom 1))))
+(global-set-key (kbd "C--") '(lambda()(interactive(zoom -1))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

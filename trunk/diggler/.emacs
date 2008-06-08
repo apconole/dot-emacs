@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-06-08 12:19:05 (djcb)>
+;; Time-stamp: <2008-06-09 00:40:33 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -19,7 +19,6 @@
 ;; and get the 'emacs-snapshot' packages.
 ;;
 ;; TODO:
-;; - add 'zooming' Ctrl-+ / Ctrl-- as in firefox
 ;; - make tagging (global, etags, etc.) easier
 ;; - fix compile mode (and warnings)
 
@@ -153,6 +152,7 @@
     (global-hl-line-mode t))) ;; turn it on for all modes by default
 
 
+
 ;; pretty cool; with this we can shift to different 'windows'
 ;;  use M-<arrow keys>
 ;; note: a 'window' is emacs-lingo for a partition of what is called 
@@ -210,10 +210,10 @@
 ;; TODO: make a color-theme-evergrey out of these?
 (when (not console-p) 
   (set-background-color "black") 
-  (set-foreground-color "#bbbbbb") ; light grey
+  (set-foreground-color "lightblue") ; light grey
   
   (set-face-foreground 'font-lock-string-face  "#123467") ; 
-  (set-face-foreground 'font-lock-comment-face  "#666666") ;
+  (set-face-foreground 'font-lock-comment-face  "#aaaaaa") ;
   (make-face-italic 'font-lock-comment-face)
   
   (set-face-foreground 'font-lock-keyword-face  "lemonchiffon") ; 
@@ -333,6 +333,11 @@
 (global-set-key (kbd "C-c C-c") 'comment-region)
 (global-set-key (kbd "C-c C-u") 'uncomment-region)
 
+;; zooming in and zooming out
+(global-set-key (kbd "C-+")      '(lambda()(interactive(zoom 1))))
+(global-set-key [C-kp-add]       '(lambda()(interactive(zoom 1))))
+(global-set-key (kbd "C--")      '(lambda()(interactive(zoom -1))))
+(global-set-key [C-kp-subtract]  '(lambda()(interactive(zoom -1))))
 
 ;; cicle through buffers with Ctrl-Tab (like Firefox)
 ;; TODO: some smarter version that ignores certain buffers, see:
@@ -570,16 +575,11 @@ Otherwise, analyses point position and answers."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; poor man's zooming
-(defvar current-font-size 9)
-(defun fontname(size) 
-  (concat "Deja Vu Sans Mono-" (format "%d" size)))
+;; zooming; inspired by http://blog.febuiles.com/page/2/
 (defun zoom (n)
   (interactive)
-  (setq current-font-size (+ n current-font-size))
-  (set-face-font 'default (fontname (+ n current-font-size))))
-(global-set-key (kbd "C-+") '(lambda()(interactive(zoom 1))))
-(global-set-key (kbd "C--") '(lambda()(interactive(zoom -1))))
+  (set-face-attribute 'default (selected-frame) :height 
+    (+ (face-attribute 'default :height) (* (if (> 0 n) 1 -1) 10)))) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -981,7 +981,7 @@ Otherwise, analyses point position and answers."
   (defun djcb-conky ()
     (interactive)
     (shell-command "killall -HUP conky")))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xs
 
 
 

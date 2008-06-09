@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-06-09 00:40:33 (djcb)>
+;; Time-stamp: <2008-06-09 17:47:08 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -240,7 +240,7 @@
 ;;
 (when (not console-p)           
   (when-available 'scroll-bar-mode
-     (progn
+    (progn
        (scroll-bar-mode t)             ;  show the scroll bar ... 
        (set-scroll-bar-mode 'right))))  ; ... on the right side
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -318,13 +318,7 @@
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
 
-;; buffers/modes should set their specific compile functions;
-;; all can be run using <f7>
-;; TODO: this is rather b0rked; make compile-function buffer-local
-(setq compile-function (lambda()(message "no compile func set")))
-(defun run-compile-function ()
-  (interactive) (funcall compile-function))
-(global-set-key (kbd "<f7>") 'run-compile-function) 
+(global-set-key (kbd "<f7>") 'compile) 
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 
@@ -334,6 +328,11 @@
 (global-set-key (kbd "C-c C-u") 'uncomment-region)
 
 ;; zooming in and zooming out
+;; zooming; inspired by http://blog.febuiles.com/page/2/
+(defun zoom (n) (interactive)
+  (set-face-attribute 'default (selected-frame) :height 
+    (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
+
 (global-set-key (kbd "C-+")      '(lambda()(interactive(zoom 1))))
 (global-set-key [C-kp-add]       '(lambda()(interactive(zoom 1))))
 (global-set-key (kbd "C--")      '(lambda()(interactive(zoom -1))))
@@ -573,15 +572,6 @@ Otherwise, analyses point position and answers."
 		. post-mode)) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; zooming; inspired by http://blog.febuiles.com/page/2/
-(defun zoom (n)
-  (interactive)
-  (set-face-attribute 'default (selected-frame) :height 
-    (+ (face-attribute 'default :height) (* (if (> 0 n) 1 -1) 10)))) 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 

@@ -1,5 +1,6 @@
+
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-06-09 17:47:08 (djcb)>
+;; Time-stamp: <2008-06-22 12:09:01 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -317,8 +318,27 @@
 
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
+(when (require-soft 'linum)
+  (global-set-key (kbd "<f6>")     'linum))
 
 (global-set-key (kbd "<f7>") 'compile) 
+
+;; some commands for rectangular selections;
+;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
+(when (require-soft 'rect-mark) 
+  (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
+  (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
+  (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
+  (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
+  (autoload 'rm-set-mark "rect-mark"
+    "Set mark for rectangle." t)
+  (autoload 'rm-exchange-point-and-mark "rect-mark"
+    "Exchange point and mark for rectangle." t)
+  (autoload 'rm-kill-region "rect-mark"
+    "Kill a rectangular region and save it in the kill ring." t)
+  (autoload 'rm-kill-ring-save "rect-mark"
+    "Copy a rectangular region to the kill ring." t))
+
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 
@@ -752,7 +772,9 @@ Otherwise, analyses point position and answers."
   (when  (require-soft 'dtrt-indent) (dtrt-indent-mode t))
   
   ;; tagging for emacs, using global
-  (when (require-soft 'gtags) (gtags-mode 1)))
+  (when (require-soft 'gtags) 
+    (gtags-mode 1)
+    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
 
 (defun djcb-c-mode ()  
   

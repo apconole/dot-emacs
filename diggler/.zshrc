@@ -1,6 +1,6 @@
 #!/bin/zsh
 #-*-mode:shell-script-*-
-# Time-stamp: <2008-05-09 09:29:53 (djcb)>
+# Time-stamp: <2008-07-01 11:24:23 (djcb)>
 #
 # Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 # URL: http://www.djcbsoftware.nl/dot-zsh.html
@@ -27,18 +27,17 @@ cdpath=(.. ~ ~/src ~/Documents)
 
 # the normal PATH
 typeset -u path
-path=($HOME/bin $HOME/scripts /usr/local/bin /bin /usr/bin /usr/X11R6/bin /usr/games /sbin)
+path=($HOME/bin $HOME/scripts /usr/local/bin /bin /usr/bin /usr/X11R6/bin \
+    /usr/games /sbin)
 # for root add sbin dirs to path
 if (( EUID == 0 )); then
         path=(/usr/sbin /usr/local/sbin $path)
 fi
-export path
 
 # man path
 typeset -u manpath
 manpath=/(usr/local/man /usr/man /usr/share/man \
     /usr/local/share/man /usr/X11R6/man/)
-export manpath
 ################################################################################
 
 
@@ -57,7 +56,7 @@ chmod -R o-r $HOME/.zshrc $HOME/.zshenv $HOME/.mutt/
 
 
 ################################################################################
-# zsh options
+# misc zsh options
 setopt autopushd pushdignoredups  # auto add dirs to dirstack, but no dups
 setopt autoparamslash             # add / to dir names in completion
 setopt completealiases            # autocomplete aliases as well
@@ -66,11 +65,21 @@ setopt aliases                    # expand aliases
 setopt printexitvalue             # print exit val when != 0
 setopt correct correctall         # correct my crappy typing + all args 
 
+bindkey -e                        # use emacs-style keybindings
+################################################################################
+
+
+
+################################################################################
+# history
+histsize=1000			  # max size of history
+savehist=1000
+histfile=~/.zsh/history           # place to store the history
 setopt appendhistory              # append (not replace) history with session
+setopt incappendhistory           # do it continually (not just when shell exits)
+setopt sharehistory               # share history between sessions
 setopt histignorealldups          # no dups in the history
 setopt histnostore                # don't put 'history' in history
-
-bindkey -e                        # use emacs-style keybindings
 ################################################################################
 
 
@@ -89,21 +98,8 @@ alias perldoc='LC_CTYPE=C perldoc'
 alias lsa='ls -ld .*'
 alias lsmods="find /lib/modules/`uname -r` -name '*.ko'"
 
-# imagemagick installed?
-if test -x /usr/bin/mogrify; then
-    alias resize300="mogrify -resize 300x300"
-    alias resize512="mogrify -resize 512x512"
-    alias resize1024="mogrify -resize 1024x1024"
-    alias resize1400="mogrify -resize 1400x1400"
-fi
-
 alias dos2unix='recode ibmpc:lat1'
 alias unix2dos='recode la1:imbpc'
-
-# vim installed?
-if test -x /usr/share/vim/vimcurrent/macros/less.sh; then
-    alias less="/usr/share/vim/vimcurrent/macros/less.sh"
-fi
 
 alias svn="EDITOR=\"vim\" svn"
 alias svnr="svn info | grep '^Revision:' | sed 's/Revision: //'"
@@ -116,7 +112,23 @@ alias sagi="sudo apt-get install"
 alias sagr="sudo apt-get remove"
 
 
+# use the improved ipython shell if installed
+if [[ -x /usr/bin/ipython ]]; then
+    alias python="ipython"
+fi
 
+# vim installed?
+if [[ -x /usr/share/vim/vimcurrent/macros/less.sh ]]; then
+    alias less="/usr/share/vim/vimcurrent/macros/less.sh"
+fi
+
+# imagemagick installed?
+if [[ -x /usr/bin/mogrify ]]; then
+    alias resize300="mogrify -resize 300x300"
+    alias resize512="mogrify -resize 512x512"
+    alias resize1024="mogrify -resize 1024x1024"
+    alias resize1400="mogrify -resize 1400x1400"
+fi
 ################################################################################
 
 

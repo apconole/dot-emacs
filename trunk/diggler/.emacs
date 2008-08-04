@@ -1,6 +1,6 @@
 
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2008-06-22 12:09:01 (djcb)>
+; Time-stamp: <2008-07-25 14:35:13 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -32,7 +32,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; where I store my personal elisp stuff
-(defvar elisp-path '( "~/.elisp/")) 
+(defvar elisp-path '( 
+		      "~/.elisp/" 
+		      "~/.elisp/icicles"
+		      )) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -125,6 +128,9 @@
   'x-cut-buffer-or-selection-value); ...other X clients
 
 (setq scroll-conservatively 10000)  ; smooth scrolling
+
+(setq completion-ignore-case t      ; ignore case when completing...
+  read-file-name-completion-ignore-case t) ; ...filenames too
 
 ;; no funky input for normal editing;
 ;; we set it to latin-1-prefix for natural language editing 
@@ -347,7 +353,7 @@
 (global-set-key (kbd "C-c C-c") 'comment-region)
 (global-set-key (kbd "C-c C-u") 'uncomment-region)
 
-;; zooming in and zooming out
+;; zooming in and zooming out in emacs like in firefox
 ;; zooming; inspired by http://blog.febuiles.com/page/2/
 (defun zoom (n) (interactive)
   (set-face-attribute 'default (selected-frame) :height 
@@ -369,27 +375,41 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; icicles/ido 
+;;
+(defun djcb-icicles ()
+  (interactive)
+  (setq icicle-regexp-quote-flag nil) ; don't need regexps for completion
+  (icy-mode t))
+
 ;; ido seem much less annoying than icicles...
 ;; makes completing buffers nicer, even nicer than iswitchb
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 ;; http://www.forcix.cx/weblog/2005-08-03.html
- (when (require-soft 'ido)
-   (progn 
-     (ido-mode t)
-     (setq 
-       ido-ignore-buffers ;; ignore these guys
-       '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido") 
-       ido-everywhere t            ; use for many file dialogs
-       ido-case-fold  t            ; be case-insensitive
-       ido-use-filename-at-point t ; try to use filename...
-       ido-use-url-at-point t      ; ... or url at point
-       ido-enable-flex-matching t  ; be flexible
-       ido-max-prospects 5         ; don't spam my minibuffer
-       ido-confirm-unique-completion t ; wait for RET, even with unique completion
-       )))
+(defun djcb-ido () 
+  (interactive)
+  (ido-mode t)
+  (setq 
+    ido-ignore-buffers ;; ignore these guys
+    '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido") 
+    ido-everywhere t            ; use for many file dialogs
+    ido-case-fold  t            ; be case-insensitive
+    ido-use-filename-at-point t ; try to use filename...
+    ido-use-url-at-point t      ; ... or url at point
+    ido-enable-flex-matching t  ; be flexible
+    ido-max-prospects 5         ; don't spam my minibuffer
+    ido-confirm-unique-completion t ; wait for RET, even with unique completion
+    ))
+
+;; use ido or icicles, depending on what is available. prefer icicles
+(if (require-soft 'ido)
+  (djcb-ido)
+  (when (require-soft 'icicles)
+    (djcb-icicles)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -665,7 +685,16 @@ Otherwise, analyses point position and answers."
 ;; TeX/LaTex
 (defun djcb-tex-mode-hook ()
   (interactive)
+
+  (setq TeX-parse-self t) ; Enable parse on load.
+  (setq TeX-auto-save t) ; Enable parse on save.
+
+  (set-key-func "C-c 1"  (djcb-tex-tag-region-or-point-outside "section"))
+  (set-key-func "C-c 2"  (djcb-tex-tag-region-or-point-outside "subsection"))
+  (set-key-func "C-c 3"  (djcb-tex-tag-region-or-point-outside "subsubsection"))
   
+  (set-key-func "C-c C-a l"  (djcb-tex-tag-region-or-point-outside "href{}"))
+
   (set-key-func "C-c i"  (djcb-tex-tag-region-or-point "em"))
   (set-key-func "C-c b"  (djcb-tex-tag-region-or-point "bf"))
   (set-key-func "C-c s"  (djcb-tex-tag-region-or-point "small"))
@@ -673,6 +702,7 @@ Otherwise, analyses point position and answers."
   (set-key-func "C-c tt" (djcb-tex-tag-region-or-point "tt")))
   
 (add-hook 'tex-mode-hook 'djcb-tex-mode-hook)
+(add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -734,7 +764,23 @@ Otherwise, analyses point position and answers."
 ;; c-mode / c++-mode
 (defconst djcb-c-style
   '((c-tab-always-indent . t)))
-    
+  
+(defun include-guards ()
+  "include the #ifndef/#define/#endif include guards for the current buffer"
+  (interactive)
+  (let ((tag (concat "__"
+	       (mapconcat (lambda(s)(upcase s))
+		 (split-string (buffer-name) "_\\|-\\|\\.") "_")  "__")))
+    (insert (concat "#ifndef " tag "\n"))
+    (insert (concat "#define " tag "\n"))
+    (insert (concat "#endif /*" tag "*/\n"))))
+  
+(defun include-timestamp ()
+  "include timestamp"
+  (interactive)
+  (insert "/* Time-stamp: <> */\n"))
+
+
 (defun smart-enter()
   (interactive)
   ;;(align-current) 
@@ -742,11 +788,13 @@ Otherwise, analyses point position and answers."
 
   ;; other customizations 
   
-
 (defun djcb-c-mode-common ()
   (interactive) 
   (c-add-style "djcb" djcb-c-style t)
   
+  
+  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
+
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
   
@@ -757,7 +805,7 @@ Otherwise, analyses point position and answers."
 
   ;; highlight some stuff; this is for _all_ c modes
   (font-lock-add-keywords nil 
-    '(("\\<\\(__FUNCTION__\\|__LINE__\\)" 
+    '(("\\<\\(__FUNCTION__\\|__PRETTY_FUNCTION__\\|__LINE__\\)" 
        1 font-lock-preprocessor-face prepend)))  
   (setq 
     compilation-window-height 16   ; keep it readable
@@ -771,13 +819,20 @@ Otherwise, analyses point position and answers."
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-soft 'dtrt-indent) (dtrt-indent-mode t))
   
+  (when (require-soft 'doxymacs-mode)
+    (doxymacs-mode t)
+    (doxymacs-font-lock t))
+
+
+  (local-set-key (kbd "C-c i") 'include-guards)
+  (local-set-key (kbd "C-c t") 'include-timestamp)
+    
   ;; tagging for emacs, using global
   (when (require-soft 'gtags) 
     (gtags-mode 1)
     (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
 
 (defun djcb-c-mode ()  
-  
   (set (make-local-variable 'compile-command)
        (if (file-exists-p "Makefile")
 	   "make -k"
@@ -806,6 +861,8 @@ Otherwise, analyses point position and answers."
 (add-hook 'c-mode-hook 'djcb-c-mode)
 ;; run before c++ mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -971,6 +1028,21 @@ Otherwise, analyses point position and answers."
   (when (not mark-active)
     (set-mark (point)))
   (djcb-tex-tag-region (region-beginning) (region-end) el))
+
+(defun djcb-tex-tag-region-outside (b e tag)
+  "put '{\tag...}' around text" 
+  (let ((tb (concat "\\" tag "{")))
+    (insert 
+      (concat tb (delete-and-extract-region b e) "}"))
+    (goto-char (- (point) 1))))
+
+(defun djcb-tex-tag-region-or-point-outside (el)
+  "tag the region or the point if there is no region"
+  (when (not mark-active)
+    (set-mark (point)))
+  (djcb-tex-tag-region-outside (region-beginning) (region-end) el))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

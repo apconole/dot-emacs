@@ -1,6 +1,6 @@
 
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-07-25 14:35:13 (djcb)>
+; Time-stamp: <2008-08-04 17:22:35 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -345,6 +345,12 @@
   (autoload 'rm-kill-ring-save "rect-mark"
     "Copy a rectangular region to the kill ring." t))
 
+;; bind Caps-Lock to M-x
+;; http://sachachua.com/wp/2008/08/04/emacs-caps-lock-as-m-x/
+;; of course, this disables normal Caps-Lock for *all* apps...
+(if (eq window-system 'x)
+    (shell-command "xmodmap -e 'clear Lock' -e 'keycode 66 = F13'"))
+(global-set-key [f13] 'execute-extended-command)
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 

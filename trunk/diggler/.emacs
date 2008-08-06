@@ -1,4 +1,3 @@
-
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
 ; Time-stamp: <2008-08-04 17:22:35 (djcb)>
 ;;
@@ -20,9 +19,8 @@
 ;; and get the 'emacs-snapshot' packages.
 ;;
 ;; TODO:
-;; - make tagging (global, etags, etc.) easier
 ;; - fix compile mode (and warnings)
-
+;; - use autoload instead of require-soft
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jump to the debugger when an error is found.
 ;;(setq debug-on-error t)
@@ -591,8 +589,10 @@ Otherwise, analyses point position and answers."
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   
-  ;; give us footnotes
-  (when (require-soft 'footnote-mode) (footnote-mode t))
+
+  (when (require-soft 'footnote-mode)   ;; give us footnotes
+    (footnote-mode t))
+
   (require-soft 'thinks)   ; put text in 'thinks' boxes
   (require-soft 'boxquote) ; put text in boxes
   
@@ -836,7 +836,12 @@ Otherwise, analyses point position and answers."
   ;; tagging for emacs, using global
   (when (require-soft 'gtags) 
     (gtags-mode 1)
-    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
+    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here))
+
+  (when (require-soft 'doxymacs) 
+    (doxymacs-font-lock)))
+
+
 
 (defun djcb-c-mode ()  
   (set (make-local-variable 'compile-command)

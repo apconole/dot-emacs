@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-08-04 17:22:35 (djcb)>
+; Time-stamp: <2008-08-07 15:24:41 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -786,6 +786,31 @@ Otherwise, analyses point position and answers."
   (interactive)
   (insert "/* Time-stamp: <> */\n"))
 
+(defun include-gpl ()
+  "include GPLv3 license header"
+  (interactive)
+  (insert
+"/* Time-stamp: <> 
+** 
+** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+**
+** This program is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation; either version 2 of the License, or
+** (at your option) any later version.
+**  
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU General Public License for more details.
+**  
+** You should have received a copy of the GNU General Public License
+** along with this program; if not, write to the Free Software
+** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+**  
+*/"))
+
+
 
 (defun smart-enter()
   (interactive)
@@ -814,10 +839,12 @@ Otherwise, analyses point position and answers."
     '(("\\<\\(__FUNCTION__\\|__PRETTY_FUNCTION__\\|__LINE__\\)" 
        1 font-lock-preprocessor-face prepend)))  
   (setq 
-    compilation-window-height 16   ; keep it readable
-    c-basic-offset 8               ; linux-style
-    c-hungry-delete-key t)         ; eat as much as possible
-    
+    compilation-scroll-output 'first-error  ; scroll until first error
+    compilation-read-command nil            ; don't need enter
+    compilation-window-height 16            ; keep it readable
+    c-basic-offset 8                        ; linux kernel style
+    c-hungry-delete-key t)                  ; eat as much as possible
+  
 
   ;; guess the identation of the current file, and use
   ;; that instead of my own settings; nice for foreign
@@ -825,23 +852,19 @@ Otherwise, analyses point position and answers."
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-soft 'dtrt-indent) (dtrt-indent-mode t))
   
-  (when (require-soft 'doxymacs-mode)
+  (when (require-soft 'doxymacs)
     (doxymacs-mode t)
-    (doxymacs-font-lock t))
-
+    (doxymacs-font-lock))
 
   (local-set-key (kbd "C-c i") 'include-guards)
   (local-set-key (kbd "C-c t") 'include-timestamp)
+  (local-set-key (kbd "C-c l") 'include-timestamp)
+
     
   ;; tagging for emacs, using global
   (when (require-soft 'gtags) 
     (gtags-mode 1)
-    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here))
-
-  (when (require-soft 'doxymacs) 
-    (doxymacs-font-lock)))
-
-
+    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
 
 (defun djcb-c-mode ()  
   (set (make-local-variable 'compile-command)

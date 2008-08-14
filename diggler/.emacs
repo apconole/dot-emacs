@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-08-07 15:24:41 (djcb)>
+; Time-stamp: <2008-08-09 15:44:46 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -790,8 +790,7 @@ Otherwise, analyses point position and answers."
   "include GPLv3 license header"
   (interactive)
   (insert
-"/* Time-stamp: <> 
-** 
+"/* 
 ** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 ** This program is free software; you can redistribute it and/or modify
@@ -858,7 +857,7 @@ Otherwise, analyses point position and answers."
 
   (local-set-key (kbd "C-c i") 'include-guards)
   (local-set-key (kbd "C-c t") 'include-timestamp)
-  (local-set-key (kbd "C-c l") 'include-timestamp)
+  (local-set-key (kbd "C-c l") 'include-gpl)
 
     
   ;; tagging for emacs, using global

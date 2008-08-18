@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-08-09 15:44:46 (djcb)>
+; Time-stamp: <2008-08-16 13:10:26 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -417,47 +417,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Smart Tab, http://www.emacswiki.org/cgi-bin/wiki/TabCompletion
-;; make tab always do what's expected, re-indent or completion
-(defvar smart-tab-using-hippie-expand nil
-  "turn this on if you want to use hippie-expand completion.")
-
-(global-set-key (kbd "<s-tab>") 'smart-tab)
-(defun smart-tab (prefix)
-  "Needs `transient-mark-mode' to be on. This smart tab is
-minibuffer compliant: it acts as usual in the minibuffer.
-
-In all other buffers: if PREFIX is \\[universal-argument], calls
-`smart-indent'. Else if point is at the end of a symbol,
-expands it. Else calls `smart-indent'."
-  (interactive "P")
-  (if (minibufferp)
-      (minibuffer-complete)
-    (if (smart-tab-must-expand prefix)
-        (if smart-tab-using-hippie-expand
-	  (hippie-expand nil)
-          (dabbrev-expand nil))
-      (smart-indent))))
-
-(defun smart-indent ()
-  "Indents region if mark is active, or current line otherwise."
-  (interactive)
-  (if mark-active
-      (indent-region (region-beginning)
-                     (region-end))
-    (indent-for-tab-command)))
-
-(defun smart-tab-must-expand (&optional prefix)
-  "If PREFIX is \\[universal-argument], answers no.
-Otherwise, analyses point position and answers."
-  (unless (or (consp prefix)
-              mark-active)
-    (looking-at "\\_>")))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; w3m, the emacs webbrowser; note, package 'w3m-el' in ubuntu/debian, 
 ;;  or 'w3m-el-snapshot' for emacs23
 (when (require-soft 'w3m-load)
@@ -786,8 +745,8 @@ Otherwise, analyses point position and answers."
   (interactive)
   (insert "/* Time-stamp: <> */\n"))
 
-(defun include-gpl ()
-  "include GPLv3 license header"
+(defun include-gplv2 ()
+  "include GPLv2 license header"
   (interactive)
   (insert
 "/* 
@@ -804,12 +763,33 @@ Otherwise, analyses point position and answers."
 ** GNU General Public License for more details.
 **  
 ** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+** along with this program; if not, write to the Free Software Foundation,
+** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
 **  
 */"))
 
-
+(defun include-gplv3 ()
+  "include GPLv2 license header"
+  (interactive)
+  (insert
+"/* 
+** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+**
+** This program is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation; either version 3 of the License, or
+** (at your option) any later version.
+**  
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU General Public License for more details.
+**  
+** You should have received a copy of the GNU General Public License
+** along with this program; if not, write to the Free Software Foundation,
+** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
+**  
+*/"))
 
 (defun smart-enter()
   (interactive)
@@ -857,7 +837,7 @@ Otherwise, analyses point position and answers."
 
   (local-set-key (kbd "C-c i") 'include-guards)
   (local-set-key (kbd "C-c t") 'include-timestamp)
-  (local-set-key (kbd "C-c l") 'include-gpl)
+  (local-set-key (kbd "C-c l") 'include-gplv3)
 
     
   ;; tagging for emacs, using global
@@ -866,11 +846,13 @@ Otherwise, analyses point position and answers."
     (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
 
 (defun djcb-c-mode ()  
-  (set (make-local-variable 'compile-command)
-       (if (file-exists-p "Makefile")
-	   "make -k"
-	 (format "gcc -Wall -Werror -c %s" buffer-file-name)))
 
+  (set (make-local-variable 'compile-command)
+    (if (file-exists-p "Makefile")
+      "make -k"
+      (message "no Makefile found")))
+  ;;(format "gcc -Wall -Werror -c %s" buffer-file-name)))
+  
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode
     '(("^[^\n]\\{80\\}\\(.*\\)$"

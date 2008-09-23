@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-08-16 13:10:26 (djcb)>
+; Time-stamp: <2008-09-23 23:06:58 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -670,6 +670,41 @@
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; some TeX/LaTeX-related functions
+(defun djcb-tex-tag-region (b e tag)
+  "put '{\tag...}' around text" 
+  (let ((tb (concat "{\\" tag " ")))
+    (insert 
+     (concat tb (delete-and-extract-region b e) "}"))
+    (goto-char (- (point) 1))))
+
+(defun djcb-tex-tag-region-or-point (el)
+  "tag the region or the point if there is no region"
+  (when (not mark-active)
+    (set-mark (point)))
+  (djcb-tex-tag-region (region-beginning) (region-end) el))
+
+(defun djcb-tex-tag-region-outside (b e tag)
+  "put '{\tag...}' around text" 
+  (let ((tb (concat "\\" tag "{")))
+    (insert 
+      (concat tb (delete-and-extract-region b e) "}"))
+    (goto-char (- (point) 1))))
+
+(defun djcb-tex-tag-region-or-point-outside (el)
+  "tag the region or the point if there is no region"
+  (when (not mark-active)
+    (set-mark (point)))
+  (djcb-tex-tag-region-outside (region-beginning) (region-end) el))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Vala
+(autoload 'vala-mode "vala-mode" "Major mode for editing Vala code." t)
+(add-to-list 'auto-mode-alist '("\\.vala$" . vala-mode))
+(add-to-list 'auto-mode-alist '("\\.vapi$" . vala-mode))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -703,6 +738,9 @@
 
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -772,23 +810,47 @@
   "include GPLv2 license header"
   (interactive)
   (insert
-"/* 
+"/*
 ** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 3 of the License, or
 ** (at your option) any later version.
-**  
+**
 ** This program is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU General Public License for more details.
-**  
+**
 ** You should have received a copy of the GNU General Public License
 ** along with this program; if not, write to the Free Software Foundation,
-** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
-**  
+** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+**
+*/"))
+
+(defun include-lgplv3 ()
+  "include LGPLv3 license header"
+  (interactive)
+  (insert
+"/*
+** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+**
+** This library is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public License
+** as published by the Free Software Foundation; either version 3
+** of the License, or (at your option) any later version.
+**
+** This library is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public
+** License along with this library; if not, write to the Free
+** Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
+** 02110-1301, USA.
+**
 */"))
 
 (defun smart-enter()
@@ -837,7 +899,9 @@
 
   (local-set-key (kbd "C-c i") 'include-guards)
   (local-set-key (kbd "C-c t") 'include-timestamp)
-  (local-set-key (kbd "C-c l") 'include-gplv3)
+  (local-set-key (kbd "C-c C-g 2") 'include-gplv2)
+  (local-set-key (kbd "C-c C-g 3") 'include-gplv3)
+  (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
 
     
   ;; tagging for emacs, using global
@@ -876,9 +940,9 @@
 (add-hook 'c-mode-hook 'djcb-c-mode)
 ;; run before c++ mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; D; interesting language:
@@ -887,6 +951,8 @@
 (add-to-list 'auto-mode-alist '("\\.d$" . d-mode))
 (add-hook 'd-mode-hook 'djcb-c-mode-hook)  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; java
@@ -897,6 +963,7 @@
 
 (add-hook 'java-mode-hook 'djcb-java-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -928,6 +995,13 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
+(require-soft 'magit)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; customization for term, ansi-term
 (defun djcb-term-mode-hook ()
   (interactive)
@@ -943,6 +1017,31 @@
 ;; starting a new instance for each mail, see: 
 ;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
 (server-start)
+
+;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
+
+;; move to current desktop 
+(add-hook 'server-switch-hook
+  (lambda ()
+    (call-process
+      "wmctrl" nil nil nil "-i" "-R"
+      (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
+  
+;; start clients in new frames
+;; (add-hook 'server-switch-hook
+;;   (lambda nil
+;;     (let ((server-buf (current-buffer)))
+;;       (bury-buffer)
+;;       (switch-to-buffer-other-frame server-buf))))
+
+;; ;; kill the frame when done with it
+;; (add-hook 'server-done-hook 'delete-frame)
+
+;; don't want to use C-x # when closing the client, just C-x k as always
+(add-hook 'server-switch-hook 
+  (lambda ()
+    (local-set-key (kbd "C-x k") 'server-edit)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -1026,39 +1125,6 @@
         "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; some TeX/LaTeX-related functions
-(defun djcb-tex-tag-region (b e tag)
-  "put '{\tag...}' around text" 
-  (let ((tb (concat "{\\" tag " ")))
-    (insert 
-     (concat tb (delete-and-extract-region b e) "}"))
-    (goto-char (- (point) 1))))
-
-(defun djcb-tex-tag-region-or-point (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-tex-tag-region (region-beginning) (region-end) el))
-
-(defun djcb-tex-tag-region-outside (b e tag)
-  "put '{\tag...}' around text" 
-  (let ((tb (concat "\\" tag "{")))
-    (insert 
-      (concat tb (delete-and-extract-region b e) "}"))
-    (goto-char (- (point) 1))))
-
-(defun djcb-tex-tag-region-or-point-outside (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-tex-tag-region-outside (region-beginning) (region-end) el))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

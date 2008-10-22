@@ -78,11 +78,11 @@
       (occur (if isearch-regexp isearch-string
                (regexp-quote isearch-string))))))
 
-;; set paragraph start for paragraph-fill so it doesn't automatically wrap
-;; for our "text bullets"
+;; set paragraph start for paragraph-fill so it doesn't automatically
+;; wrap for our "text bullets"
 (setq paragraph-start "\\*+\\|\\-\\|$"
       paragraph-separate "$")
-(set-fill-column 78)
+(set-fill-column 79)
 
 ;; Dont show the GNU splash screen
 (setq inhibit-startup-message t)
@@ -90,9 +90,11 @@
 ;; Changes all yes/no questions to y/n type
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; custom variables
-(column-number-mode t) ; column number
-(tool-bar-mode -1)
+;; mode line settings
+(column-number-mode t) ; show column number
+(line-number-mode t) ; show the line number
+
+(tool-bar-mode -1) ; don't show the toolbar
 
 ;; highlight the current line
 (global-hl-line-mode 1)
@@ -121,6 +123,11 @@
 ;
 (global-set-key (kbd "\C-c g") 'goto-line)
 
+; EasyPG for GPG support
+
+(add-to-list 'load-path (concat package-dir "epg-0.0.16/"))
+(require 'epa-setup)
+
 ;
 ; tramp 
 ; Use C-c C-f /su::/<somefile> or /sudo::/<somefile>  to edit files as root
@@ -144,12 +151,26 @@
   "Define `grep' aliases for the corresponding `igrep' commands." t)
 (global-set-key (kbd "\C-c ff") 'igrep-find)
 
+; allowe recusrive deletes in dired
+(setq dired-recursive-deletes t)
+
 ; title format
 (setq frame-title-format "%b - emacs")
 
-; uniquify buffer names
-(load-library "uniquify")
+
+;; buffer management
+(load-library "uniquify") ; uniquify buffer names
 (setq uniquify-buffer-name-style  'post-forward)
+
+; use ibuffer for buffer list
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(autoload 'ibuffer "ibuffer" "List buffers." t)
+
+; buffer switch completion
+(iswitchb-mode t)
+;(ido-mode t) ; provides buffer switch and file open completion
+;(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
+;(add-to-list 'load-path (concat package-dir "icicles"))
 
 ; ***********************************************************
 ;
@@ -161,11 +182,24 @@
 ;; see http://www.emacswiki.org/cgi-bin/wiki/CustomizeNewGUI
 (require 'cus-new-gui)
 
+;; custom settings files for some modes
 (require 'my-python) ; python-mode settings
 (require 'my-xml) ; html/xml/xhtml mode settings
 (require 'my-css) ; css settings
 (require 'my-org) ; org mode settings
-;(require 'my-javascript) 
+(require 'my-javascript) 
+
+;; shell
+(defun my-shell-mode-hook ()
+  ; for now turn off the colors until we figure out how to something
+  ; agreeable
+  (ansi-color-for-comint-mode-filter)
+  ;(ansi-color-for-comint-mode-on) ; allow ansi colors escape sequences
+
+  (local-set-key (kbd "C-z") 'self-insert-command) ; send C-z to shell
+)
+(add-hook 'shell-mode-hook 'my-shell-mode-hook)
+
 ;****************
 ; html-helper mode - a better html mode
 ; ***************
@@ -201,15 +235,15 @@
 (load-file (concat package-dir "dvc/dvc-load.el"))
 (setq dvc-tips-enabled nil)
 
-; 2008.02.27 -- icomplete doesn't seem to be doing anything
-(eval-after-load "icomplete" '(progn (require 'icomplete+)))
-(icomplete-mode t)
+;; restructured text mode
+(require 'rst)
+(setq auto-mode-alist
+      (append '(("\\.txt$" . rst-mode)
+                ("\\.rst$" . rst-mode)
+                ("\\.rest$" . rst-mode)) auto-mode-alist))
 
-; buffer switch completion
-;(iswitchb-mode)
-(ido-mode t)
-(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
-
+;(eval-after-load "icomplete" '(progn (require 'icomplete+)))
+;(icomplete-mode t)
 
 ;; save the history to an external file
 (require 'savehist)
@@ -217,12 +251,10 @@
 ;(savehist-load)
 (setq savehist-mode t)
 
-
 ;; (add-to-list 'load-path (concat package-dir "yas"))
 ;; (require 'yasnippet) ;; not yasnippet-bundle
 ;; (yas/initialize)
 ;; (yas/load-directory (concat package-dir "yas/snippets"))
-
 
 ;
 ; custom file

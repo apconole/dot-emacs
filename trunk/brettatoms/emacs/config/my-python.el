@@ -1,16 +1,7 @@
 ; -*- lisp -*-
 
-(add-to-list 'load-path (concat package-dir "python-mode-1.0"))
-(autoload 'python-mode "python-mode" "Python Mode." t)
-(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
-
-; dave love's python.el - requires python.el, sym-comp.el and emacs.py from:
-; http://www.loveshack.ukfsn.org/emacs/
-; UPDATE: for some reason this doesn't work with ediff, we get the following 
-; error:
-; run-hooks: Symbol's value as variable is void: py-mode-map [2 times]
-;(require 'python)
+; use dave love's pyton.el from http://www.loveshack.ukfsn.org/emacs/
+(require 'python)
 
 ;; this works fine but it just makes me spend my time deleting extra parens
 ;(add-hook 'python-mode-hook
@@ -50,21 +41,20 @@
     (indent-according-to-mode))))
 
 
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
-;;(eval-after-load "pymacs"
-;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
-
 (defun my-python-mode-hook ()
-  (require 'pymacs)
-  (pymacs-load "ropemacs" "rope-")
-  (ropemacs-mode)
+  ;; TODO: got max-lisp-eval-depth error when doing something like
+  ;; C-h-m with of ropemacs-0.6 and rope-0.9
+  ;(require 'pymacs)
+  ;(pymacs-load "ropemacs" "rope-")
+  ;(ropemacs-mode)
 
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
-  (flymake-mode)
+
+  ;; to make flymake work properly for me i would need to set the
+  ;; PYTHONPATH it uses because alot of the time i'm writing code
+  ;; against python modules that aren't on installed globally...this
+  ;; might be easy, i just haven't tried it
+  ;(flymake-mode)
   (local-set-key (kbd "\C-c e") 'flymake-display-err-menu-for-current-line)
   (local-set-key (kbd "\C-c `") 'flymake-goto-next-error)
   (local-set-key (kbd "RET") 'newline-and-indent)

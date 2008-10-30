@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-09-23 23:06:58 (djcb)>
+; Time-stamp: <2008-09-26 15:45:14 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -953,6 +953,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  Makefiles
+(defun djcb-makefile-mode-hook ()
+  (interactive)
+  (setq show-trailing-whitespace t))
+(add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; java
@@ -1153,12 +1164,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; if we try to save a file owned by someone else, use sudo
 ;; http://www.emacswiki.org/cgi-bin/wiki/SudoSave
-(when (require-soft 'sudo) 
+(when (require-soft 'sudo)
   (defun sudo-before-save-hook ()
     (set (make-local-variable 'sudo:file) (buffer-file-name))
     (when sudo:file
       (unless(file-writable-p sudo:file)
-	(set (make-local-variable 'sudo:old-owner-uid) 
+	(set (make-local-variable 'sudo:old-owner-uid)
 	  (nth 2 (file-attributes sudo:file)))
 	(when (numberp sudo:old-owner-uid)
 	  (unless (= (user-uid) sudo:old-owner-uid)
@@ -1166,7 +1177,7 @@
 		    (format "File %s is owned by %s, save it with sudo? "
 		      (file-name-nondirectory sudo:file)
 		      (user-login-name sudo:old-owner-uid)))
-	      (sudo-chown-file (int-to-string (user-uid)) 
+	      (sudo-chown-file (int-to-string (user-uid))
 		(sudo-quoting sudo:file))
 	      (add-hook 'after-save-hook
 		(lambda ()

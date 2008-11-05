@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-09-26 15:45:14 (djcb)>
+; Time-stamp: <2008-11-04 13:17:50 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -30,9 +30,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; where I store my personal elisp stuff
-(defvar elisp-path '( 
-		      "~/.elisp/" 
-		      "~/.elisp/icicles"
+(defvar elisp-path '("~/.elisp/" 
 		      )) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -192,6 +190,13 @@
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; recent files 
+(when-available 'recentf
+  (progn
+    (recentf-mode t)
+    (setq recentf-max-saved-items 500)
+    (setq recentf-max-menu-items 60)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows specific settings                                               
@@ -290,6 +295,8 @@
 ;; function keys
 
 (global-set-key (kbd "<f11>")  'djcb-full-screen-toggle)
+(global-set-key (kbd "<f12>")  'recentf-open-files)
+
 
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
@@ -858,12 +865,11 @@
   ;;(align-current) 
   (c-context-line-break))
 
-  ;; other customizations 
-  
+;; other customizations 
+
 (defun djcb-c-mode-common ()
   (interactive) 
   (c-add-style "djcb" djcb-c-style t)
-  
   
   (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
 
@@ -878,7 +884,7 @@
   ;; highlight some stuff; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(__FUNCTION__\\|__PRETTY_FUNCTION__\\|__LINE__\\)" 
-       1 font-lock-preprocessor-face prepend)))  
+	1 font-lock-preprocessor-face prepend)))  
   (setq 
     compilation-scroll-output 'first-error  ; scroll until first error
     compilation-read-command nil            ; don't need enter
@@ -902,20 +908,9 @@
   (local-set-key (kbd "C-c C-g 2") 'include-gplv2)
   (local-set-key (kbd "C-c C-g 3") 'include-gplv3)
   (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
-
-    
-  ;; tagging for emacs, using global
-  (when (require-soft 'gtags) 
-    (gtags-mode 1)
-    (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)))
-
-(defun djcb-c-mode ()  
-
-  (set (make-local-variable 'compile-command)
-    (if (file-exists-p "Makefile")
-      "make -k"
-      (message "no Makefile found")))
-  ;;(format "gcc -Wall -Werror -c %s" buffer-file-name)))
+  
+  (local-set-key (kbd "C-c o") 'ff-find-other-file)
+  
   
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode
@@ -937,7 +932,7 @@
 ;; run befor all c-mode flavours
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) 
 ;; run befor c mode
-(add-hook 'c-mode-hook 'djcb-c-mode)
+;;(add-hook 'c-mode-hook 'djcb-c-mode)
 ;; run before c++ mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

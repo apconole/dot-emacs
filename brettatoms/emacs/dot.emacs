@@ -246,8 +246,8 @@
 ;; buffer management
 ; uniquify has to be loaded after Pymacs or we get lots of
 ; max-lisp-eval-depth errors
-;(load-library "uniquify") ; uniquify buffer names
-;(setq uniquify-buffer-name-style  'post-forward)
+(load-library "uniquify") ; uniquify buffer names
+(setq uniquify-buffer-name-style  'post-forward)
 
 ; use ibuffer for buffer list
 (global-set-key (kbd "C-x C-b") 'ibuffer)

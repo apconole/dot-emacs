@@ -3,7 +3,7 @@
 ; dot.emacs
 ;
 ; NOTE: to use this file: ln -s ~/<path>/dot.emacs ~/.emacs
-
+(server-start)
 ;;
 ;; (defcustom project-list ()
 ;;   "A list if tuples containing (project name, settings)"
@@ -158,20 +158,6 @@
 (setq frame-title-format "%b - emacs")
 
 
-;; buffer management
-(load-library "uniquify") ; uniquify buffer names
-(setq uniquify-buffer-name-style  'post-forward)
-
-; use ibuffer for buffer list
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(autoload 'ibuffer "ibuffer" "List buffers." t)
-
-; buffer switch completion
-(iswitchb-mode t)
-;(ido-mode t) ; provides buffer switch and file open completion
-;(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
-;(add-to-list 'load-path (concat package-dir "icicles"))
-
 ; ***********************************************************
 ;
 ; package customizations
@@ -193,8 +179,8 @@
 (defun my-shell-mode-hook ()
   ; for now turn off the colors until we figure out how to something
   ; agreeable
-  (ansi-color-for-comint-mode-filter)
-  ;(ansi-color-for-comint-mode-on) ; allow ansi colors escape sequences
+  ;(ansi-color-for-comint-mode-filter)
+  (ansi-color-for-comint-mode-on) ; allow ansi colors escape sequences
 
   (local-set-key (kbd "C-z") 'self-insert-command) ; send C-z to shell
 )
@@ -255,6 +241,22 @@
 ;; (require 'yasnippet) ;; not yasnippet-bundle
 ;; (yas/initialize)
 ;; (yas/load-directory (concat package-dir "yas/snippets"))
+
+
+;; buffer management
+; uniquify has to be loaded after Pymacs or we get lots of
+; max-lisp-eval-depth errors
+;(load-library "uniquify") ; uniquify buffer names
+;(setq uniquify-buffer-name-style  'post-forward)
+
+; use ibuffer for buffer list
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(autoload 'ibuffer "ibuffer" "List buffers." t)
+
+; buffer switch completion
+;(iswitchb-mode t)
+(ido-mode 'buffers) ; provides buffer switch and file open completion
+(setq ido-enable-flex-matching t) ; fuzzy matching is a must have
 
 ;
 ; custom file

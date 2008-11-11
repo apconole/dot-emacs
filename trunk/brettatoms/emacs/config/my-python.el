@@ -41,12 +41,19 @@
     (indent-according-to-mode))))
 
 
+;; load pymacs and rope, this has to be done outside
+;; my-python-mode-hook for some reason
+;; TODO: got max-lisp-eval-depth error when doing something like
+;; C-h-m with of ropemacs-0.6 and rope-0.9.....pymacs breaks lots of things
+;(eval-after-load "pymacs"
+;  '(add-to-list 'pymacs-load-path "~/python")
+;  '(add-to-list 'pymacs-load-path "~/python/lib/python2.5/site-packages")
+;)				
+(require 'pymacs)
+  
 (defun my-python-mode-hook ()
-  ;; TODO: got max-lisp-eval-depth error when doing something like
-  ;; C-h-m with of ropemacs-0.6 and rope-0.9
-  ;(require 'pymacs)
-  ;(pymacs-load "ropemacs" "rope-")
-  ;(ropemacs-mode)
+  (pymacs-load "ropemacs" "rope-")
+  (ropemacs-mode t)
 
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
 

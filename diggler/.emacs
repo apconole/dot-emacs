@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-01 16:17:54 (djcb)>
+; Time-stamp: <2008-12-02 10:29:03 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -752,31 +752,8 @@
   (interactive)
   (insert "/* Time-stamp: <> */\n"))
 
-(defun include-gplv2 ()
-  "include GPLv2 license header"
-  (interactive)
-  (insert
-"/* 
-** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-**
-** This program is free software; you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 2 of the License, or
-** (at your option) any later version.
-**  
-** This program is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**  
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software Foundation,
-** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  
-**  
-*/"))
-
 (defun include-gplv3 ()
-  "include GPLv2 license header"
+  "include GPLv3 license header"
   (interactive)
   (insert
 "/*
@@ -887,7 +864,6 @@
 
   (local-set-key (kbd "C-c i") 'include-guards)
   (local-set-key (kbd "C-c t") 'include-timestamp)
-  (local-set-key (kbd "C-c C-g 2") 'include-gplv2)
   (local-set-key (kbd "C-c C-g 3") 'include-gplv3)
   (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
   
@@ -930,7 +906,6 @@
   (interactive)
   (setq c-basic-offset 4)
   (c-set-style "java"))
-
 (add-hook 'java-mode-hook 'djcb-java-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -940,7 +915,6 @@
 (defun djcb-ruby-mode-hook ()
   (ruby-electric-mode)
   (setq ruby-indent-level 4))
-
 (add-hook 'ruby-mode-hook 'djcb-ruby-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -985,31 +959,14 @@
 ;; starting a new instance for each mail, see: 
 ;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
 (server-start)
-
 ;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
-
 ;; move to current desktop 
 (add-hook 'server-switch-hook
   (lambda ()
+    (local-set-key (kbd "C-x k") 'server-edit)
     (call-process
       "wmctrl" nil nil nil "-i" "-R"
       (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
-  
-;; start clients in new frames
-;; (add-hook 'server-switch-hook
-;;   (lambda nil
-;;     (let ((server-buf (current-buffer)))
-;;       (bury-buffer)
-;;       (switch-to-buffer-other-frame server-buf))))
-
-;; ;; kill the frame when done with it
-;; (add-hook 'server-done-hook 'delete-frame)
-
-;; don't want to use C-x # when closing the client, just C-x k as always
-(add-hook 'server-switch-hook 
-  (lambda ()
-    (local-set-key (kbd "C-x k") 'server-edit)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1140,7 +1097,6 @@
 		)))))))
   (add-hook 'before-save-hook 'sudo-before-save-hook))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

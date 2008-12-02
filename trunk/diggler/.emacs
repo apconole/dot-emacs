@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-11-04 13:17:50 (djcb)>
+; Time-stamp: <2008-12-01 16:17:54 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -19,28 +19,23 @@
 ;; and get the 'emacs-snapshot' packages.
 ;;
 ;; TODO:
-;; - fix compile mode (and warnings)
 ;; - use autoload instead of require-soft
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jump to the debugger when an error is found.
 ;;(setq debug-on-error t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; where I store my personal elisp stuff
-(defvar elisp-path '("~/.elisp/" 
-		      )) 
+(defvar elisp-path '("~/.elisp/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; require-soft  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
+;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
 ;; this is useful when this .emacs is used in an env where not all of the
 ;; other stuff is available
-(defmacro require-soft (feature &optional file)
+(defmacro require-maybe (feature &optional file)
   "*Try to require FEATURE, but don't signal an error if `require' fails."
   `(require ,feature ,file 'noerror)) 
 
@@ -59,35 +54,6 @@
   "Are we running on a GNU/Linux system?")
 (defconst console-p (eq (symbol-value 'window-system) nil)
   "Are we running in a console (non-X) environment?")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hack for cvs-emacs23 to work with the debian stuff
-(when linux-p
-  (let ((startup-file "/usr/share/emacs/site-lisp/debian-startup.el"))
-    (if (and (or (not (fboundp 'debian-startup))
-		 (not (boundp  'debian-emacs-flavor)))
-	     (file-readable-p startup-file))
-	(progn
-	  (load-file startup-file)
-	  (setq debian-emacs-flavor 'emacs21)
-	  (debian-startup debian-emacs-flavor)
-	  (mapc '(lambda (f)
-		   (and (not (string= (substring f -3) "/.."))
-			(file-directory-p f) 
-			(add-to-list 'load-path f)))
-		(directory-files "/usr/share/emacs/site-lisp" t))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; the modeline
-(line-number-mode t)                      ; show line numbers
-(column-number-mode t)                    ; show column numbers
-(when-available 'size-indication-mode 	  
-		(size-indication-mode t)) ; show file size (emacs 22+)
-(display-time-mode t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -110,17 +76,15 @@
   query-replace-highlight t)    ; ...and replacing
 (fset 'yes-or-no-p 'y-or-n-p)   ; enable one letter y/n answers to yes/no 
 
-(display-time-mode t)		; show the current time in the modeline
 
 (global-font-lock-mode t)         ; always do syntax highlighting 
-(when (require-soft 'jit-lock)    ; enable JIT to make font-lock faster
+(when (require-maybe 'jit-lock)   ; enable JIT to make font-lock faster
   (setq jit-lock-stealth-time 1)) ; new with emacs21
-
 
 (set-language-environment "UTF-8") ; prefer utf-8 for language settings
 
-(setq x-select-enable-clipboard t)  ; copy-paste should work ...
-(setq interprogram-paste-function  ; ...with...
+(setq x-select-enable-clipboard t  ; copy-paste should work ...
+  interprogram-paste-function  ; ...with...
   'x-cut-buffer-or-selection-value); ...other X clients
 
 (setq scroll-conservatively 10000)  ; smooth scrolling
@@ -142,7 +106,7 @@
 (when-available 'set-fringe-mode  ; emacs22+ 
   (set-fringe-mode 2))            ; don't have too much space left of col1
 
-(require-soft 'generic-x)         ; nice mode for config-files
+(require-maybe 'generic-x)         ; nice mode for config-files
 
 ;; highlight the current line; set a custom face, so we can
 ;; recognize from the normal marking (selection)
@@ -160,7 +124,7 @@
 ;;  use M-<arrow keys>
 ;; note: a 'window' is emacs-lingo for a partition of what is called 
 ;; a window normally --  C-x 2 will split your 'window' in two 'windows' 
-(when (require-soft 'windmove)
+(when (require-maybe 'windmove)
   (windmove-default-keybindings 'meta))
 
 ;; don't show startup messages
@@ -189,6 +153,16 @@
 (setq 
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; the modeline
+(line-number-mode t)                      ; show line numbers
+(column-number-mode t)                    ; show column numbers
+(when-available 'size-indication-mode 	  
+		(size-indication-mode t)) ; show file size (emacs 22+)
+(display-time-mode nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recent files 
@@ -242,8 +216,9 @@
   (set-face-foreground 'font-lock-warning-face "yellow")
   (set-face-underline  'font-lock-warning-face "red")
   
-  (set-face-foreground 'mode-line "#777777")
-  (set-face-background 'mode-line "#333333"))
+  (set-face-foreground 'mode-line "white") ; #777777
+  (set-face-background 'mode-line "#000000") ;#333333
+  )
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; window-system (ie. _not_ console) specific settings
@@ -258,26 +233,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; show-paren-mode
-;; show a subtle blinking of the matching paren (the defaults are ugly)
+;; give mark the area between the matching parentheses
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when-available 'show-paren-mode
   (progn
     (show-paren-mode t)
-    (set-face-background 'show-paren-match-face "#333333")
-    (set-face-foreground 'show-paren-match-face "white")
+    (setq show-paren-style 'expression)
+    (set-face-background 'show-paren-match-face "#444444")
+    (set-face-foreground 'show-paren-match-face nil)
     (set-face-attribute 'show-paren-match-face nil 
-      :weight 'normal :underline t :overline nil :slant 'normal)))
+      :weight 'normal :underline nil :overline nil :slant 'normal)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; change cursor color based on mode
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
-(when (require-soft 'cursor-chg)  ; Load this library
+(when (require-maybe 'cursor-chg)  ; Load this library
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)) ; On when idle
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 
@@ -292,11 +267,13 @@
 (global-set-key [C-prior] '(lambda()(interactive)(goto-char (point-min))))
 (global-set-key [C-next]  '(lambda()(interactive)(goto-char (point-max))))
 
-;; function keys
+;; step through errors; 's' is the hyeper of 'windows' key
+(global-set-key (kbd "<C-s-up>") 'previous-error) 
+(global-set-key (kbd "<C-s-down>") 'next-error)
 
+;; function keys
 (global-set-key (kbd "<f11>")  'djcb-full-screen-toggle)
 (global-set-key (kbd "<f12>")  'recentf-open-files)
-
 
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
@@ -329,21 +306,20 @@
 
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
-(when (require-soft 'linum)
+(when (require-maybe 'linum)
   (global-set-key (kbd "<f6>")     'linum))
 
 (global-set-key (kbd "<f7>") 'compile) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
-(when (require-soft 'rect-mark) 
+(when (require-maybe 'rect-mark) 
   (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
   (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
   (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
   (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
-  (autoload 'rm-set-mark "rect-mark"
-    "Set mark for rectangle." t)
-  (autoload 'rm-exchange-point-and-mark "rect-mark"
+  (autoload 'rm-set-mark "rect-mark" "Set mark for rectangle." t)
+  (autoload 'rm-exchange-point-and-mark "rect-mark" 
     "Exchange point and mark for rectangle." t)
   (autoload 'rm-kill-region "rect-mark"
     "Kill a rectangular region and save it in the kill ring." t)
@@ -366,14 +342,14 @@
 
 ;; zooming in and zooming out in emacs like in firefox
 ;; zooming; inspired by http://blog.febuiles.com/page/2/
-(defun zoom (n) (interactive)
+(defun djcb-zoom (n)
   (set-face-attribute 'default (selected-frame) :height 
     (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
 
-(global-set-key (kbd "C-+")      '(lambda()(interactive(zoom 1))))
-(global-set-key [C-kp-add]       '(lambda()(interactive(zoom 1))))
-(global-set-key (kbd "C--")      '(lambda()(interactive(zoom -1))))
-(global-set-key [C-kp-subtract]  '(lambda()(interactive(zoom -1))))
+(global-set-key (kbd "C-+")      '(lambda nil (interactive) (djcb-zoom 1)))
+(global-set-key [C-kp-add]       '(lambda nil (interactive) (djcb-zoom 1)))
+(global-set-key (kbd "C--")      '(lambda nil (interactive) (djcb-zoom -1)))
+(global-set-key [C-kp-subtract]  '(lambda nil (interactive) (djcb-zoom -1)))
 
 ;; cicle through buffers with Ctrl-Tab (like Firefox)
 ;; TODO: some smarter version that ignores certain buffers, see:
@@ -387,13 +363,8 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; icicles/ido 
+;; ido 
 ;;
-(defun djcb-icicles ()
-  (interactive)
-  (setq icicle-regexp-quote-flag nil) ; don't need regexps for completion
-  (icy-mode t))
-
 ;; ido seem much less annoying than icicles...
 ;; makes completing buffers nicer, even nicer than iswitchb
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
@@ -414,26 +385,15 @@
     ))
 
 ;; use ido or icicles, depending on what is available. prefer icicles
-(if (require-soft 'ido)
-  (djcb-ido)
-  (when (require-soft 'icicles)
-    (djcb-icicles)))
+(when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; w3m, the emacs webbrowser; note, package 'w3m-el' in ubuntu/debian, 
 ;;  or 'w3m-el-snapshot' for emacs23
-(when (require-soft 'w3m-load)
-  (require-soft 
-  (require-soft 'mime-w3m) ; to use for HTML-email
-  (setq w3m-use-cookies t) ; allow cookies
-  (global-set-key (kbd "C-c g") 'w3m-goto-url))) ; goto url (in W3M)
+(autoload 'w3m-goto-url "w3m-load" "load w3m" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
@@ -442,7 +402,6 @@
 (add-hook 'kill-emacs-hook      ; ... end save them upon emacs exit
 	  (lambda() (write-abbrev-file abbrev-file-name)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -469,7 +428,6 @@
   time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -527,15 +485,15 @@
 ;;text-mode
 (defun djcb-text-mode-hook ()
   (interactive)
-  (set-fill-column 78)                    ; lines are 78 chars long ...         
+  (set-fill-column 79)                    ; lines are 79 chars long ...         
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
 
   ;; http://taiyaki.org/elisp/word-count/src/word-count.el
-  (when (require-soft 'word-count) ; count the words
+  (when (require-maybe 'word-count) ; count the words
     (word-count-mode t)) 
   
-  (when (require-soft 'filladapt) ; do the intelligent wrapping of lines,...
+  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
     (filladapt-mode t))) ; ... (bullets, numbering) if
 					; available
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
@@ -548,19 +506,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; email / news
 ;;
-
 (defun djcb-post-mode-hook ()
   (interactive)
 
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   
+  (set-buffer-file-coding-system 'utf-8)
 
-  (when (require-soft 'footnote-mode)   ;; give us footnotes
+  (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
 
-  (require-soft 'thinks)   ; put text in 'thinks' boxes
-  (require-soft 'boxquote) ; put text in boxes
+  (require-maybe 'thinks)   ; put text in 'thinks' boxes
+  (require-maybe 'boxquote) ; put text in boxes
   
   (local-set-key (kbd "C-c C-j l")  'set-justification-left)
   (local-set-key (kbd "C-c C-j f")  'set-justification-full))
@@ -615,8 +573,12 @@
   
   ;; cursor up go to up one line *as show on screen*
   ;; instead of one line in editor
-  (when (require-soft 'screen-lines) (screen-lines-mode t))
-  
+  (when (require-maybe 'screen-lines) (screen-lines-mode t))
+
+  ;; use texdrive for easy inclusion of math
+  ;; http://www.djcbsoftware.nl/code/texdrive
+  (when (require-maybe 'texdrive) (texdrive-mode t))
+
   ;; use flyspell mode (turned-off)
   ;; (when-available 'flyspell-mode  (flyspell-mode t))
   
@@ -732,7 +694,7 @@
 ;; recognize some things as functions
 (font-lock-add-keywords 
  'emacs-lisp-mode
- '(("\\<\\(set\\|setq\\|require-soft\\|when-available\\|add-hook\\)\\>" . 
+ '(("\\<\\(set\\|setq\\|require-maybe\\|when-available\\|add-hook\\)\\>" . 
     font-lock-function-name-face)))
 ;; recognize some things as constants
 (font-lock-add-keywords 'emacs-lisp-mode
@@ -865,13 +827,27 @@
   ;;(align-current) 
   (c-context-line-break))
 
-;; other customizations 
+(defun djcb-update-tagfile ()
+    "try to find the top-directory of the current path, and create/update "
+    "the tagfile "
+  (interactive)
+    (let ((old-cwd default-directory))
+      (while (not (or 
+		    (string= (expand-file-name default-directory) "/")
+		    (file-exists-p "configure.ac") 
+		    (file-exists-p "configure.in")))
+	(cd ".."))
+      (if (not (string= (expand-file-name default-directory) "/"))
+	(when (not (= 0 (call-process "gtags" nil nil nil)))
+	  (message "error while creating tagfile"))
+	(message "no suitable directory found for tagging"))
+      (cd old-cwd)))
 
+;; other customizations 
 (defun djcb-c-mode-common ()
   (interactive) 
-  (c-add-style "djcb" djcb-c-style t)
-  
-  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
+ 
+  (c-add-style "djcb" djcb-c-style t)  
 
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
@@ -892,14 +868,20 @@
     c-basic-offset 8                        ; linux kernel style
     c-hungry-delete-key t)                  ; eat as much as possible
   
-
   ;; guess the identation of the current file, and use
   ;; that instead of my own settings; nice for foreign
   ;; files
-  ;; https://savannah.nongnu.org/projects/dtrt-indent/
-  (when  (require-soft 'dtrt-indent) (dtrt-indent-mode t))
+  ;; http://savannah.nongnu.org/projects/dtrt-indent/
+  (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
   
-  (when (require-soft 'doxymacs)
+  ;; use gtags; create/update tagfile if needed
+  (djcb-update-tagfile) 
+  (gtags-mode t) 
+  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
+
+  (local-set-key (kbd "C-.") 'man-follow)
+  
+  (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
 
@@ -910,21 +892,17 @@
   (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
   
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
-  
-  
+    
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode
     '(("^[^\n]\\{80\\}\\(.*\\)$"
-	1 font-lock-warning-face prepend))))
+	1 font-lock-warning-face prepend)))
+
+  (message "djcb-c-mode-common")
+)
 
 (defun djcb-c++-mode ()
-
-  (set (make-local-variable 'compile-command)
-       (if (file-exists-p "Makefile")
-	   "make -k"
-	 (format "g++ -Wall -Werror -c %s" buffer-file-name)))
-
-    ;; warn when lines are > 100 characters (in c++-mode)
+  ;; warn when lines are > 100 characters (in c++-mode)
   (font-lock-add-keywords 'c++-mode 
     '(("^[^\n]\\{100\\}\\(.*\\)$"
 	1 font-lock-warning-face prepend))))
@@ -937,17 +915,6 @@
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; D; interesting language:
-;;  http://en.wikipedia.org/wiki/D_programming_language
-(autoload 'd-mode "d-mode" "mode for programming in D" t)
-(add-to-list 'auto-mode-alist '("\\.d$" . d-mode))
-(add-hook 'd-mode-hook 'djcb-c-mode-hook)  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
 (defun djcb-makefile-mode-hook ()
@@ -955,9 +922,6 @@
   (setq show-trailing-whitespace t))
 (add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -969,7 +933,6 @@
 
 (add-hook 'java-mode-hook 'djcb-java-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1002,9 +965,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
-(require-soft 'magit)
+(autoload 'magit-status "magit" "load magit mode for Git" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1050,7 +1012,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying 
 ;; warnings
@@ -1093,7 +1054,7 @@
 ;; see http://hayamin.com/wiliki.cgi?twittering-mode-en&l=en
 ;; code below makes emacs ask for username/password....; never a good
 ;; idea to put real login data in your .emacs...
-(when (require-soft 'twittering-mode)
+(when (require-maybe 'twittering-mode)
   (defun djcb-twitter()
     "start twittering mode (for starting Twitter),
      ask for password/username if needed"
@@ -1131,35 +1092,29 @@
         "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+(defun djcb-shell-command-maybe (exe &optional paramstr)
+  "run executable EXE with PARAMSTR, or warn if EXE's not available; eg. "
+  " (djcb-run-executable-maybe \"ls\" \"-l -a\")"
+  (if (executable-find exe)
+    (shell-command (concat exe " " paramstr))
+    (message (concat "'" exe "' not found found; please install"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode
 ;; based on http://www.emacswiki.org/cgi-bin/wiki/WriteRoom
-;; toggle full screen with F11; require 'wmctrl'
+;; toggle full screen with F11; requires 'wmctrl'
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
-(when (executable-find "wmctrl") ; apt-get install wmctrl
-  (defun djcb-full-screen-toggle ()
-    (interactive)
-    (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
+(defun djcb-full-screen-toggle ()
+  "toggle full-screen mode"
+  (interactive)
+  (djcb-shell-command-maybe "wmctrl" "-r :ACTIVE: -btoggle,fullscreen"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; conky
-(when (executable-find "conky") ; apt-get install conky
-  (defun djcb-conky ()
-    (interactive)
-    (shell-command "killall -HUP conky")))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xs
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; if we try to save a file owned by someone else, use sudo
 ;; http://www.emacswiki.org/cgi-bin/wiki/SudoSave
-(when (require-soft 'sudo)
+(when (require-maybe 'sudo)
   (defun sudo-before-save-hook ()
     (set (make-local-variable 'sudo:file) (buffer-file-name))
     (when sudo:file

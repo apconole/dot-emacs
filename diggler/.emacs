@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-02 10:29:03 (djcb)>
+; Time-stamp: <2008-12-11 09:09:56 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -10,13 +10,6 @@
 ;; any later version.
 
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-;; works for emacs >= 21.x, and tried with the latest-and-greatest (emacs23);
-;; to get this, on ubuntu, add to /etc/apt/sources.list:
-;;
-;;  deb     http://ppa.launchpad.net/avassalotti/ubuntu gutsy main
-;;  deb-src http://ppa.launchpad.net/avassalotti/ubuntu gutsy main
-;;
-;; and get the 'emacs-snapshot' packages.
 ;;
 ;; TODO:
 ;; - use autoload instead of require-soft
@@ -57,6 +50,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; the modeline
+(line-number-mode t)                      ; show line numbers
+(column-number-mode t)                    ; show column numbers
+(when-available 'size-indication-mode 	  
+		(size-indication-mode t)) ; show file size (emacs 22+)
+(display-time-mode t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
 
 ;; use .Xdefaults instead, it's much faster:
@@ -66,8 +68,8 @@
 ;; | Emacs.toolBar: off
 ;; | Emacs.geometry: 85x60+600+300
 ;; `----
-;(menu-bar-mode -1)              ; don't show the menu 
-;(tool-bar-mode -1)              ; don't show the toolbar
+(menu-bar-mode -1)              ; don't show the menu 
+(tool-bar-mode -1)              ; don't show the toolbar
 
 (transient-mark-mode t)         ; make the current 'selection' visible
 (delete-selection-mode t)       ; delete the selection area with a keypress
@@ -76,16 +78,15 @@
   query-replace-highlight t)    ; ...and replacing
 (fset 'yes-or-no-p 'y-or-n-p)   ; enable one letter y/n answers to yes/no 
 
-
 (global-font-lock-mode t)         ; always do syntax highlighting 
-(when (require-maybe 'jit-lock)   ; enable JIT to make font-lock faster
+(when (require-maybe 'jit-lock)    ; enable JIT to make font-lock faster
   (setq jit-lock-stealth-time 1)) ; new with emacs21
 
 (set-language-environment "UTF-8") ; prefer utf-8 for language settings
 
-(setq x-select-enable-clipboard t  ; copy-paste should work ...
-  interprogram-paste-function  ; ...with...
-  'x-cut-buffer-or-selection-value); ...other X clients
+(setq x-select-enable-clipboard t)  ; copy-paste should work ...
+(setq interprogram-paste-function   ; ...with...
+  'x-cut-buffer-or-selection-value) ; ...other X clients
 
 (setq scroll-conservatively 10000)  ; smooth scrolling
 
@@ -154,16 +155,6 @@
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; the modeline
-(line-number-mode t)                      ; show line numbers
-(column-number-mode t)                    ; show column numbers
-(when-available 'size-indication-mode 	  
-		(size-indication-mode t)) ; show file size (emacs 22+)
-(display-time-mode nil)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recent files 
 (when-available 'recentf
@@ -216,9 +207,8 @@
   (set-face-foreground 'font-lock-warning-face "yellow")
   (set-face-underline  'font-lock-warning-face "red")
   
-  (set-face-foreground 'mode-line "white") ; #777777
-  (set-face-background 'mode-line "#000000") ;#333333
-  )
+  (set-face-foreground 'mode-line "#777777")
+  (set-face-background 'mode-line "#333333"))
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; window-system (ie. _not_ console) specific settings
@@ -233,14 +223,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; show-paren-mode
-;; give mark the area between the matching parentheses
+;; show a subtle blinking of the matching paren (the defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when-available 'show-paren-mode
   (progn
     (show-paren-mode t)
     (setq show-paren-style 'expression)
     (set-face-background 'show-paren-match-face "#444444")
-    (set-face-foreground 'show-paren-match-face nil)
     (set-face-attribute 'show-paren-match-face nil 
       :weight 'normal :underline nil :overline nil :slant 'normal)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -256,6 +245,7 @@
 
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
 ;;     the arg to 'kbd' is what you get when pushing C-h k and the key(s)
@@ -267,13 +257,14 @@
 (global-set-key [C-prior] '(lambda()(interactive)(goto-char (point-min))))
 (global-set-key [C-next]  '(lambda()(interactive)(goto-char (point-max))))
 
-;; step through errors; 's' is the hyeper of 'windows' key
-(global-set-key (kbd "<C-s-up>") 'previous-error) 
+;; step through errors; 's' is the Hyper or 'windows' key
+(global-set-key (kbd "<C-s-up>")   'previous-error) 
 (global-set-key (kbd "<C-s-down>") 'next-error)
 
 ;; function keys
 (global-set-key (kbd "<f11>")  'djcb-full-screen-toggle)
 (global-set-key (kbd "<f12>")  'recentf-open-files)
+
 
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
@@ -318,8 +309,9 @@
   (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
   (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
   (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
-  (autoload 'rm-set-mark "rect-mark" "Set mark for rectangle." t)
-  (autoload 'rm-exchange-point-and-mark "rect-mark" 
+  (autoload 'rm-set-mark "rect-mark"
+    "Set mark for rectangle." t)
+  (autoload 'rm-exchange-point-and-mark "rect-mark"
     "Exchange point and mark for rectangle." t)
   (autoload 'rm-kill-region "rect-mark"
     "Kill a rectangular region and save it in the kill ring." t)
@@ -342,14 +334,14 @@
 
 ;; zooming in and zooming out in emacs like in firefox
 ;; zooming; inspired by http://blog.febuiles.com/page/2/
-(defun djcb-zoom (n)
+(defun djcb-zoom (n) (interactive)
   (set-face-attribute 'default (selected-frame) :height 
     (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
 
-(global-set-key (kbd "C-+")      '(lambda nil (interactive) (djcb-zoom 1)))
-(global-set-key [C-kp-add]       '(lambda nil (interactive) (djcb-zoom 1)))
-(global-set-key (kbd "C--")      '(lambda nil (interactive) (djcb-zoom -1)))
-(global-set-key [C-kp-subtract]  '(lambda nil (interactive) (djcb-zoom -1)))
+(global-set-key (kbd "C-+")      '(lambda()(interactive(djcb-zoom 1))))
+(global-set-key [C-kp-add]       '(lambda()(interactive(djcb-zoom 1))))
+(global-set-key (kbd "C--")      '(lambda()(interactive(djcb-zoom -1))))
+(global-set-key [C-kp-subtract]  '(lambda()(interactive(djcb-zoom -1))))
 
 ;; cicle through buffers with Ctrl-Tab (like Firefox)
 ;; TODO: some smarter version that ignores certain buffers, see:
@@ -363,8 +355,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ido 
-;;
 ;; ido seem much less annoying than icicles...
 ;; makes completing buffers nicer, even nicer than iswitchb
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
@@ -384,16 +374,10 @@
     ido-confirm-unique-completion t ; wait for RET, even with unique completion
     ))
 
-;; use ido or icicles, depending on what is available. prefer icicles
 (when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; w3m, the emacs webbrowser; note, package 'w3m-el' in ubuntu/debian, 
-;;  or 'w3m-el-snapshot' for emacs23
-(autoload 'w3m-goto-url "w3m-load" "load w3m" t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
@@ -402,6 +386,7 @@
 (add-hook 'kill-emacs-hook      ; ... end save them upon emacs exit
 	  (lambda() (write-abbrev-file abbrev-file-name)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -428,6 +413,7 @@
   time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -485,7 +471,7 @@
 ;;text-mode
 (defun djcb-text-mode-hook ()
   (interactive)
-  (set-fill-column 79)                    ; lines are 79 chars long ...         
+  (set-fill-column 78)                    ; lines are 78 chars long ...         
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
 
@@ -506,13 +492,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; email / news
 ;;
+
 (defun djcb-post-mode-hook ()
   (interactive)
 
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   
-  (set-buffer-file-coding-system 'utf-8)
 
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
@@ -575,10 +561,10 @@
   ;; instead of one line in editor
   (when (require-maybe 'screen-lines) (screen-lines-mode t))
 
-  ;; use texdrive for easy inclusion of math
-  ;; http://www.djcbsoftware.nl/code/texdrive
+  ;; my own texdrive, for including TeX formulae
+  ;; http://www.djcbsoftware.nl/code/texdrive/
   (when (require-maybe 'texdrive) (texdrive-mode t))
-
+    
   ;; use flyspell mode (turned-off)
   ;; (when-available 'flyspell-mode  (flyspell-mode t))
   
@@ -753,7 +739,7 @@
   (insert "/* Time-stamp: <> */\n"))
 
 (defun include-gplv3 ()
-  "include GPLv3 license header"
+  "include GPLv2 license header"
   (interactive)
   (insert
 "/*
@@ -804,27 +790,29 @@
   ;;(align-current) 
   (c-context-line-break))
 
-(defun djcb-update-tagfile ()
-    "try to find the top-directory of the current path, and create/update "
-    "the tagfile "
-  (interactive)
-    (let ((old-cwd default-directory))
-      (while (not (or 
-		    (string= (expand-file-name default-directory) "/")
-		    (file-exists-p "configure.ac") 
-		    (file-exists-p "configure.in")))
-	(cd ".."))
-      (if (not (string= (expand-file-name default-directory) "/"))
-	(when (not (= 0 (call-process "gtags" nil nil nil)))
-	  (message "error while creating tagfile"))
-	(message "no suitable directory found for tagging"))
-      (cd old-cwd)))
-
 ;; other customizations 
+
+(defun djcb-update-tagfile ()
+  "try to find the top-directory of the current path, and create/update "
+  "the tagfile "
+  (interactive)
+  (let ((old-cwd default-directory))
+    (while (not (or 
+		  (string= (expand-file-name default-directory) "/")
+		  (file-exists-p "configure.ac") 
+		  (file-exists-p "configure.in")))
+      (cd ".."))
+    (if (not (string= (expand-file-name default-directory) "/"))
+      (when (not (= 0 (call-process "gtags" nil nil nil)))
+	(message "error while creating tagfile"))
+      (message "no suitable directory found for tagging"))
+    (cd old-cwd)))
+
 (defun djcb-c-mode-common ()
   (interactive) 
- 
-  (c-add-style "djcb" djcb-c-style t)  
+  (c-add-style "djcb" djcb-c-style t)
+  
+  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
 
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
@@ -845,18 +833,12 @@
     c-basic-offset 8                        ; linux kernel style
     c-hungry-delete-key t)                  ; eat as much as possible
   
+
   ;; guess the identation of the current file, and use
   ;; that instead of my own settings; nice for foreign
   ;; files
-  ;; http://savannah.nongnu.org/projects/dtrt-indent/
+  ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
-  
-  ;; use gtags; create/update tagfile if needed
-  (djcb-update-tagfile) 
-  (gtags-mode t) 
-  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
-
-  (local-set-key (kbd "C-.") 'man-follow)
   
   (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
@@ -868,17 +850,15 @@
   (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
   
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
-    
+
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode
     '(("^[^\n]\\{80\\}\\(.*\\)$"
-	1 font-lock-warning-face prepend)))
-
-  (message "djcb-c-mode-common")
-)
+	1 font-lock-warning-face prepend))))
 
 (defun djcb-c++-mode ()
-  ;; warn when lines are > 100 characters (in c++-mode)
+
+    ;; warn when lines are > 100 characters (in c++-mode)
   (font-lock-add-keywords 'c++-mode 
     '(("^[^\n]\\{100\\}\\(.*\\)$"
 	1 font-lock-warning-face prepend))))
@@ -891,6 +871,7 @@
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
 (defun djcb-makefile-mode-hook ()
@@ -901,20 +882,11 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; java
-(defun djcb-java-mode-hook ()
-  (interactive)
-  (setq c-basic-offset 4)
-  (c-set-style "java"))
-(add-hook 'java-mode-hook 'djcb-java-mode-hook)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ruby
 (defun djcb-ruby-mode-hook ()
   (ruby-electric-mode)
   (setq ruby-indent-level 4))
+
 (add-hook 'ruby-mode-hook 'djcb-ruby-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -939,7 +911,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
-(autoload 'magit-status "magit" "load magit mode for Git" t)
+(require-maybe 'magit)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -959,15 +931,23 @@
 ;; starting a new instance for each mail, see: 
 ;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
 (server-start)
+
 ;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
+
 ;; move to current desktop 
 (add-hook 'server-switch-hook
   (lambda ()
-    (local-set-key (kbd "C-x k") 'server-edit)
     (call-process
       "wmctrl" nil nil nil "-i" "-R"
       (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
+  
+;; don't want to use C-x # when closing the client, just C-x k as always
+(add-hook 'server-switch-hook 
+  (lambda ()
+    (local-set-key (kbd "C-x k") 'server-edit)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying 
@@ -1049,24 +1029,18 @@
         "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun djcb-shell-command-maybe (exe &optional paramstr)
-  "run executable EXE with PARAMSTR, or warn if EXE's not available; eg. "
-  " (djcb-run-executable-maybe \"ls\" \"-l -a\")"
-  (if (executable-find exe)
-    (shell-command (concat exe " " paramstr))
-    (message (concat "'" exe "' not found found; please install"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode
 ;; based on http://www.emacswiki.org/cgi-bin/wiki/WriteRoom
-;; toggle full screen with F11; requires 'wmctrl'
+;; toggle full screen with F11; require 'wmctrl'
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
-(defun djcb-full-screen-toggle ()
-  "toggle full-screen mode"
-  (interactive)
-  (djcb-shell-command-maybe "wmctrl" "-r :ACTIVE: -btoggle,fullscreen"))
+(when (executable-find "wmctrl") ; apt-get install wmctrl
+  (defun djcb-full-screen-toggle ()
+    (interactive)
+    (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; if we try to save a file owned by someone else, use sudo

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-11 09:09:56 (djcb)>
+; Time-stamp: <2008-12-12 14:42:50 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -154,6 +154,7 @@
 (setq 
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recent files 
@@ -428,12 +429,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tramp, for remote access
 (setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -475,9 +474,9 @@
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
 
-  ;; http://taiyaki.org/elisp/word-count/src/word-count.el
-  (when (require-maybe 'word-count) ; count the words
-    (word-count-mode t)) 
+;;;   ;; http://taiyaki.org/elisp/word-count/src/word-count.el
+;;;   (when (require-maybe 'word-count) ; count the words
+;;;     (word-count-mode t)) 
   
   (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
     (filladapt-mode t))) ; ... (bullets, numbering) if
@@ -499,7 +498,6 @@
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   
-
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
 
@@ -527,23 +525,6 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; org-mode: http://www.emacswiki.org/cgi-bin/wiki/OrgMode
-;; note-to-self: this could be made more useful; 
-;; eg. check http://sachachua.com/wp/
-;; or watch the video: http://jaderholm.com/screencasts.html
-(defun djcb-org-mode-hook ()
-  (interactive)) ;; nothing specific yet...
-  
-(add-hook 'org-mode-hook 'djcb-org-mode-hook)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -598,9 +579,6 @@
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TeX/LaTex
 (defun djcb-tex-mode-hook ()
@@ -652,14 +630,6 @@
     (set-mark (point)))
   (djcb-tex-tag-region-outside (region-beginning) (region-end) el))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Vala
-(autoload 'vala-mode "vala-mode" "Major mode for editing Vala code." t)
-(add-to-list 'auto-mode-alist '("\\.vala$" . vala-mode))
-(add-to-list 'auto-mode-alist '("\\.vapi$" . vala-mode))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

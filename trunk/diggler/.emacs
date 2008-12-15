@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-12 14:42:50 (djcb)>
+; Time-stamp: <2008-12-14 22:31:26 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -70,6 +70,9 @@
 ;; `----
 (menu-bar-mode -1)              ; don't show the menu 
 (tool-bar-mode -1)              ; don't show the toolbar
+
+(icomplete-mode t)		; completion in minibuffer
+(blink-cursor-mode 0)		; don't blink cursor
 
 (transient-mark-mode t)         ; make the current 'selection' visible
 (delete-selection-mode t)       ; delete the selection area with a keypress
@@ -208,6 +211,8 @@
   (set-face-foreground 'font-lock-warning-face "yellow")
   (set-face-underline  'font-lock-warning-face "red")
   
+  (set-face-background 'region "#777777")
+
   (set-face-foreground 'mode-line "#777777")
   (set-face-background 'mode-line "#333333"))
 	  

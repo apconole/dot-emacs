@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-14 22:31:26 (djcb)>
+; Time-stamp: <2008-12-17 17:13:05 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -12,14 +12,15 @@
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 ;;
 ;; TODO:
-;; - use autoload instead of require-soft
+;; - 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jump to the debugger when an error is found.
 ;;(setq debug-on-error t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; where I store my personal elisp stuff
+;; my elisp directories
 (defvar elisp-path '("~/.elisp/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -459,7 +460,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; encryption
+;; http://www.emacswiki.org/emacs/EasyPG
+(when (require-maybe 'epa-file)
+  (epa-file-enable))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;some special purpose modes
@@ -478,10 +483,6 @@
   (set-fill-column 78)                    ; lines are 78 chars long ...         
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
-
-;;;   ;; http://taiyaki.org/elisp/word-count/src/word-count.el
-;;;   (when (require-maybe 'word-count) ; count the words
-;;;     (word-count-mode t)) 
   
   (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
     (filladapt-mode t))) ; ... (bullets, numbering) if
@@ -523,6 +524,9 @@
               (if (= line-num 1) "" "s")))))
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
+
+(add-to-list 'auto-mode-alist
+        '("\\.foo$\\|.bar$" . text-mode))
 
 ;; post mode (used when editing mail / news)
 (autoload 'post-mode "post" "mode for e-mail" t)
@@ -671,8 +675,6 @@
 
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
 ;; TODO: get rid of the annoying auto )]} 
@@ -682,7 +684,7 @@
   (interactive)
   (eval-when-compile (require 'cperl-mode))
   (setq 
-   cperl-hairy t                  ; parse hairy perl constructs
+   cperl-hairy nil                  ; parse hairy perl constructs
    cperl-indent-level 4           ; indent with 4 positions
    cperl-invalid-face (quote off) ; don't show stupid underlines
    cperl-electric-keywords t))    ; complete keywords
@@ -808,7 +810,6 @@
     c-basic-offset 8                        ; linux kernel style
     c-hungry-delete-key t)                  ; eat as much as possible
   
-
   ;; guess the identation of the current file, and use
   ;; that instead of my own settings; nice for foreign
   ;; files

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-17 17:13:05 (djcb)>
+; Time-stamp: <2008-12-19 15:08:24 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -21,7 +21,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my elisp directories
-(defvar elisp-path '("~/.elisp/")) 
+(defvar elisp-path '("~/.emacs.d/elisp/" "~/.elisp")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -113,17 +113,6 @@
 
 (require-maybe 'generic-x)         ; nice mode for config-files
 
-;; highlight the current line; set a custom face, so we can
-;; recognize from the normal marking (selection)
-;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
-(when-available 'global-hl-line-mode
-  (progn
-    (defface hl-line '((t (:background "Gray14")))
-      "Face to use for `hl-line-face'." :group 'hl-line)
-    (setq hl-line-face 'hl-line)
-    (global-hl-line-mode t))) ;; turn it on for all modes by default
-
-
 
 ;; pretty cool; with this we can shift to different 'windows'
 ;;  use M-<arrow keys>
@@ -190,7 +179,7 @@
 ;; TODO: make a color-theme-evergrey out of these?
 (when (not console-p) 
   (set-background-color "black") 
-  (set-foreground-color "lightblue") ; light grey
+  (set-foreground-color "lightblue") 
   
   (set-face-foreground 'font-lock-string-face  "#123467") ; 
   (set-face-foreground 'font-lock-comment-face  "#aaaaaa") ;
@@ -229,6 +218,19 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; highlight the current line; set a custom face, so we can
+;; recognize from the normal marking (selection)
+;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
+(when-available 'global-hl-line-mode
+  (progn
+    (defface hl-line '((t (:background "#123456")))
+      "Face to use for `hl-line-face'." :group 'hl-line)
+    (setq hl-line-face 'hl-line)
+    (global-hl-line-mode t))) ;; turn it on for all modes by default
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; show-paren-mode
 ;; show a subtle blinking of the matching paren (the defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
@@ -236,7 +238,7 @@
   (progn
     (show-paren-mode t)
     (setq show-paren-style 'expression)
-    (set-face-background 'show-paren-match-face "#444444")
+    (set-face-background 'show-paren-match-face "#333333")
     (set-face-attribute 'show-paren-match-face nil 
       :weight 'normal :underline nil :overline nil :slant 'normal)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -291,9 +293,13 @@
 (djcb-term-program slrn   t (kbd "s-<f4>"))  ; console nttp client
 (djcb-term-program raggle t (kbd "s-<f5>"))  ; console feedreader
 
-(global-set-key (kbd "s-<f10>")  ;make <f9> switch to *scratch*     
-  (lambda()(interactive)(switch-to-buffer "*scratch*")))
 
+
+(global-set-key (kbd "s-<f9>") 'remember)
+
+
+(global-set-key (kbd "s-<f10>")  ;make <f10> switch to *scratch*     
+  (lambda()(interactive)(switch-to-buffer "*scratch*")))
 ;; shortcuts for some oft-used files...
 (global-set-key (kbd "s-<f11>") 
   '(lambda()(interactive)(find-file "~/.emacs-notes/todo.org"))) 
@@ -361,6 +367,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido seem much less annoying than icicles...
 ;; makes completing buffers nicer, even nicer than iswitchb
@@ -374,10 +382,10 @@
     '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido") 
     ido-everywhere t            ; use for many file dialogs
     ido-case-fold  t            ; be case-insensitive
-    ido-use-filename-at-point t ; try to use filename...
-    ido-use-url-at-point t      ; ... or url at point
+    ido-use-filename-at-point nil ; don't use filename at point (annoying)
+    ido-use-url-at-point nil      ;  don't use url at point (annoying)
     ido-enable-flex-matching t  ; be flexible
-    ido-max-prospects 5         ; don't spam my minibuffer
+    ido-max-prospects 16         ; don't spam my minibuffer
     ido-confirm-unique-completion t ; wait for RET, even with unique completion
     ))
 
@@ -389,9 +397,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
 ;;
+(setq abbrev-file-name          ;; tell emacs where to read abbrev
+  "~/.emacs.d/abbrev_defs")     ; definitions from...
 (abbrev-mode t)                 ; enable abbrevs (abbreviations) ...
-(add-hook 'kill-emacs-hook      ; ... end save them upon emacs exit
-	  (lambda() (write-abbrev-file abbrev-file-name)))
+(setq default-abbrev-mode t
+  save-abbrevs t)       ; don't ask
+(when (file-exists-p abbrev-file-name)
+  (quietly-read-abbrev-file))   ;  don't tell
+
+(add-hook 'kill-emacs-hook  'write-abbrev-file) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -439,6 +453,18 @@
 ;; tramp, for remote access
 (setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; org-mode / remember-mode
+;; we use org-mode as the backend for remember
+(org-remember-insinuate)
+(setq org-directory "~/path/to/my/orgfiles/")
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+(define-key global-map "\C-cr" 'org-remember
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

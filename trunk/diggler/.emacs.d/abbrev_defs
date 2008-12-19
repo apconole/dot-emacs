@@ -1,0 +1,109 @@
+;;-*-coding: emacs-mule;-*-
+(define-abbrev-table 'Buffer-menu-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'apropos-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'awk-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'c++-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'c-mode-abbrev-table '(    ("grif" "g_return_if_fail ( );" nil 0)
+    ("grvif" "g_return_value_if_fail ( );" nil 0)
+    ("mmain" "int
+main (int argc, char *argv[])
+{
+	return 0;
+}" nil 1)
+    ("stdio" "#include <stdio.h>" nil 1)
+    ))
+
+(define-abbrev-table 'comint-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'completion-list-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'cperl-mode-abbrev-table '(    ("=head1" "=head1" cperl-electric-pod 0)
+    ("=head2" "=head2" cperl-electric-pod 0)
+    ("=over" "=over" cperl-electric-pod 0)
+    ("=pod" "=pod" cperl-electric-pod 0)
+    ("continue" "continue" cperl-electric-else 0)
+    ("do" "do" cperl-electric-keyword 0)
+    ("else" "else" cperl-electric-else 0)
+    ("elsif" "elsif" cperl-electric-keyword 0)
+    ("for" "for" cperl-electric-keyword 0)
+    ("foreach" "foreach" cperl-electric-keyword 0)
+    ("foreachmy" "foreachmy" cperl-electric-keyword 0)
+    ("formy" "formy" cperl-electric-keyword 0)
+    ("head1" "head1" cperl-electric-pod 0)
+    ("head2" "head2" cperl-electric-pod 0)
+    ("if" "if" cperl-electric-keyword 0)
+    ("over" "over" cperl-electric-pod 0)
+    ("pod" "pod" cperl-electric-pod 0)
+    ("unless" "unless" cperl-electric-keyword 0)
+    ("until" "until" cperl-electric-keyword 0)
+    ("while" "while" cperl-electric-keyword 0)
+    ))
+
+(define-abbrev-table 'eshell-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'fundamental-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'global-abbrev-table '(    ))
+
+(define-abbrev-table 'html-helper-mode-abbrev-table '(    ("llchangelog" "<a href=\"http://www.djcbsoftware.nl/ChangeLog\">ChangeLog</a>" nil 0)
+    ("lldjcbflux" "<a href=\"http://djcbflux.blogspot.com\">djcbflux</a>" nil 0)
+    ("lldotemacs" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs.html\"><tt>.emacs</tt></a>" nil 0)
+    ("llemacsfu" "<a href=\"http://emacs-fu.blogspot.com\">emacs-fu</a>" nil 0)
+    ("llgnuvd" "<a href=\"http://www.djcbsoftware.nl/code/gnuvd\">gnuvd</a>" nil 0)
+    ("llkeys" "<a href=\"http://emacs-fu.blogspot.com/2000/12/binding-keys.html\">key bindings</a>" nil 2)
+    ("llmu" "<a href=\"http://www.djcbsoftware.nl/code/mu\">mu</a>" nil 0)
+    ("llmyemacs" "<a href=\"http://www.djcbsoftware.nl/dot-emacs.html\"><tt>.emacs</tt></a>" nil 0)
+    ("llpkg" "<a href=\"http://emacs-fu.blogspot.com/2000/12/installing-packages.html\">installing packages</a>" nil 0)
+    ("llspuug" "<a href=\"http://www.djcbsoftware.nl/code/spuug\">spuug</a>" nil 0)
+    ("llterm" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs-terminology.html\"><tt>emacs terminology</tt></a>" nil 0)
+    ("llttb" "<a href=\"http://www.djcbsoftware.nl/code/ttb\">ttb</a>" nil 0)
+    ))
+
+(define-abbrev-table 'idl-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'java-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'lisp-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-automake-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-bsdmake-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-gmake-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-imake-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-makepp-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'makefile-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'objc-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'org-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'outline-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'pike-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'post-mode-abbrev-table '(    ("bwd" "Best wishes,
+Dirk." nil 6)
+    ("guh" "Met vriendelijke groet uit Helsinki,
+Dirk-Jan" nil 0)
+    ))
+
+(define-abbrev-table 'select-tags-table-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'sh-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'shell-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'special-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'text-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'vc-svn-log-view-mode-abbrev-table '(    ))
+

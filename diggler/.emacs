@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-19 15:08:24 (djcb)>
+; Time-stamp: <2008-12-19 16:54:29 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -21,7 +21,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my elisp directories
-(defvar elisp-path '("~/.emacs.d/elisp/" "~/.elisp")) 
+(defvar elisp-path '("~/.emacs.d/elisp/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -156,6 +156,13 @@
     (recentf-mode t)
     (setq recentf-max-saved-items 500)
     (setq recentf-max-menu-items 60)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; bookmarks
+(setq bookmark-default-file "~/.emacs.d/bookmarks")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows specific settings                                               
@@ -293,11 +300,7 @@
 (djcb-term-program slrn   t (kbd "s-<f4>"))  ; console nttp client
 (djcb-term-program raggle t (kbd "s-<f5>"))  ; console feedreader
 
-
-
 (global-set-key (kbd "s-<f9>") 'remember)
-
-
 (global-set-key (kbd "s-<f10>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 ;; shortcuts for some oft-used files...
@@ -414,7 +417,7 @@
 ;; backups  (emacs will write backups and number them)
 (setq make-backup-files t ; do make backups
       backup-by-copying t ; and copy them ...
-      backup-directory-alist '(("." . "~/.emacs-backup")) ; ... here
+      backup-directory-alist '(("." . "~/.emacs.d/backup")) ; ... here
       version-control t
       kept-new-versions 2
       kept-old-versions 5
@@ -460,9 +463,9 @@
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
 (org-remember-insinuate)
-(setq org-directory "~/path/to/my/orgfiles/")
+(setq org-directory "~/.emacs-d/org")
 (setq org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map "\C-cr" 'org-remember
+(define-key global-map "\C-cr" 'org-remember)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -559,14 +562,26 @@
 (add-to-list 'auto-mode-alist 
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; newsticker mode
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
-
 ;; my handy stuff for both html-helper and x(ht)ml mode
 (defun djcb-html-helper-mode-hook ()
   (interactive)

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-19 16:54:29 (djcb)>
+; Time-stamp: <2008-12-22 17:04:49 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -21,7 +21,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my elisp directories
-(defvar elisp-path '("~/.emacs.d/elisp/")) 
+(defvar elisp-path '("~/.emacs.d/elisp/" "~/.emacs.d/vm/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -282,6 +282,11 @@
 (global-set-key (kbd "<f12>")  'recentf-open-files)
 
 
+(global-set-key (kbd "s-<right>") 'hs-show-block)
+(global-set-key (kbd "s-<left>")  'hs-hide-block)
+(global-set-key (kbd "s-<up>")    'hs-hide-all)
+(global-set-key (kbd "s-<down>")  'hs-show-all)
+
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
 
@@ -320,19 +325,24 @@
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
-(when (require-maybe 'rect-mark) 
-  (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
-  (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
-  (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
-  (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
-  (autoload 'rm-set-mark "rect-mark"
-    "Set mark for rectangle." t)
-  (autoload 'rm-exchange-point-and-mark "rect-mark"
-    "Exchange point and mark for rectangle." t)
-  (autoload 'rm-kill-region "rect-mark"
-    "Kill a rectangular region and save it in the kill ring." t)
-  (autoload 'rm-kill-ring-save "rect-mark"
-    "Copy a rectangular region to the kill ring." t))
+(require 'rect-mark)
+(global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
+
+(global-set-key (kbd "C-w")  
+  '(lambda(b e) (interactive "r") 
+     (if rm-mark-active 
+       (rm-kill-region b e) (kill-region b e))))
+
+(global-set-key (kbd "M-w")  
+  '(lambda(b e) (interactive "r") 
+     (if rm-mark-active 
+       (rm-kill-ring-save b e) (kill-ring-save b e))))
+
+(global-set-key (kbd "C-x C-x")  
+  '(lambda(&optional p) (interactive "p") 
+     (if rm-mark-active 
+       (rm-exchange-point-and-mark p) (exchange-point-and-mark p))))
+
 
 ;; bind Caps-Lock to M-x
 ;; http://sachachua.com/wp/2008/08/04/emacs-caps-lock-as-m-x/
@@ -810,21 +820,21 @@
 
 ;; other customizations 
 
-(defun djcb-update-tagfile ()
-  "try to find the top-directory of the current path, and create/update "
-  "the tagfile "
-  (interactive)
-  (let ((old-cwd default-directory))
-    (while (not (or 
-		  (string= (expand-file-name default-directory) "/")
-		  (file-exists-p "configure.ac") 
-		  (file-exists-p "configure.in")))
-      (cd ".."))
-    (if (not (string= (expand-file-name default-directory) "/"))
-      (when (not (= 0 (call-process "gtags" nil nil nil)))
-	(message "error while creating tagfile"))
-      (message "no suitable directory found for tagging"))
-    (cd old-cwd)))
+;; (defun djcb-update-tagfile ()
+;;   "try to find the top-directory of the current path, and create/update "
+;;   "the tagfile "
+;;   (interactive)
+;;   (let ((old-cwd default-directory))
+;;     (while (not (or 
+;; 		  (string= (expand-file-name default-directory) "/")
+;; 		  (file-exists-p "configure.ac") 
+;; 		  (file-exists-p "configure.in")))
+;;       (cd ".."))
+;;     (if (not (string= (expand-file-name default-directory) "/"))
+;;       (when (not (= 0 (call-process "gtags" nil nil nil)))
+;; 	(message "error while creating tagfile"))
+;;       (message "no suitable directory found for tagging"))
+;;     (cd old-cwd)))
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -931,17 +941,18 @@
 (require-maybe 'magit)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; customization for term, ansi-term
-(defun djcb-term-mode-hook ()
-  (interactive)
-  ;; turn it off, just for this buffer -- thanks to snogglethorpe in #emacs
+;; disable cua and transient mark modes in term-char-mode
+;; http://www.emacswiki.org/emacs/AnsiTermHints
+;; remember: Term-mode remaps C-x to C-c
+(defadvice term-char-mode (after term-char-mode-fixes ())
+  (set (make-local-variable 'cua-mode) nil)
+  (set (make-local-variable 'transient-mark-mode) nil)
   (set (make-local-variable 'global-hl-line-mode) nil)
   (local-set-key [(tab)] nil))
-(add-hook 'term-mode-hook 'djcb-term-mode-hook)
+(ad-activate 'term-char-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; start as server; thus, we can use emacs for mutt, without

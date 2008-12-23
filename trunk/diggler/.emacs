@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-22 17:04:49 (djcb)>
+; Time-stamp: <2008-12-23 17:08:00 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -16,12 +16,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jump to the debugger when an error is found.
-;;(setq debug-on-error t)
+(setq debug-on-error t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my elisp directories
-(defvar elisp-path '("~/.emacs.d/elisp/" "~/.emacs.d/vm/")) 
+(defvar elisp-path '("~/.emacs.d/elisp/")) 
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -87,20 +87,14 @@
   (setq jit-lock-stealth-time 1)) ; new with emacs21
 
 (set-language-environment "UTF-8") ; prefer utf-8 for language settings
+(set-input-method nil)             ; no funky input for normal editing;
 
 (setq x-select-enable-clipboard t)  ; copy-paste should work ...
 (setq interprogram-paste-function   ; ...with...
   'x-cut-buffer-or-selection-value) ; ...other X clients
 
-(setq scroll-conservatively 10000)  ; smooth scrolling
-
 (setq completion-ignore-case t      ; ignore case when completing...
   read-file-name-completion-ignore-case t) ; ...filenames too
-
-;; no funky input for normal editing;
-;; we set it to latin-1-prefix for natural language editing 
-;; (text mode, post-mode etc.)
-(set-input-method nil)           
 
 (put 'narrow-to-region 'disabled nil) ; enable...
 (put 'erase-buffer 'disabled nil)     ; ... useful things
@@ -111,14 +105,11 @@
 (when-available 'set-fringe-mode  ; emacs22+ 
   (set-fringe-mode 2))            ; don't have too much space left of col1
 
-(require-maybe 'generic-x)         ; nice mode for config-files
-
-
 ;; pretty cool; with this we can shift to different 'windows'
 ;;  use M-<arrow keys>
 ;; note: a 'window' is emacs-lingo for a partition of what is called 
 ;; a window normally --  C-x 2 will split your 'window' in two 'windows' 
-(when (require-maybe 'windmove)
+(when (require-maybe 'windmove) 
   (windmove-default-keybindings 'meta))
 
 ;; don't show startup messages
@@ -131,9 +122,8 @@
 (when-available 'file-cache-add-directory   ; emacs 22+
   (progn 
     (defvar cachedirs 
-      '("~/public_html/" "~/.elisp/" "~/" "/etc/"))
+      '("~/Desktop/" "~/src/"  "~/"))
     (dolist (dir cachedirs) (file-cache-add-directory dir))))
-
 
 ;; set frame title / icon title using filename or buffername
 ;; little trick (based on http://www.emacswiki.org/cgi-bin/wiki/ShadyTrees)
@@ -147,36 +137,13 @@
 (setq 
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; recent files 
-(when-available 'recentf
-  (progn
-    (recentf-mode t)
-    (setq recentf-max-saved-items 500)
-    (setq recentf-max-menu-items 60)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ms-windows specific settings                                               
-;; when running on windows, set the face explicitely (no regedit) 
-;; http://www.emacswiki.org/cgi-bin/wiki/MsWindowsRegistry   
-(when win32-p
-  (set-face-font 
-    'default "-*-Lucida Console-normal-r-*-*-13-82-96-96-c-*-iso8859-1")
-  ;; by default; start with 80x30 frames; FIXME: this conflicts with vm
-  (add-to-list 'default-frame-alist '(height .60))     ; 30 lines
-  (add-to-list 'default-frame-alist '(width . 100)))     ; 80 columns     
-;; note: for X, we use ~/.Xresources for the fonts; it's faster
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -223,14 +190,13 @@
        (set-scroll-bar-mode 'right))))  ; ... on the right side
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; highlight the current line; set a custom face, so we can
 ;; recognize from the normal marking (selection)
 ;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
 (when-available 'global-hl-line-mode
   (progn
-    (defface hl-line '((t (:background "#123456")))
+    (defface hl-line '((t (:background "#123400")))
       "Face to use for `hl-line-face'." :group 'hl-line)
     (setq hl-line-face 'hl-line)
     (global-hl-line-mode t))) ;; turn it on for all modes by default
@@ -279,13 +245,13 @@
 
 ;; function keys
 (global-set-key (kbd "<f11>")  'djcb-full-screen-toggle)
-(global-set-key (kbd "<f12>")  'recentf-open-files)
 
-
-(global-set-key (kbd "s-<right>") 'hs-show-block)
-(global-set-key (kbd "s-<left>")  'hs-hide-block)
-(global-set-key (kbd "s-<up>")    'hs-hide-all)
-(global-set-key (kbd "s-<down>")  'hs-show-all)
+;; super key bindings
+(global-set-key (kbd "<s-right>") 'hs-show-block)
+(global-set-key (kbd "<s-left>")  'hs-hide-block)
+(global-set-key (kbd "<s-up>")    'hs-hide-all)
+(global-set-key (kbd "<s-down>")  'hs-show-all)
+(global-set-key (kbd "s-m")       'magit-status)
 
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
@@ -318,31 +284,25 @@
 
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
-(when (require-maybe 'linum)
-  (global-set-key (kbd "<f6>")     'linum))
-
+(global-set-key (kbd "<f6>") 'linum)
 (global-set-key (kbd "<f7>") 'compile) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
 (require 'rect-mark)
 (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
-
 (global-set-key (kbd "C-w")  
   '(lambda(b e) (interactive "r") 
      (if rm-mark-active 
        (rm-kill-region b e) (kill-region b e))))
-
 (global-set-key (kbd "M-w")  
   '(lambda(b e) (interactive "r") 
      (if rm-mark-active 
        (rm-kill-ring-save b e) (kill-ring-save b e))))
-
 (global-set-key (kbd "C-x C-x")  
   '(lambda(&optional p) (interactive "p") 
      (if rm-mark-active 
        (rm-exchange-point-and-mark p) (exchange-point-and-mark p))))
-
 
 ;; bind Caps-Lock to M-x
 ;; http://sachachua.com/wp/2008/08/04/emacs-caps-lock-as-m-x/
@@ -468,7 +428,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
@@ -477,7 +436,6 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (define-key global-map "\C-cr" 'org-remember)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -536,36 +494,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; email / news
 ;;
+;; remove parts of old email, and replace with <snip (n lines): ... >
+(defun snip-mail (b e summary)
+  "remove lines, and replace it with <snip n line(s)"
+  (interactive "r\nsSummary:")
+  (let ((line-num (count-lines b e)))
+    (delete-region b e)
+    (insert (format "<snip%s (%d line%s)>\n" 
+              (if (= 0 (length summary)) "" (concat ": " summary))
+              line-num "line(s)"))))
 
 (defun djcb-post-mode-hook ()
   (interactive)
-
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
-  
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
-
-  (require-maybe 'thinks)   ; put text in 'thinks' boxes
-  (require-maybe 'boxquote) ; put text in boxes
-  
-  (local-set-key (kbd "C-c C-j l")  'set-justification-left)
-  (local-set-key (kbd "C-c C-j f")  'set-justification-full))
-
-;; remove parts of old email, and replace with <snip (n lines): ... >
-(defun snip-mail (r-begin r-end summary)
-  (interactive "r\nsSummary:")
-  (let ((line-num (count-lines r-begin r-end)))
-    (delete-region r-begin r-end)
-    (insert (format "<snip%s (%d line%s)>\n" 
-              (if (= 0 (length summary)) "" (concat ": " summary))
-              line-num 
-              (if (= line-num 1) "" "s")))))
+  (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
-
-(add-to-list 'auto-mode-alist
-        '("\\.foo$\\|.bar$" . text-mode))
 
 ;; post mode (used when editing mail / news)
 (autoload 'post-mode "post" "mode for e-mail" t)
@@ -573,20 +520,6 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; newsticker mode
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-
 
 
 
@@ -696,31 +629,23 @@
 ;; Elisp
 (defun djcb-emacs-lisp-mode-hook ()
   (interactive)
-
+  
   ;; overrides the global f7 for compilation
   (local-set-key (kbd "<f7>") 'eval-buffer)
        
   (set-input-method nil)       ; i don't want accented chars, funny "a etc.
-  (setq lisp-indent-offset 2)) ; indent with two spaces, enough for lisp
+  (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
 
-;; show some functions as keywords
-(font-lock-add-keywords 'emacs-lisp-mode
-  '(("\\<\\(quote\\|add-hook\\)" . 
-      font-lock-keyword-face)))
-;; recognize some things as functions
-(font-lock-add-keywords 
- 'emacs-lisp-mode
- '(("\\<\\(set\\|setq\\|require-maybe\\|when-available\\|add-hook\\)\\>" . 
-    font-lock-function-name-face)))
-;; recognize some things as constants
-(font-lock-add-keywords 'emacs-lisp-mode
-  '(("\\<\\(nil\\|\\t\\)\\_>" . 
-     font-lock-constant-face)))
-
-(font-lock-add-keywords 'emacs-lisp-mode 
-  '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
-      1 font-lock-warning-face prepend)))  
-
+;;;   (font-lock-add-keywords 'emacs-lisp-mode
+;;;     '(("\\<\\(add-hook\\|require\\)" 1
+;;; 	font-lock-keyword-face prepend)
+;;;        ("\\<\\(interactive\\|kbd\\|put\\setq|)" 1
+;;; 	 font-lock-function-name-face prepend)
+;;;        ("\\<\\(nil\\|\\t\\)\\_>"  1  
+;;; 	 font-lock-constant-face prepend) ;; constants
+;;;        ("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 1 
+;;; 	 font-lock-warning-face prepend))))
+)  
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -744,6 +669,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;; gtags
+(add-hook 'gtags-mode-hook 
+  (lambda()
+    (local-set-key (kbd "M-.") 'gtags-find-tag)   ; find a tag, also M-.
+    (local-set-key (kbd "M-,") 'gtags-find-rtag)  ; reverse tag
+    (local-set-key (kbd "s-n") 'gtags-pop-stack)
+    (local-set-key (kbd "s-p") 'gtags-find-pattern)
+    (local-set-key (kbd "s-g") 'gtags-find-with-grep)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -766,81 +704,42 @@
   (interactive)
   (insert "/* Time-stamp: <> */\n"))
 
-(defun include-gplv3 ()
-  "include GPLv2 license header"
-  (interactive)
-  (insert
-"/*
-** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-**
-** This program is free software; you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 3 of the License, or
-** (at your option) any later version.
-**
-** This program is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software Foundation,
-** Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-**
-*/"))
-
-(defun include-lgplv3 ()
-  "include LGPLv3 license header"
-  (interactive)
-  (insert
-"/*
-** Copyright (C) 2008 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public License
-** as published by the Free Software Foundation; either version 3
-** of the License, or (at your option) any later version.
-**
-** This library is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public
-** License along with this library; if not, write to the Free
-** Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
-** 02110-1301, USA.
-**
-*/"))
-
-(defun smart-enter()
-  (interactive)
-  ;;(align-current) 
-  (c-context-line-break))
-
 ;; other customizations 
 
-;; (defun djcb-update-tagfile ()
-;;   "try to find the top-directory of the current path, and create/update "
-;;   "the tagfile "
-;;   (interactive)
-;;   (let ((old-cwd default-directory))
-;;     (while (not (or 
-;; 		  (string= (expand-file-name default-directory) "/")
-;; 		  (file-exists-p "configure.ac") 
-;; 		  (file-exists-p "configure.in")))
-;;       (cd ".."))
-;;     (if (not (string= (expand-file-name default-directory) "/"))
-;;       (when (not (= 0 (call-process "gtags" nil nil nil)))
-;; 	(message "error while creating tagfile"))
-;;       (message "no suitable directory found for tagging"))
-;;     (cd old-cwd)))
+(defun djcb-find-top-srcdir ()
+  "assuming the current directory is inside a source tree, try to
+  return the top_srcdir (with configure.ac/configure.in), or nil
+  if it cannot be found"
+  (interactive)
+  (let ((old-cwd default-directory) 
+	 (topfiles '("configure.ac" "configure.in")) (topdir))
+    (while (not (or topdir 
+		  (string= (expand-file-name default-directory) "/")))
+      (if (let ((topfile))
+	    (when (dolist (file topfiles)
+		    (when (file-exists-p file)
+		      (setq topfile file))))
+	    topfile)
+	(setq topdir default-directory)
+	(cd "..")))
+    (cd old-cwd)
+    topdir))
+
+(defun djcb-update-gtag-file ()
+  "update the GNU/global tagfile"
+  (interactive)
+  (let (topdir (djcb-find-top-srcdir))
+    (if (not topdir)
+      (message "cannot find the top of the sourcetree")
+      (let ((old-cwd default-directory))
+	(cd topdir)
+	(shell-command "gtags &")
+	(cd old-cwd)))))
+
 
 (defun djcb-c-mode-common ()
   (interactive) 
   (c-add-style "djcb" djcb-c-style t)
-  
-  (local-set-key (kbd "M-]") 'gtags-find-tag-from-here)
 
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
@@ -849,7 +748,6 @@
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
 	1 font-lock-warning-face prepend)))  
-
   ;; highlight some stuff; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(__FUNCTION__\\|__PRETTY_FUNCTION__\\|__LINE__\\)" 
@@ -866,16 +764,14 @@
   ;; files
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
-  
+
+  (when (require-maybe 'gtags) (gtags-mode t))
+    
   (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
 
-  (local-set-key (kbd "C-c i") 'include-guards)
-  (local-set-key (kbd "C-c t") 'include-timestamp)
-  (local-set-key (kbd "C-c C-g 3") 'include-gplv3)
-  (local-set-key (kbd "C-c C-l 3") 'include-lgplv3)
-  
+  (local-set-key (kbd "C-c i") 'include-guards)  
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
 
   ;; warn when lines are > 80 characters (in c-mode)
@@ -884,8 +780,7 @@
 	1 font-lock-warning-face prepend))))
 
 (defun djcb-c++-mode ()
-
-    ;; warn when lines are > 100 characters (in c++-mode)
+  ;; warn when lines are > 100 characters (in c++-mode)
   (font-lock-add-keywords 'c++-mode 
     '(("^[^\n]\\{100\\}\\(.*\\)$"
 	1 font-lock-warning-face prepend))))
@@ -954,27 +849,6 @@
 (ad-activate 'term-char-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start as server; thus, we can use emacs for mutt, without
-;; starting a new instance for each mail, see: 
-;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
-(server-start)
-
-;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
-
-;; move to current desktop 
-(add-hook 'server-switch-hook
-  (lambda ()
-    (call-process
-      "wmctrl" nil nil nil "-i" "-R"
-      (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
-  
-;; don't want to use C-x # when closing the client, just C-x k as always
-(add-hook 'server-switch-hook 
-  (lambda ()
-    (local-set-key (kbd "C-x k") 'server-edit)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1057,8 +931,6 @@
         "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode
 ;; based on http://www.emacswiki.org/cgi-bin/wiki/WriteRoom
@@ -1070,36 +942,29 @@
     (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; if we try to save a file owned by someone else, use sudo
-;; http://www.emacswiki.org/cgi-bin/wiki/SudoSave
-(when (require-maybe 'sudo)
-  (defun sudo-before-save-hook ()
-    (set (make-local-variable 'sudo:file) (buffer-file-name))
-    (when sudo:file
-      (unless(file-writable-p sudo:file)
-	(set (make-local-variable 'sudo:old-owner-uid)
-	  (nth 2 (file-attributes sudo:file)))
-	(when (numberp sudo:old-owner-uid)
-	  (unless (= (user-uid) sudo:old-owner-uid)
-	    (when (y-or-n-p
-		    (format "File %s is owned by %s, save it with sudo? "
-		      (file-name-nondirectory sudo:file)
-		      (user-login-name sudo:old-owner-uid)))
-	      (sudo-chown-file (int-to-string (user-uid))
-		(sudo-quoting sudo:file))
-	      (add-hook 'after-save-hook
-		(lambda ()
-		  (sudo-chown-file (int-to-string sudo:old-owner-uid)
-		    (sudo-quoting sudo:file))
-		  (if sudo-clear-password-always
-		    (sudo-kill-password-timeout)))
-		nil   ;; not append
-		t	    ;; buffer local hook
-		)))))))
-  (add-hook 'before-save-hook 'sudo-before-save-hook))
+;; start as server; thus, we can use emacs for mutt, without
+;; starting a new instance for each mail, see: 
+;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
+(server-start)
+
+;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
+
+;; move to current desktop 
+(add-hook 'server-switch-hook
+  (lambda ()
+    (call-process
+      "wmctrl" nil nil nil "-i" "-R"
+      (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
+  
+;; don't want to use C-x # when closing the client, just C-x k as always
+(add-hook 'server-switch-hook 
+  (lambda ()
+    (local-set-key (kbd "C-x k") 'server-edit)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 

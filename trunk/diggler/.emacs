@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-23 17:08:00 (djcb)>
+; Time-stamp: <2008-12-29 01:31:54 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -10,18 +10,14 @@
 ;; any later version.
 
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-;;
-;; TODO:
-;; - 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; jump to the debugger when an error is found.
-(setq debug-on-error t)
+(setq debug-on-error t) ; jump to the debugger when an error is found.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; my elisp directories
-(defvar elisp-path '("~/.emacs.d/elisp/")) 
+;; some constants
+(defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -55,7 +51,7 @@
 (line-number-mode t)                      ; show line numbers
 (column-number-mode t)                    ; show column numbers
 (when-available 'size-indication-mode 	  
-		(size-indication-mode t)) ; show file size (emacs 22+)
+  (size-indication-mode t)) ; show file size (emacs 22+)
 (display-time-mode t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -77,7 +73,6 @@
 
 (transient-mark-mode t)         ; make the current 'selection' visible
 (delete-selection-mode t)       ; delete the selection area with a keypress
-(iswitchb-mode t)               ; buffer switching; easier than icicles
 (setq search-highlight t        ; highlight when searching... 
   query-replace-highlight t)    ; ...and replacing
 (fset 'yes-or-no-p 'y-or-n-p)   ; enable one letter y/n answers to yes/no 
@@ -204,6 +199,42 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; erc, the emacs IRC client;http://www.emacswiki.org/emacs/ERC
+(when (require-maybe 'erc)
+  (setq erc-nick "djcb")
+  (setq erc-away-nick "djcb (away)")
+  (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" ;; no crap
+				   "324" "329" "332" "333" "353" "477")) 
+  (setq erc-keywords '("djcb" "Dirk-Jan" "Binnema"))
+  (setq erc-autojoin-channels-alist 
+    '(("localhost" "&bitlbee")
+       ("irc.freenode.net" "#emacs" "#maemo" "#ubuntu" "#ubuntu-nl")
+       ("irc.gimp.org" "#gnome" "#gtk+")))
+   
+  (add-hook 'erc-join-hook 'bitlbee-identify)
+  (defun bitlbee-identify ()
+    "on the bitlbee server, send the identify command to the &bitlbee channel."
+    (when (and (string= "localhost" erc-session-server)
+	    (string= "&bitlbee" (buffer-name)))
+      (erc-message "PRIVMSG" (format "%s identify %s" 
+			       (erc-default-target) 
+			       bitlbee-password))))
+  (defvar bitlbee-password nil)
+  (defun djcb-erc ()
+    "start ERC ask for password/username if needed"
+    (interactive)
+    (unless bitlbee-password
+      (setq bitlbee-password
+	(read-from-minibuffer "Bitlbee password:")))
+   
+    (interactive)
+    (erc :server "localhost" :port 6667 :nick "djcb")
+    (erc :server "irc.freenode.net" :port 6667 :nick "djcb")
+    (erc :server "irc.gimp.org"     :port 6667 :nick "djcb")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; show-paren-mode
 ;; show a subtle blinking of the matching paren (the defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
@@ -224,8 +255,6 @@
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)) ; On when idle
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -256,27 +285,35 @@
 ;; close the current buffer, just like in Win*
 (global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
 
-(defmacro djcb-term-program (name use-existing &optional key)
-  "* macro to make a defun to start some term progr PRG, and optionally,"
-  " add a keybinding to it"
-  `(progn (defun ,name () (interactive) 
-	    (djcb-term-start-or-switch (format "%S" ',name) ,use-existing))
-     (when ,key (global-set-key ,key ',name))))
+(defmacro djcb-program-shortcut (name key &optional use-existing)
+  "* macro to create a key binding KEY to start some terminal program PRG; 
+    if USE-EXISTING is true, try to switch to an existing buffer"
+  `(global-set-key ,key 
+     '(lambda()
+	(interactive)
+	(djcb-term-start-or-switch ,name ,use-existing))))
 
 ;; will create an interactive function 'zsh', and bind it to s-<F1>
 ;; 's' is the "windows-key"
-(djcb-term-program zsh    t (kbd "s-<f1>"))  ; the ubershell
-(djcb-term-program mutt   t (kbd "s-<f2>"))  ; console mail client
-(djcb-term-program irssi  t (kbd "s-<f3>"))  ; console irc client
-(djcb-term-program slrn   t (kbd "s-<f4>"))  ; console nttp client
-(djcb-term-program raggle t (kbd "s-<f5>"))  ; console feedreader
 
-(global-set-key (kbd "s-<f9>") 'remember)
+;; terminal programs are under Shift + Function Key
+(djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)  ; the ubershell
+(djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)  ; console mail client
+(djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)  ; console nttp client
+(djcb-program-shortcut "htop"  (kbd "<S-f4>") t)  ; my processes
+(djcb-program-shortcut "mc"    (kbd "<S-f5>") t)  ; midnight commander
+(djcb-program-shortcut "razzle"(kbd "<S-f6>") t)  ; rss feed reader
+
+;; some special buffers are under Super + Function Key
+(global-set-key (kbd "s-<f7>")
+  (lambda()(interactive)(switch-to-buffer "&bitlbee")))
+;; (global-set-key (kbd "s-<f8>")  
+;;   (lambda()(interactive)(switch-to-buffer "*EMMS Playlist*")))
 (global-set-key (kbd "s-<f10>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 ;; shortcuts for some oft-used files...
 (global-set-key (kbd "s-<f11>") 
-  '(lambda()(interactive)(find-file "~/.emacs-notes/todo.org"))) 
+  '(lambda()(interactive)(find-file "~/.emacs.d/org/todo.org"))) 
 (global-set-key (kbd "s-<f12>") 
   '(lambda()(interactive)(find-file "~/.emacs"))) 
 
@@ -293,23 +330,13 @@
 (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
 (global-set-key (kbd "C-w")  
   '(lambda(b e) (interactive "r") 
-     (if rm-mark-active 
-       (rm-kill-region b e) (kill-region b e))))
+     (if rm-mark-active (rm-kill-region b e) (kill-region b e))))
 (global-set-key (kbd "M-w")  
   '(lambda(b e) (interactive "r") 
-     (if rm-mark-active 
-       (rm-kill-ring-save b e) (kill-ring-save b e))))
+     (if rm-mark-active (rm-kill-ring-save b e) (kill-ring-save b e))))
 (global-set-key (kbd "C-x C-x")  
   '(lambda(&optional p) (interactive "p") 
-     (if rm-mark-active 
-       (rm-exchange-point-and-mark p) (exchange-point-and-mark p))))
-
-;; bind Caps-Lock to M-x
-;; http://sachachua.com/wp/2008/08/04/emacs-caps-lock-as-m-x/
-;; of course, this disables normal Caps-Lock for *all* apps...
-(if (eq window-system 'x)
-    (shell-command "xmodmap -e 'clear Lock' -e 'keycode 66 = F13'"))
-(global-set-key [f13] 'execute-extended-command)
+     (if rm-mark-active (rm-exchange-point-and-mark p) (exchange-point-and-mark p))))
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 
@@ -340,38 +367,60 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ido seem much less annoying than icicles...
-;; makes completing buffers nicer, even nicer than iswitchb
+;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 ;; http://www.forcix.cx/weblog/2005-08-03.html
 (defun djcb-ido () 
   (interactive)
   (ido-mode t)
   (setq 
-    ido-ignore-buffers ;; ignore these guys
-    '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido") 
-    ido-everywhere t            ; use for many file dialogs
-    ido-case-fold  t            ; be case-insensitive
-    ido-use-filename-at-point nil ; don't use filename at point (annoying)
-    ido-use-url-at-point nil      ;  don't use url at point (annoying)
+   ido-save-directory-list-file "~/.emacs.d/ido.last"
+   ido-ignore-buffers ;; ignore these guys
+   '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido")
+   ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
+   ido-everywhere t            ; use for many file dialogs
+   ido-case-fold  t            ; be case-insensitive
+   ido-use-filename-at-point nil ; don't use filename at point (annoying)
+   ido-use-url-at-point nil      ;  don't use url at point (annoying)
     ido-enable-flex-matching t  ; be flexible
     ido-max-prospects 16         ; don't spam my minibuffer
-    ido-confirm-unique-completion t ; wait for RET, even with unique completion
-    ))
+    ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
 
 (when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; emms, the emacs multimedia system
+(when (require-maybe 'emms-setup)
+  (emms-standard)
+  (emms-default-players)
+  (setq emms-source-file-default-directory "~/Music/"
+    emms-show-format "NP: %s"
+    emms-cache-file "~/.emacs.d/emms-cache")
+  
+  ;; inspired by http://real.metasyntax.net:2357/guides/emacs.html
+  (setq emms-track-description-function
+    (lambda (track)
+      (let ((artist (emms-track-get track 'info-artist))
+	     (album  (emms-track-get track 'info-album))
+	     (number (emms-track-get track 'info-tracknumber))
+	     (title  (emms-track-get track 'info-title)))
+	(if (and artist album title)
+	  (if number
+	    (format "%s: %s - [%03d] %s" artist album (string-to-int number) title)
+	    (format "%s: %s - %s" artist album title))
+	  (emms-track-simple-description track))))))
+  
+(when (require-maybe 'emms-mode-line)
+  (emms-mode-line 1))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
 ;;
 (setq abbrev-file-name          ;; tell emacs where to read abbrev
-  "~/.emacs.d/abbrev_defs")     ; definitions from...
+      "~/.emacs.d/abbrev_defs")  ; definitions from...
 (abbrev-mode t)                 ; enable abbrevs (abbreviations) ...
 (setq default-abbrev-mode t
   save-abbrevs t)       ; don't ask
@@ -386,14 +435,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; backups  (emacs will write backups and number them)
 (setq make-backup-files t ; do make backups
-      backup-by-copying t ; and copy them ...
-      backup-directory-alist '(("." . "~/.emacs.d/backup")) ; ... here
-      version-control t
-      kept-new-versions 2
-      kept-old-versions 5
-      delete-old-versions t)
+  backup-by-copying t ; and copy them ...
+  backup-directory-alist '(("." . "~/.emacs.d/backup/")) ; ... here
+  version-control t
+  kept-new-versions 2
+  kept-old-versions 5
+  delete-old-versions t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -407,6 +455,16 @@
   time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;; recent files                                                                   
+(when (require-maybe 'recentf)
+  (setq recentf-save-file "~/.emacs.d/recentf"
+	recentf-max-saved-items 500                                            
+	recentf-max-menu-items 60)
+  (recentf-mode t))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 
 
 
@@ -432,8 +490,8 @@
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
 (org-remember-insinuate)
-(setq org-directory "~/.emacs-d/org")
-(setq org-default-notes-file (concat org-directory "/notes.org"))
+(setq org-directory "~/.emacs.d/org/"
+      org-default-notes-file (concat org-directory "/notes.org"))
 (define-key global-map "\C-cr" 'org-remember)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -492,17 +550,18 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; email / news
+; email / news
 ;;
 ;; remove parts of old email, and replace with <snip (n lines): ... >
-(defun snip-mail (b e summary)
-  "remove lines, and replace it with <snip n line(s)"
+(defun djcb-snip (b e summ)
+  "remove selected lines, and replace it with [snip:summary (n lines)]"
   (interactive "r\nsSummary:")
-  (let ((line-num (count-lines b e)))
+  (let ((n (count-lines b e)))
     (delete-region b e)
-    (insert (format "<snip%s (%d line%s)>\n" 
-              (if (= 0 (length summary)) "" (concat ": " summary))
-              line-num "line(s)"))))
+    (insert (format "[snip%s (%d line%s)]" 
+              (if (= 0 (length summ)) "" (concat ": " summ))
+              n 
+              (if (= 1 n) "" "s")))))
 
 (defun djcb-post-mode-hook ()
   (interactive)
@@ -636,24 +695,20 @@
   (set-input-method nil)       ; i don't want accented chars, funny "a etc.
   (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
 
-;;;   (font-lock-add-keywords 'emacs-lisp-mode
-;;;     '(("\\<\\(add-hook\\|require\\)" 1
-;;; 	font-lock-keyword-face prepend)
-;;;        ("\\<\\(interactive\\|kbd\\|put\\setq|)" 1
-;;; 	 font-lock-function-name-face prepend)
-;;;        ("\\<\\(nil\\|\\t\\)\\_>"  1  
-;;; 	 font-lock-constant-face prepend) ;; constants
-;;;        ("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 1 
-;;; 	 font-lock-warning-face prepend))))
+  (font-lock-add-keywords nil 
+    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
+	1 font-lock-warning-face prepend)))  
+  
+  (font-lock-add-keywords nil 
+    '(("\\<\\(require-maybe\\|when-available\\|add-hook\\|setq\\)" 
+	1 font-lock-keyword-face prepend)))  
 )  
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
-;; TODO: get rid of the annoying auto )]} 
 (defalias 'perl-mode 'cperl-mode) ; cperl mode is what we want
 
 (defun djcb-cperl-mode-hook ()
@@ -678,9 +733,6 @@
     (local-set-key (kbd "s-n") 'gtags-pop-stack)
     (local-set-key (kbd "s-p") 'gtags-find-pattern)
     (local-set-key (kbd "s-g") 'gtags-find-with-grep)))
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
@@ -744,6 +796,8 @@
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
   
+  (hs-minor-mode t)
+
   ;; highlight some stuff; ; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
@@ -785,7 +839,7 @@
     '(("^[^\n]\\{100\\}\\(.*\\)$"
 	1 font-lock-warning-face prepend))))
 
-;; run befor all c-mode flavours
+;; run before all c-mode flavours
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) 
 ;; run befor c mode
 ;;(add-hook 'c-mode-hook 'djcb-c-mode)
@@ -806,7 +860,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ruby
 (defun djcb-ruby-mode-hook ()
-  (ruby-electric-mode)
+  (ruby-electric-brace t)
   (setq ruby-indent-level 4))
 
 (add-hook 'ruby-mode-hook 'djcb-ruby-mode-hook)
@@ -864,28 +918,27 @@
 ;; elisp function/macros
 ;; switch to a buffer it already exists, otherwise return nil
 (defun djcb-switch-to-named-buffer (name)
-  "* try to select buffer with NAME from the buffer list; evaluate to t" 
+  "* try to switch to buffer with NAME from the buffer list; evaluate to name" 
   "  if buffer was found, nil otherwise"
   (interactive)
-  (defun djcb-switch-buffer (lst name)
-    (if lst 
-      (let ((curbuf (buffer-name (car lst))))
-	(if (string= curbuf name)
-	  (progn (switch-to-buffer curbuf) t)
-	  (djcb-switch-buffer (cdr lst) name)))
-      nil))
-  (djcb-switch-buffer (buffer-list) name))
+  (let ((found))
+    (mapcar '(lambda(buf)
+	       (when (string= (buffer-name buf) name)
+		 (switch-to-buffer name)
+		 (setq found name)))
+      (buffer-list))
+    
+    found))
 
 (defun djcb-term-start-or-switch (prg &optional use-existing)
   "* run program PRG in a terminal buffer. If USE-EXISTING is non-nil "
   " and PRG is already running, switch to that buffer instead of starting"
-  " a new instance. Optional give a keybinding in KEY"
+  " a new instance."
   (interactive)
   (when (not (and use-existing
 	       (djcb-switch-to-named-buffer (format "*%s*" prg))))
     (ansi-term prg prg)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -908,7 +961,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some html-related functions
 (defun djcb-html-tag-region-or-point (el)
   "tag the region or the point if there is no region"
@@ -942,13 +995,11 @@
     (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; start as server; thus, we can use emacs for mutt, without
 ;; starting a new instance for each mail, see: 
 ;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
 (server-start)
-
 ;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
 
 ;; move to current desktop 
@@ -965,6 +1016,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; start with my todo-list;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(find-file "~/.emacs.d/org/todo.org")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

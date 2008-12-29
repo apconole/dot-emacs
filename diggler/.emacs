@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-29 01:31:54 (djcb)>
+; Time-stamp: <2008-12-29 16:58:44 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -11,8 +11,8 @@
 
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq debug-on-error t) ; jump to the debugger when an error is found.
+;;;;;;;;;;;;;;;;;;;    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq debug-on-error nil) ; jump to the debugger when an error is found.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -431,7 +431,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; backups  (emacs will write backups and number them)
 (setq make-backup-files t ; do make backups
@@ -759,35 +758,30 @@
 ;; other customizations 
 
 (defun djcb-find-top-srcdir ()
-  "assuming the current directory is inside a source tree, try to
-  return the top_srcdir (with configure.ac/configure.in), or nil
-  if it cannot be found"
+  "try to return the top_srcdir (with configure.ac/configure.in/...), 
+   or prompt user for a dir if it cannot be found."
   (interactive)
   (let ((old-cwd default-directory) 
-	 (topfiles '("configure.ac" "configure.in")) (topdir))
-    (while (not (or topdir 
+	 (topfiles '("GTAGS" "configure.ac" "configure.in" "setup.py")) ;; add more
+	 (topdir))
+    (while (not (or topdir ; continue until topdir is none-nil, and cwd is none-/   
 		  (string= (expand-file-name default-directory) "/")))
-      (if (let ((topfile))
-	    (when (dolist (file topfiles)
-		    (when (file-exists-p file)
-		      (setq topfile file))))
-	    topfile)
-	(setq topdir default-directory)
-	(cd "..")))
+      (mapcar '(lambda(file)
+		 (if (file-exists-p file)
+		   (setq topdir default-directory)
+		   (cd ".."))) topfiles))
+    (when (not (or topdir (file-exists-p "GTAGS")))
+      (setq topdir (read-directory-name  "gtags: top of tree:" default-directory)))
     (cd old-cwd)
     topdir))
 
-(defun djcb-update-gtag-file ()
-  "update the GNU/global tagfile"
+(defun djcb-update-gtags ()
+  "update or create the GNU/global tagfile from either the top srcdir 
+   or the current dir if that cannot be found"
   (interactive)
-  (let (topdir (djcb-find-top-srcdir))
-    (if (not topdir)
-      (message "cannot find the top of the sourcetree")
-      (let ((old-cwd default-directory))
-	(cd topdir)
-	(shell-command "gtags &")
-	(cd old-cwd)))))
-
+  (if (file-exists-p (concat (djcb-find-top-srcdir) "/GTAGS"))
+    (shell-command "global -u && echo 'updated tagfile'") ; update
+    (shell-command "gtags && echo 'created tagfile'"))) ; create
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -819,7 +813,9 @@
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
-  (when (require-maybe 'gtags) (gtags-mode t))
+  (when (require-maybe 'gtags) 
+    (gtags-mode t)
+    (djcb-update-gtags))
     
   (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
@@ -903,8 +899,6 @@
 (ad-activate 'term-char-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying 
 ;; warnings
@@ -926,8 +920,7 @@
 	       (when (string= (buffer-name buf) name)
 		 (switch-to-buffer name)
 		 (setq found name)))
-      (buffer-list))
-    
+      (buffer-list))    
     found))
 
 (defun djcb-term-start-or-switch (prg &optional use-existing)

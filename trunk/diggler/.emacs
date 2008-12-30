@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-30 08:27:09 (djcb)>
+; Time-stamp: <2008-12-30 16:37:49 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -134,7 +134,6 @@
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks")
@@ -168,7 +167,9 @@
   (set-face-foreground 'font-lock-variable-name-face "darkgreen")
   
   (set-face-foreground 'font-lock-warning-face "yellow")
-  (set-face-underline  'font-lock-warning-face "red")
+  (make-face-bold 'font-lock-warning-face)
+  (make-face-unitalic 'font-lock-warning-face)  
+  (set-face-underline  'font-lock-warning-face nil)
   
   (set-face-background 'region "#777777")
 
@@ -312,12 +313,15 @@
 (global-set-key (kbd "s-<f10>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 ;; shortcuts for some oft-used files...
-(global-set-key (kbd "s-<f11>") 
-  '(lambda()(interactive)(find-file "~/.emacs.d/org/todo.org"))) 
+;;(global-set-key (kbd "s-<f11>") 
+;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/todo.org"))) 
 (global-set-key (kbd "s-<f12>") 
   '(lambda()(interactive)(find-file "~/.emacs"))) 
 
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
+
+;; org mode -- show my agenda
+(global-set-key (kbd "C-c a") 'org-agenda)
 
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
@@ -491,9 +495,13 @@
 (org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
 (setq org-default-notes-file (concat org-directory "/notes.org")
-  org-agenda-files (list (expand-file-name org-directory)
-  (concat (expand-file-name org-directory) "/todo.org")) 
+  org-agenda-files (list (concat (expand-file-name org-directory) "/")) 
   org-agenda-include-diary t)
+(setq org-agenda-custom-commands
+  '(("w" tags "+work")              ; all work items
+     ("W" tags-todo "+work")        ; all work todo items
+     ("p" tags "+personal")         ; all personal items
+     ("P" tags-todo "+personal")))  ; all personal todo items
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -568,9 +576,10 @@
   (interactive)
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
+  (turn-on-orgstruct)      ; enable org-mode-style structure editing
+  (set-face-foreground 'post-bold-face "#ffffff")
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
-  (set-face-foreground 'post-bold-face "#ffffff")
   (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
@@ -765,14 +774,12 @@
    or prompt user for a dir if it cannot be found."
   (interactive)
   (let ((old-cwd default-directory) 
-	 (topfiles '("GTAGS" "configure.ac" "configure.in" "setup.py")) ;; add more
 	 (topdir))
     (while (not (or topdir ; continue until topdir is none-nil, and cwd is none-/   
 		  (string= (expand-file-name default-directory) "/")))
-      (mapcar '(lambda(file)
-		 (if (file-exists-p file)
-		   (setq topdir default-directory)
-		   (cd ".."))) topfiles))
+      (if (file-exists-p "GTAGS") ;; if the current dir has a GTAGS file
+	(setq topdir default-directory) ; then it it's the topdir,
+	(cd ".."))) ;; otherwise o to the parent
     (when (not (or topdir (file-exists-p "GTAGS")))
       (setq topdir (read-directory-name  "gtags: top of tree:" default-directory)))
     (cd old-cwd)
@@ -782,9 +789,10 @@
   "update or create the GNU/global tagfile from either the top srcdir 
    or the current dir if that cannot be found"
   (interactive)
-  (if (file-exists-p (concat (djcb-find-top-srcdir) "/GTAGS"))
-    (shell-command "global -u && echo 'updated tagfile'") ; update
-    (shell-command "gtags && echo 'created tagfile'"))) ; create
+  (let ((topdir (read-directory-name  "gtags: top of tree:" default-directory)))
+    (if (file-exists-p (concat topdir "/GTAGS"))
+      (shell-command "global -u && echo 'updated tagfile'") ; update
+      (shell-command "gtags && echo 'created tagfile'")))) ; create
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -928,22 +936,16 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; twitter-mode
-;; see http://hayamin.com/wiliki.cgi?twittering-mode-en&l=en
+;; twitter; see http://www.emacswiki.org/emacs/TwIt
 ;; code below makes emacs ask for username/password....; never a good
 ;; idea to put real login data in your .emacs...
-(when (require-maybe 'twittering-mode)
-  (defun djcb-twitter()
-    "start twittering mode (for starting Twitter),
-     ask for password/username if needed"
+(when (require-maybe 'twit)
+  (defun djcb-twit()
+    "start twittering mode, ask for user/pass if needed"
     (interactive)
-    (unless twittering-username
-      (setq twittering-username
-	    (read-from-minibuffer "Twitter username:")))
-    (unless twittering-password
-      (setq twittering-password 
-	    (read-passwd "Twitter password:")))
-    (twittering-mode)))
+    (unless twit-user (setq twit-user (read-from-minibuffer "Twitter user:")))
+    (unless twit-pass (setq twit-pass (read-passwd "Twit pass:")))
+    (twit-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -1003,7 +1005,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; start with my todo-list;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(find-file "~/.emacs.d/org/todo.org")
+;;(find-file "~/.emacs.d/org/todo.org")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

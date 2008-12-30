@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-29 16:58:44 (djcb)>
+; Time-stamp: <2008-12-30 08:27:09 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -11,8 +11,8 @@
 
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 
-;;;;;;;;;;;;;;;;;;;    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq debug-on-error nil) ; jump to the debugger when an error is found.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq debug-on-error nil) ; turn debugging on/off
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -489,9 +489,11 @@
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
 (org-remember-insinuate)
-(setq org-directory "~/.emacs.d/org/"
-      org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map "\C-cr" 'org-remember)
+(setq org-directory "~/.emacs.d/org/")
+(setq org-default-notes-file (concat org-directory "/notes.org")
+  org-agenda-files (list (expand-file-name org-directory)
+  (concat (expand-file-name org-directory) "/todo.org")) 
+  org-agenda-include-diary t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -568,6 +570,7 @@
   (setq fill-column 72)    ; rfc 1855 for usenet
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
+  (set-face-foreground 'post-bold-face "#ffffff")
   (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
@@ -911,26 +914,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; elisp function/macros
 ;; switch to a buffer it already exists, otherwise return nil
-(defun djcb-switch-to-named-buffer (name)
-  "* try to switch to buffer with NAME from the buffer list; evaluate to name" 
-  "  if buffer was found, nil otherwise"
-  (interactive)
-  (let ((found))
-    (mapcar '(lambda(buf)
-	       (when (string= (buffer-name buf) name)
-		 (switch-to-buffer name)
-		 (setq found name)))
-      (buffer-list))    
-    found))
-
 (defun djcb-term-start-or-switch (prg &optional use-existing)
   "* run program PRG in a terminal buffer. If USE-EXISTING is non-nil "
   " and PRG is already running, switch to that buffer instead of starting"
   " a new instance."
   (interactive)
-  (when (not (and use-existing
-	       (djcb-switch-to-named-buffer (format "*%s*" prg))))
-    (ansi-term prg prg)))
+  (let ((bufname (concat "*" prg "*")))
+    (when (not (and use-existing
+		 (let ((buf (get-buffer bufname)))
+		   (and buf (buffer-name (switch-to-buffer bufname))))))
+      (ansi-term prg prg))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

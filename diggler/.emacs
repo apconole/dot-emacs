@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-30 16:37:49 (djcb)>
+; Time-stamp: <2008-12-31 08:28:24 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -301,20 +301,28 @@
 (djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)  ; the ubershell
 (djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)  ; console mail client
 (djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)  ; console nttp client
-(djcb-program-shortcut "htop"  (kbd "<S-f4>") t)  ; my processes
-(djcb-program-shortcut "mc"    (kbd "<S-f5>") t)  ; midnight commander
-(djcb-program-shortcut "razzle"(kbd "<S-f6>") t)  ; rss feed reader
+(djcb-program-shortcut "mc"    (kbd "<S-f4>") t)  ; midnight commander
+(djcb-program-shortcut "razzle"(kbd "<S-f5>") t)  ; rss feed reader
+
+(djcb-program-shortcut "iotop"  (kbd "<S-f11>") t)  ; i/o
+(djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
+
+
 
 ;; some special buffers are under Super + Function Key
 (global-set-key (kbd "s-<f7>")
   (lambda()(interactive)(switch-to-buffer "&bitlbee")))
 ;; (global-set-key (kbd "s-<f8>")  
 ;;   (lambda()(interactive)(switch-to-buffer "*EMMS Playlist*")))
-(global-set-key (kbd "s-<f10>")  ;make <f10> switch to *scratch*     
+
+(global-set-key (kbd "s-<f8>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-;; shortcuts for some oft-used files...
-;;(global-set-key (kbd "s-<f11>") 
-;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/todo.org"))) 
+(global-set-key (kbd "s-<f9>") 
+  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/work.org"))) 
+(global-set-key (kbd "s-<f10>") 
+  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/personal.org"))) 
+(global-set-key (kbd "s-<f11>") 
+  '(lambda()(interactive)(find-file "~/.emacs.d/org/notes.org"))) 
 (global-set-key (kbd "s-<f12>") 
   '(lambda()(interactive)(find-file "~/.emacs"))) 
 
@@ -388,13 +396,13 @@
    ido-use-filename-at-point nil ; don't use filename at point (annoying)
    ido-use-url-at-point nil      ;  don't use url at point (annoying)
     ido-enable-flex-matching t  ; be flexible
-    ido-max-prospects 16         ; don't spam my minibuffer
+    ido-max-prospects 4         ; don't spam my minibuffer
     ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
 
 (when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; emms, the emacs multimedia system
 (when (require-maybe 'emms-setup)
   (emms-standard)
@@ -495,8 +503,11 @@
 (org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
 (setq org-default-notes-file (concat org-directory "/notes.org")
-  org-agenda-files (list (concat (expand-file-name org-directory) "/")) 
-  org-agenda-include-diary t)
+  org-agenda-files (list (concat (expand-file-name org-directory) "/agenda/")) 
+  org-agenda-include-diary t
+  org-return-follows-link t)
+(setq org-todo-keywords
+  '((sequence "TODO" "DELEGATED" "|" "MAYBE" "DONE")))
 (setq org-agenda-custom-commands
   '(("w" tags "+work")              ; all work items
      ("W" tags-todo "+work")        ; all work todo items
@@ -1004,8 +1015,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; start with my todo-list;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;(find-file "~/.emacs.d/org/todo.org")
+;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(find-file "~/.emacs.d/org/agenda/personal.org")
+(org-agenda-list)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

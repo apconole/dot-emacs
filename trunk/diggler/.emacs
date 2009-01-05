@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2008-12-31 08:28:24 (djcb)>
+; Time-stamp: <2009-01-04 11:53:55 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -207,6 +207,7 @@
   (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" ;; no crap
 				   "324" "329" "332" "333" "353" "477")) 
   (setq erc-keywords '("djcb" "Dirk-Jan" "Binnema"))
+  (erc-autojoin-mode 1)
   (setq erc-autojoin-channels-alist 
     '(("localhost" "&bitlbee")
        ("irc.freenode.net" "#emacs" "#maemo" "#ubuntu" "#ubuntu-nl")
@@ -372,10 +373,6 @@
 ;; TODO: some smarter version that ignores certain buffers, see:
 ;; http://www.emacswiki.org/cgi-bin/wiki/ControlTABbufferCycling
 (global-set-key [(control tab)] 'bury-buffer)
-
-; isearch - the defaults are _so_ annoying... (well, not really global but..)
-(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-char) ; bs == bs 
-(define-key isearch-mode-map (kbd "<delete>") 'isearch-delete-char) ; del == del
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -536,12 +533,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; encryption
-;; http://www.emacswiki.org/emacs/EasyPG
-(when (require-maybe 'epa-file)
-  (epa-file-enable))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;some special purpose modes
 ;; muttrc-mode (used when editing muttrc)
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/muttrc-mode.el
@@ -591,6 +582,9 @@
   (set-face-foreground 'post-bold-face "#ffffff")
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
+  (font-lock-add-keywords nil 
+    '(("\\<\\(FIXME\\|TODO):" 
+	1 font-lock-warning-face prepend)))  
   (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
@@ -601,6 +595,11 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  gnus
+(require 'nnmaildir)
 
 
 
@@ -866,6 +865,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
 (defun djcb-makefile-mode-hook ()
@@ -948,16 +952,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; twitter; see http://www.emacswiki.org/emacs/TwIt
-;; code below makes emacs ask for username/password....; never a good
-;; idea to put real login data in your .emacs...
-(when (require-maybe 'twit)
-  (defun djcb-twit()
-    "start twittering mode, ask for user/pass if needed"
-    (interactive)
-    (unless twit-user (setq twit-user (read-from-minibuffer "Twitter user:")))
-    (unless twit-pass (setq twit-pass (read-passwd "Twit pass:")))
-    (twit-mode)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'twit-post "twit" "post on twitter" t)
+(autoload 'twit-post-region "twit" "post on twitter" t)
+(autoload 'twit-show-recent-tweets "twit" "read from twitter" t)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1016,7 +1014,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(find-file "~/.emacs.d/org/agenda/personal.org")
+(find-file "~/.emacs.d/org/notes.org")
 (org-agenda-list)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

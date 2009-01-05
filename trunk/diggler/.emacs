@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-04 11:53:55 (djcb)>
+; Time-stamp: <2009-01-05 14:46:19 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -44,6 +44,7 @@
   "Are we running on a GNU/Linux system?")
 (defconst console-p (eq (symbol-value 'window-system) nil)
   "Are we running in a console (non-X) environment?")
+;; TODO: add maemo-p 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -133,6 +134,12 @@
   frame-title-format '(:eval (djcb-title-format))
   icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; for OS2008/Maemo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(setq dired-use-ls-dired nil) 
+;(setq list-directory-brief-switches "-C")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
@@ -307,8 +314,6 @@
 
 (djcb-program-shortcut "iotop"  (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
-
-
 
 ;; some special buffers are under Super + Function Key
 (global-set-key (kbd "s-<f7>")
@@ -497,19 +502,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
-(org-remember-insinuate)
+;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
+
 (setq org-default-notes-file (concat org-directory "/notes.org")
   org-agenda-files (list (concat (expand-file-name org-directory) "/agenda/")) 
   org-agenda-include-diary t
   org-return-follows-link t)
-(setq org-todo-keywords
+(setq org-todo-keywords ;; does not work with emacs <= 22
   '((sequence "TODO" "DELEGATED" "|" "MAYBE" "DONE")))
 (setq org-agenda-custom-commands
   '(("w" tags "+work")              ; all work items
      ("W" tags-todo "+work")        ; all work todo items
      ("p" tags "+personal")         ; all personal items
      ("P" tags-todo "+personal")))  ; all personal todo items
+
+;; emacs <= 22
+;;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode)) ;; for emacs<=22
+;;(setq org-agenda-files '("~/.emacs.d/org/agenda/work.org"
+;;                       "~/.emacs.d/org/agenda/done.org"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -745,6 +756,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;; gtags
 (add-hook 'gtags-mode-hook 
@@ -778,31 +791,18 @@
   (insert "/* Time-stamp: <> */\n"))
 
 ;; other customizations 
-
-(defun djcb-find-top-srcdir ()
-  "try to return the top_srcdir (with configure.ac/configure.in/...), 
-   or prompt user for a dir if it cannot be found."
+(defun djcb-gtags-create-or-update ()
+  "create or update the gnu global tag file"
   (interactive)
-  (let ((old-cwd default-directory) 
-	 (topdir))
-    (while (not (or topdir ; continue until topdir is none-nil, and cwd is none-/   
-		  (string= (expand-file-name default-directory) "/")))
-      (if (file-exists-p "GTAGS") ;; if the current dir has a GTAGS file
-	(setq topdir default-directory) ; then it it's the topdir,
-	(cd ".."))) ;; otherwise o to the parent
-    (when (not (or topdir (file-exists-p "GTAGS")))
-      (setq topdir (read-directory-name  "gtags: top of tree:" default-directory)))
-    (cd old-cwd)
-    topdir))
-
-(defun djcb-update-gtags ()
-  "update or create the GNU/global tagfile from either the top srcdir 
-   or the current dir if that cannot be found"
-  (interactive)
-  (let ((topdir (read-directory-name  "gtags: top of tree:" default-directory)))
-    (if (file-exists-p (concat topdir "/GTAGS"))
-      (shell-command "global -u && echo 'updated tagfile'") ; update
-      (shell-command "gtags && echo 'created tagfile'")))) ; create
+  (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
+    (let ((olddir default-directory)
+	  (topdir (read-directory-name  
+		    "gtags: top of source tree:" default-directory)))
+      (cd topdir)
+      (shell-command "gtags && echo 'created tagfile'")
+      (cd olddir)) ; restore   
+    ;;  tagfile already exists; update it
+    (shell-command "global -u && echo 'updated tagfile'")))
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -834,14 +834,15 @@
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
-  (when (require-maybe 'gtags) 
-    (gtags-mode t)
-    (djcb-update-gtags))
-    
+  (when (not (string-match ("/usr/src/linux" (expand-file-name default-directory))))
+    (when (require-maybe 'gtags) 
+      (gtags-mode t)
+      (djcb-gtags-create-or-update)))
+  
   (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
-
+  
   (local-set-key (kbd "C-c i") 'include-guards)  
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
 

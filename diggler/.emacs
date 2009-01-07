@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-05 14:46:19 (djcb)>
+; Time-stamp: <2009-01-06 22:02:36 (djcb)>
 ;;
 ;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -15,8 +15,7 @@
 (setq debug-on-error nil) ; turn debugging on/off
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; some constants
+;; some constants ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
 (mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -34,16 +33,12 @@
   `(when (fboundp ,func) ,foo)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
- 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; what kind of system are we using?  start with these, as it will influence
+;;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; other stuff inspired by: http://www.xsteve.at/prg/emacs/.emacs.txt
-(defconst win32-p (eq system-type 'windows-nt)
-  "Are we running on a WinTel system?")
+(defconst win32-p (eq system-type 'windows-nt) "Are we on Windows?")
 (defconst linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
   "Are we running on a GNU/Linux system?")
-(defconst console-p (eq (symbol-value 'window-system) nil)
-  "Are we running in a console (non-X) environment?")
+(defconst console-p (eq (symbol-value 'window-system) nil) "Are in a console?")
 ;; TODO: add maemo-p 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -68,10 +63,8 @@
 ;; `----
 (menu-bar-mode -1)              ; don't show the menu 
 (tool-bar-mode -1)              ; don't show the toolbar
-
 (icomplete-mode t)		; completion in minibuffer
 (blink-cursor-mode 0)		; don't blink cursor
-
 (transient-mark-mode t)         ; make the current 'selection' visible
 (delete-selection-mode t)       ; delete the selection area with a keypress
 (setq search-highlight t        ; highlight when searching... 
@@ -106,7 +99,8 @@
 ;; note: a 'window' is emacs-lingo for a partition of what is called 
 ;; a window normally --  C-x 2 will split your 'window' in two 'windows' 
 (when (require-maybe 'windmove) 
-  (windmove-default-keybindings 'meta))
+  (windmove-default-keybindings 'hyper)
+  (setq windmove-wrap-around t))
 
 ;; don't show startup messages
 (setq inhibit-startup-message t           
@@ -378,7 +372,25 @@
 ;; TODO: some smarter version that ignores certain buffers, see:
 ;; http://www.emacswiki.org/cgi-bin/wiki/ControlTABbufferCycling
 (global-set-key [(control tab)] 'bury-buffer)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(when (require-maybe 'list-register)
+  (global-set-key (kbd "C-x r v") 'list-registers))
+
+(global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq hippie-expand-try-functions-list 
+      '(try-expand-all-abbrevs try-expand-dabbrev
+	try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
+	try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;; sr-speedbar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(autoload 'sr-speedbar-toggle "sr-speedbar" "a speedbar" t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -508,7 +520,8 @@
 (setq org-default-notes-file (concat org-directory "/notes.org")
   org-agenda-files (list (concat (expand-file-name org-directory) "/agenda/")) 
   org-agenda-include-diary t
-  org-return-follows-link t)
+  org-return-follows-link t
+  org-tab-follows-link t)
 (setq org-todo-keywords ;; does not work with emacs <= 22
   '((sequence "TODO" "DELEGATED" "|" "MAYBE" "DONE")))
 (setq org-agenda-custom-commands
@@ -1011,8 +1024,7 @@
 (add-hook 'server-switch-hook 
   (lambda ()
     (local-set-key (kbd "C-x k") 'server-edit)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (find-file "~/.emacs.d/org/notes.org")

@@ -1,7 +1,7 @@
 ;;; twit.el --- interface with twitter.com
 
 ;; Copyright (c) 2007 Theron Tlax
-;; Time-stamp: <2007-03-19 18:33:17 thorne>
+;; Time-stamp: <2008-12-31 18:16:03 (djcb)>
 ;; Author: thorne <thorne@timbral.net>
 ;; Created: 2007.3.16
 ;; Keywords: comm

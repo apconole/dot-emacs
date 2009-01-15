@@ -1,7 +1,7 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-06 22:02:36 (djcb)>
+; Time-stamp: <2009-01-15 07:59:28 (djcb)>
 ;;
-;; Copyright (C) 1996-2008  Dirk-Jan C. Binnema.
+;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -27,10 +27,6 @@
 (defmacro require-maybe (feature &optional file)
   "*Try to require FEATURE, but don't signal an error if `require' fails."
   `(require ,feature ,file 'noerror)) 
-
-(defmacro when-available (func foo)
-  "*Do something if FUNCTION is available."
-  `(when (fboundp ,func) ,foo)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -46,7 +42,7 @@
 ;; the modeline
 (line-number-mode t)                      ; show line numbers
 (column-number-mode t)                    ; show column numbers
-(when-available 'size-indication-mode 	  
+(when (fboundp size-indication-mode) 	  
   (size-indication-mode t)) ; show file size (emacs 22+)
 (display-time-mode t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -88,10 +84,10 @@
 (put 'narrow-to-region 'disabled nil) ; enable...
 (put 'erase-buffer 'disabled nil)     ; ... useful things
 
-(when-available 'file-name-shadow-mode     ; emacs22+
-		(file-name-shadow-mode 1)) ; be smart about filenames
+(when (fboundp file-name-shadow-mode)     ; emacs22+
+  (file-name-shadow-mode 1)) ; be smart about filenames
 					   ; (understand ~/ etc.)
-(when-available 'set-fringe-mode  ; emacs22+ 
+(when (fboundp 'set-fringe-mode)  ; emacs22+ 
   (set-fringe-mode 2))            ; don't have too much space left of col1
 
 ;; pretty cool; with this we can shift to different 'windows'
@@ -109,11 +105,10 @@
 ;; define dirs for cacheing file dirs
 ;; see http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
 ;; for more tricks with this...
-(when-available 'file-cache-add-directory   ; emacs 22+
-  (progn 
+(when (fboundp 'file-cache-add-directory)   ; emacs 22+
     (defvar cachedirs 
       '("~/Desktop/" "~/src/"  "~/"))
-    (dolist (dir cachedirs) (file-cache-add-directory dir))))
+  (dolist (dir cachedirs) (file-cache-add-directory dir)))
 
 ;; set frame title / icon title using filename or buffername
 ;; little trick (based on http://www.emacswiki.org/cgi-bin/wiki/ShadyTrees)
@@ -181,22 +176,20 @@
 ;; window-system (ie. _not_ console) specific settings
 ;;
 (when (not console-p)           
-  (when-available 'scroll-bar-mode
-    (progn
-       (scroll-bar-mode t)             ;  show the scroll bar ... 
-       (set-scroll-bar-mode 'right))))  ; ... on the right side
+  (when (fboundp 'scroll-bar-mode)
+    (scroll-bar-mode t)             ;  show the scroll bar ... 
+    (set-scroll-bar-mode 'right)))  ; ... on the right side
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; highlight the current line; set a custom face, so we can
 ;; recognize from the normal marking (selection)
 ;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
-(when-available 'global-hl-line-mode
-  (progn
-    (defface hl-line '((t (:background "#123400")))
-      "Face to use for `hl-line-face'." :group 'hl-line)
-    (setq hl-line-face 'hl-line)
-    (global-hl-line-mode t))) ;; turn it on for all modes by default
+(when (fboundp 'global-hl-line-mode)
+  (defface hl-line '((t (:background "#123400")))
+    "Face to use for `hl-line-face'." :group 'hl-line)
+  (setq hl-line-face 'hl-line)
+  (global-hl-line-mode t)) ;; turn it on for all modes by default
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -241,15 +234,13 @@
 ;; show-paren-mode
 ;; show a subtle blinking of the matching paren (the defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
-(when-available 'show-paren-mode
-  (progn
-    (show-paren-mode t)
-    (setq show-paren-style 'expression)
-    (set-face-background 'show-paren-match-face "#333333")
-    (set-face-attribute 'show-paren-match-face nil 
-      :weight 'normal :underline nil :overline nil :slant 'normal)))
+(when (fboundp 'show-paren-mode)
+  (show-paren-mode t)
+  (setq show-paren-style 'expression)
+  (set-face-background 'show-paren-match-face "#333333")
+  (set-face-attribute 'show-paren-match-face nil 
+    :weight 'normal :underline nil :overline nil :slant 'normal))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; change cursor color based on mode
@@ -263,7 +254,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
 ;;     the arg to 'kbd' is what you get when pushing C-h k and the key(s)
-(global-set-key (kbd "<backspace>") 'delete-backward-char) ; bs => bs 
+;;(global-set-key (kbd "<backspace>") 'delete-backward-char) ; bs => bs 
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
 
@@ -409,9 +400,9 @@
    ido-case-fold  t            ; be case-insensitive
    ido-use-filename-at-point nil ; don't use filename at point (annoying)
    ido-use-url-at-point nil      ;  don't use url at point (annoying)
-    ido-enable-flex-matching t  ; be flexible
-    ido-max-prospects 4         ; don't spam my minibuffer
-    ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
+   ido-enable-flex-matching t  ; be flexible
+   ido-max-prospects 4         ; don't spam my minibuffer
+   ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
 
 (when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
@@ -521,9 +512,12 @@
   org-agenda-files (list (concat (expand-file-name org-directory) "/agenda/")) 
   org-agenda-include-diary t
   org-return-follows-link t
-  org-tab-follows-link t)
+  org-tab-follows-link t
+  org-agenda-skip-deadline-if-done t
+  org-agenda-skip-scheduled-if-done t   
+  org-agenda-start-on-weekday nil)
 (setq org-todo-keywords ;; does not work with emacs <= 22
-  '((sequence "TODO" "DELEGATED" "|" "MAYBE" "DONE")))
+  '((sequence "TODO" "|" "DONE")))
 (setq org-agenda-custom-commands
   '(("w" tags "+work")              ; all work items
      ("W" tags-todo "+work")        ; all work todo items
@@ -581,6 +575,13 @@
   
 ;; turn on autofill for all text-related modes
 (toggle-text-mode-auto-fill) 
+
+(defun djcb-count-words (&optional begin end)
+  "count words between BEGIN and END (region); if no region defined, count words in buffer"
+  (interactive "r")
+  (let ((b (if mark-active begin (point-min)))
+      (e (if mark-active end (point-max))))
+    (message "Word count: %s" (how-many "\\w+" b e))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -603,12 +604,12 @@
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   (turn-on-orgstruct)      ; enable org-mode-style structure editing
-  (set-face-foreground 'post-bold-face "#ffffff")
+;;  (set-face-foreground 'post-bold-face "#ffffff")
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
-  (font-lock-add-keywords nil 
-    '(("\\<\\(FIXME\\|TODO):" 
-	1 font-lock-warning-face prepend)))  
+  ;;(font-lock-add-keywords nil 
+  ;;  '(("\\<\\(FIXME\\|TODO):" 
+  ;; 1 font-lock-warning-face prepend)))  
   (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
@@ -642,10 +643,7 @@
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
   (when (require-maybe 'texdrive) (texdrive-mode t))
-    
-  ;; use flyspell mode (turned-off)
-  ;; (when-available 'flyspell-mode  (flyspell-mode t))
-  
+      
   (set-input-method nil) ;; no funky "o => o-umlaut action should happen
   
   (set-key-func "C-c i"      (djcb-html-tag-region-or-point "em"))
@@ -745,7 +743,7 @@
 	1 font-lock-warning-face prepend)))  
   
   (font-lock-add-keywords nil 
-    '(("\\<\\(require-maybe\\|when-available\\|add-hook\\|setq\\)" 
+    '(("\\<\\(require-maybe\\|add-hook\\|setq\\)" 
 	1 font-lock-keyword-face prepend)))  
 )  
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
@@ -768,9 +766,6 @@
 (add-hook 'cperl-mode-hook 'djcb-cperl-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;; gtags
 (add-hook 'gtags-mode-hook 
@@ -788,7 +783,7 @@
 (defconst djcb-c-style
   '((c-tab-always-indent . t)))
   
-(defun include-guards ()
+(defun djcb-include-guards ()
   "include the #ifndef/#define/#endif include guards for the current buffer"
   (interactive)
   (let ((tag (concat "__"
@@ -798,7 +793,7 @@
     (insert (concat "#define " tag "\n"))
     (insert (concat "#endif /*" tag "*/\n"))))
   
-(defun include-timestamp ()
+(defun djcb-include-timestamp ()
   "include timestamp"
   (interactive)
   (insert "/* Time-stamp: <> */\n"))
@@ -856,7 +851,7 @@
     (doxymacs-mode t)
     (doxymacs-font-lock))
   
-  (local-set-key (kbd "C-c i") 'include-guards)  
+  (local-set-key (kbd "C-c i") 'djcb-include-guards)  
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
 
   ;; warn when lines are > 80 characters (in c-mode)
@@ -878,12 +873,6 @@
 (add-hook 'c++-mode-hook 'djcb-c++-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
 (defun djcb-makefile-mode-hook ()
@@ -902,7 +891,6 @@
 (add-hook 'ruby-mode-hook 'djcb-ruby-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compilation; if compilation is successful, autoclose the compilation win
 ;; http://www.emacswiki.org/cgi-bin/wiki/ModeCompile
@@ -919,7 +907,6 @@
     (t                                                                    
       (message "Compilation exited abnormally: %s" string))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
@@ -969,7 +956,7 @@
 (autoload 'twit-post "twit" "post on twitter" t)
 (autoload 'twit-post-region "twit" "post on twitter" t)
 (autoload 'twit-show-recent-tweets "twit" "read from twitter" t)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1032,4 +1019,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-

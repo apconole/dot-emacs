@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-15 07:59:28 (djcb)>
+; Time-stamp: <2009-01-18 19:15:05 (djcb)>
 ;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -48,7 +48,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; general settings
+;; general settings d j c b
 
 ;; use .Xdefaults instead, it's much faster:
 ;; ,----
@@ -134,7 +134,6 @@
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my own custom colors, for non-console mode
@@ -295,7 +294,7 @@
 (djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)  ; console mail client
 (djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)  ; console nttp client
 (djcb-program-shortcut "mc"    (kbd "<S-f4>") t)  ; midnight commander
-(djcb-program-shortcut "razzle"(kbd "<S-f5>") t)  ; rss feed reader
+(djcb-program-shortcut "raggle"(kbd "<S-f5>") t)  ; rss feed reader
 
 (djcb-program-shortcut "iotop"  (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
@@ -378,11 +377,9 @@
 	try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;; sr-speedbar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (autoload 'sr-speedbar-toggle "sr-speedbar" "a speedbar" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
@@ -620,13 +617,6 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  gnus
-(require 'nnmaildir)
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
@@ -881,16 +871,6 @@
 (add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ruby
-(defun djcb-ruby-mode-hook ()
-  (ruby-electric-brace t)
-  (setq ruby-indent-level 4))
-
-(add-hook 'ruby-mode-hook 'djcb-ruby-mode-hook)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compilation; if compilation is successful, autoclose the compilation win
 ;; http://www.emacswiki.org/cgi-bin/wiki/ModeCompile
@@ -950,14 +930,12 @@
       (ansi-term prg prg))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; twitter; see http://www.emacswiki.org/emacs/TwIt
 (autoload 'twit-post "twit" "post on twitter" t)
 (autoload 'twit-post-region "twit" "post on twitter" t)
 (autoload 'twit-show-recent-tweets "twit" "read from twitter" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some html-related functions
@@ -1014,7 +992,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(find-file "~/.emacs.d/org/notes.org")
+(find-file "~/.emacs.d/org/agenda/personal.org")
 (org-agenda-list)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

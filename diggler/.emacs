@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-18 19:15:05 (djcb)>
+; Time-stamp: <2009-01-22 21:20:34 (djcb)>
 ;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -236,9 +236,9 @@
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
   (setq show-paren-style 'expression)
-  (set-face-background 'show-paren-match-face "#333333")
+  (set-face-background 'show-paren-match-face "#111111")
   (set-face-attribute 'show-paren-match-face nil 
-    :weight 'normal :underline nil :overline nil :slant 'normal))
+    :weight 'bold :underline nil :overline nil :slant 'normal))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -403,32 +403,6 @@
 
 (when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; emms, the emacs multimedia system
-(when (require-maybe 'emms-setup)
-  (emms-standard)
-  (emms-default-players)
-  (setq emms-source-file-default-directory "~/Music/"
-    emms-show-format "NP: %s"
-    emms-cache-file "~/.emacs.d/emms-cache")
-  
-  ;; inspired by http://real.metasyntax.net:2357/guides/emacs.html
-  (setq emms-track-description-function
-    (lambda (track)
-      (let ((artist (emms-track-get track 'info-artist))
-	     (album  (emms-track-get track 'info-album))
-	     (number (emms-track-get track 'info-tracknumber))
-	     (title  (emms-track-get track 'info-title)))
-	(if (and artist album title)
-	  (if number
-	    (format "%s: %s - [%03d] %s" artist album (string-to-int number) title)
-	    (format "%s: %s - %s" artist album title))
-	  (emms-track-simple-description track))))))
-  
-(when (require-maybe 'emms-mode-line)
-  (emms-mode-line 1))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
@@ -626,10 +600,6 @@
   (abbrev-mode t)             ; support abbrevs
   (auto-fill-mode -1)         ; don't do auto-filling
   
-  ;; cursor up go to up one line *as show on screen*
-  ;; instead of one line in editor
-  (when (require-maybe 'screen-lines) (screen-lines-mode t))
-
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
   (when (require-maybe 'texdrive) (texdrive-mode t))
@@ -739,6 +709,37 @@
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; tomboy
+(defun djcb-call-tomboy (method &rest args)
+  "call the tomboy method METHOD with ARGS over dbus"
+  (apply 'dbus-call-method 
+    :session				; use the session (not system) bus
+    "org.gnome.Tomboy"			; service name
+    "/org/gnome/Tomboy/RemoteControl"	; path name
+    "org.gnome.Tomboy.RemoteControl"	; interface name
+    method args))
+
+(defun djcb-tomboy-create-note-region (b e name)
+  "Create a new note with in the Tomboy notetaker from region"
+  (interactive "r\nsName for new Tomboy note:")
+  (let ((note-uri (djcb-call-tomboy "CreateNamedNote" name)))
+    (when note-uri
+      (djcb-call-tomboy "SetNoteContents" note-uri 
+	(concat name "\n" (buffer-substring b e))))))
+
+(defun djcb-tomboy-insert-note-contents (name)
+  "Insert Tomboy note with NAME"
+  (interactive 
+    (list (let ((lst))
+	    (dolist (uri (djcb-call-tomboy "ListAllNotes"))
+	      (add-to-list 'lst (djcb-call-tomboy "GetNoteTitle" uri)))
+	    (completing-read "Name of Tomboy Note:" lst))))
+  (let ((note-uri (djcb-call-tomboy "FindNote" name)))
+    (when note-uri
+      (insert (djcb-call-tomboy "GetNoteContents" note-uri)))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
@@ -832,7 +833,7 @@
   ;; https://savannah.nongnu.org/projects/dtrt-indent/
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
-  (when (not (string-match ("/usr/src/linux" (expand-file-name default-directory))))
+  (when (not (string-match "/usr/src/linux" (expand-file-name default-directory)))
     (when (require-maybe 'gtags) 
       (gtags-mode t)
       (djcb-gtags-create-or-update)))

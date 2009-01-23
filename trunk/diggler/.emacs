@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-22 21:20:34 (djcb)>
+; Time-stamp: <2009-01-23 15:01:08 (djcb)>
 ;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -720,13 +720,15 @@
     "org.gnome.Tomboy.RemoteControl"	; interface name
     method args))
 
+
 (defun djcb-tomboy-create-note-region (b e name)
   "Create a new note with in the Tomboy notetaker from region"
   (interactive "r\nsName for new Tomboy note:")
   (let ((note-uri (djcb-call-tomboy "CreateNamedNote" name)))
-    (when note-uri
+    (if (and note-uri (> (length note-uri) 0))
       (djcb-call-tomboy "SetNoteContents" note-uri 
-	(concat name "\n" (buffer-substring b e))))))
+	(concat name "\n" (buffer-substring b e)))
+      (message "hmmm... it did not work. maybe try a different name"))))
 
 (defun djcb-tomboy-insert-note-contents (name)
   "Insert Tomboy note with NAME"
@@ -739,6 +741,8 @@
     (when note-uri
       (insert (djcb-call-tomboy "GetNoteContents" note-uri)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

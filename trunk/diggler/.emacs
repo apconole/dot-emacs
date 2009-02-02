@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-01-23 15:01:08 (djcb)>
+; Time-stamp: <2009-02-02 07:30:58 (djcb)>
 ;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -11,13 +11,13 @@
 
 ;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq debug-on-error nil) ; turn debugging on/off
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; some constants ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; the loadpath ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; this will add all dirs in 'elisp-path' to load-path as well as their 
+;; subdirs
 (defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
-(mapcar '(lambda(p) (add-to-list 'load-path p)) elisp-path)
+(mapcar '(lambda(p)
+	   (add-to-list 'load-path p) 
+	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -49,14 +49,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings d j c b
-
-;; use .Xdefaults instead, it's much faster:
-;; ,----
-;; | Emacs.font: Deja Vu Sans Mono-9
-;; | Emacs.menuBar: off
-;; | Emacs.toolBar: off
-;; | Emacs.geometry: 85x60+600+300
-;; `----
+;; use .Xdefaults for menubar/toolbar, it's faster
 (menu-bar-mode -1)              ; don't show the menu 
 (tool-bar-mode -1)              ; don't show the toolbar
 (icomplete-mode t)		; completion in minibuffer
@@ -236,9 +229,9 @@
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
   (setq show-paren-style 'expression)
-  (set-face-background 'show-paren-match-face "#111111")
+  (set-face-background 'show-paren-match-face "#333333")
   (set-face-attribute 'show-paren-match-face nil 
-    :weight 'bold :underline nil :overline nil :slant 'normal))
+    :weight 'normal :underline nil :overline nil :slant 'normal))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -293,10 +286,12 @@
 (djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)  ; the ubershell
 (djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)  ; console mail client
 (djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)  ; console nttp client
-(djcb-program-shortcut "mc"    (kbd "<S-f4>") t)  ; midnight commander
-(djcb-program-shortcut "raggle"(kbd "<S-f5>") t)  ; rss feed reader
+(djcb-program-shortcut "razzle"(kbd "<S-f4>") t)  ; rss feed reader
+(djcb-program-shortcut "irssi" (kbd "<S-f5>") t)  ; console irc client
 
-(djcb-program-shortcut "iotop"  (kbd "<S-f11>") t)  ; i/o
+
+(djcb-program-shortcut "mc"    (kbd "<S-f10>") t)  ; midnight commander
+(djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
 ;; some special buffers are under Super + Function Key
@@ -307,19 +302,21 @@
 
 (global-set-key (kbd "s-<f8>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f9>") 
-  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/work.org"))) 
+;;(global-set-key (kbd "s-<f9>") 
+;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/work.org"))) 
 (global-set-key (kbd "s-<f10>") 
-  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/personal.org"))) 
-(global-set-key (kbd "s-<f11>") 
-  '(lambda()(interactive)(find-file "~/.emacs.d/org/notes.org"))) 
+  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
+;;(global-set-key (kbd "s-<f11>") 
+;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/notes.org"))) 
 (global-set-key (kbd "s-<f12>") 
   '(lambda()(interactive)(find-file "~/.emacs"))) 
 
-(global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
+;;(global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 
-;; org mode -- show my agenda
-(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c a") 'org-agenda)   ; org mode -- show my agenda
+(global-set-key (kbd "C-c r") 'org-remember) ; org mode -- remember
+(global-set-key (kbd "C-c b") 'org-iswitchb) ; org mode swich buffer
+(global-set-key (kbd "C-c l") 'org-store-link) ; org mode
 
 ;; *fast* linenumbers on the left (unlike setnu.el)
 ;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
@@ -385,13 +382,12 @@
 ;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 ;; http://www.forcix.cx/weblog/2005-08-03.html
-(defun djcb-ido () 
-  (interactive)
-  (ido-mode t)
+(when (require-maybe 'ido) 
+  (ido-mode 'both)
   (setq 
    ido-save-directory-list-file "~/.emacs.d/ido.last"
    ido-ignore-buffers ;; ignore these guys
-   '("\\` " "^\*Mess" "^\*Back" "^\*scratch" ".*Completion" "^\*Ido")
+   '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
    ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
    ido-everywhere t            ; use for many file dialogs
    ido-case-fold  t            ; be case-insensitive
@@ -400,9 +396,33 @@
    ido-enable-flex-matching t  ; be flexible
    ido-max-prospects 4         ; don't spam my minibuffer
    ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
-
-(when (require-maybe 'ido) (djcb-ido))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; emms, the emacs multimedia system
+(when (require-maybe 'emms-setup)
+  (emms-standard)
+  (emms-default-players)
+  (setq emms-source-file-default-directory "~/Music/"
+    emms-show-format "NP: %s"
+    emms-cache-file "~/.emacs.d/emms-cache")
+  
+  ;; inspired by http://real.metasyntax.net:2357/guides/emacs.html
+  (setq emms-track-description-function
+    (lambda (track)
+      (let ((artist (emms-track-get track 'info-artist))
+	     (album  (emms-track-get track 'info-album))
+	     (number (emms-track-get track 'info-tracknumber))
+	     (title  (emms-track-get track 'info-title)))
+	(if (and artist album title)
+	  (if number
+	    (format "%s: %s - [%03d] %s" artist album (string-to-int number) title)
+	    (format "%s: %s - %s" artist album title))
+	  (emms-track-simple-description track))))))
+  
+(when (require-maybe 'emms-mode-line)
+  (emms-mode-line 1))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
@@ -472,28 +492,45 @@
 (setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
 ;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
-
-(setq org-default-notes-file (concat org-directory "/notes.org")
-  org-agenda-files (list (concat (expand-file-name org-directory) "/agenda/")) 
+(setq org-default-notes-file (concat org-directory "notes.org")
+  org-agenda-files (file-expand-wildcards (concat org-directory "agenda/*.org")) 
   org-agenda-include-diary t
-  org-return-follows-link t
-  org-tab-follows-link t
-  org-agenda-skip-deadline-if-done t
-  org-agenda-skip-scheduled-if-done t   
-  org-agenda-start-on-weekday nil)
-(setq org-todo-keywords ;; does not work with emacs <= 22
-  '((sequence "TODO" "|" "DONE")))
-(setq org-agenda-custom-commands
-  '(("w" tags "+work")              ; all work items
-     ("W" tags-todo "+work")        ; all work todo items
-     ("p" tags "+personal")         ; all personal items
-     ("P" tags-todo "+personal")))  ; all personal todo items
+  org-return-follows-link t   ;; return and ...
+  org-tab-follows-link t      ;; ... tab follow the link in the browser
+
+  org-agenda-skip-deadline-if-done  t  ; don't show in agenda...
+  org-agenda-skip-scheduled-if-done t  ; .. when done
+
+  org-use-fast-todo-selection t ; fast todo selection
+  org-tags-column -77
+
+  org-agenda-todo-ignore-with-date t ; don't include ...
+  org-agenda-todo-ignore-deadlines t ; ...timed/agenda items ...
+  org-agenda-todo-ignore-scheduled t ; ...in the todo list
+  
+  org-log-done 'time                 ; log time when marking as DONE
+  org-hide-leading-stars t	     ; hide 'm
+
+  org-tag-alist '(                   ; some useful tags
+		   ("birtday" . ?b)  
+		   ("family" . ?f)
+		   ("finance" . ?g)
+		   ("home" . ?t)
+		   ("hacking" . ?h)
+		   ("sports"  . ?s)
+		   ("work" . ?w))
+ 
+  org-agenda-start-on-weekday nil    ; start agenda view with today
+  org-todo-keywords '((sequence "TODO" "|" "DONE")))
+(org-remember-insinuate)
+
+(add-hook 'org-mode-hook
+  (lambda() (add-hook 'before-save-hook 'org-agenda-to-appt t t)))
 
 ;; emacs <= 22
 ;;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode)) ;; for emacs<=22
@@ -600,6 +637,10 @@
   (abbrev-mode t)             ; support abbrevs
   (auto-fill-mode -1)         ; don't do auto-filling
   
+  ;; cursor up go to up one line *as show on screen*
+  ;; instead of one line in editor
+  (when (require-maybe 'screen-lines) (screen-lines-mode t))
+
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
   (when (require-maybe 'texdrive) (texdrive-mode t))
@@ -709,41 +750,6 @@
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; tomboy
-(defun djcb-call-tomboy (method &rest args)
-  "call the tomboy method METHOD with ARGS over dbus"
-  (apply 'dbus-call-method 
-    :session				; use the session (not system) bus
-    "org.gnome.Tomboy"			; service name
-    "/org/gnome/Tomboy/RemoteControl"	; path name
-    "org.gnome.Tomboy.RemoteControl"	; interface name
-    method args))
-
-
-(defun djcb-tomboy-create-note-region (b e name)
-  "Create a new note with in the Tomboy notetaker from region"
-  (interactive "r\nsName for new Tomboy note:")
-  (let ((note-uri (djcb-call-tomboy "CreateNamedNote" name)))
-    (if (and note-uri (> (length note-uri) 0))
-      (djcb-call-tomboy "SetNoteContents" note-uri 
-	(concat name "\n" (buffer-substring b e)))
-      (message "hmmm... it did not work. maybe try a different name"))))
-
-(defun djcb-tomboy-insert-note-contents (name)
-  "Insert Tomboy note with NAME"
-  (interactive 
-    (list (let ((lst))
-	    (dolist (uri (djcb-call-tomboy "ListAllNotes"))
-	      (add-to-list 'lst (djcb-call-tomboy "GetNoteTitle" uri)))
-	    (completing-read "Name of Tomboy Note:" lst))))
-  (let ((note-uri (djcb-call-tomboy "FindNote" name)))
-    (when note-uri
-      (insert (djcb-call-tomboy "GetNoteContents" note-uri)))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
@@ -810,12 +816,9 @@
 (defun djcb-c-mode-common ()
   (interactive) 
   (c-add-style "djcb" djcb-c-style t)
-
   ;; start with the linux style
   (c-set-style "linux" djcb-c-style)
-  
-  (hs-minor-mode t)
-
+  (hs-minor-mode t) ; hide-show
   ;; highlight some stuff; ; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 

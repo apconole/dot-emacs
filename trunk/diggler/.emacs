@@ -1,11 +1,11 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-02-02 07:30:58 (djcb)>
+; Time-stamp: <2009-02-03 14:31:53 (djcb)>
 ;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
 
 ;; This file is free software; you can redistribute it and/or modify
-;; it undr the terms of the GNU General Public License as published by
+;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 2, or (at your option)
 ;; any later version.
 
@@ -30,12 +30,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; other stuff inspired by: http://www.xsteve.at/prg/emacs/.emacs.txt
-(defconst win32-p (eq system-type 'windows-nt) "Are we on Windows?")
-(defconst linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
+(defconst djcb-win32-p (eq system-type 'windows-nt) "Are we on Windows?")
+(defconst djcb-linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
   "Are we running on a GNU/Linux system?")
-(defconst console-p (eq (symbol-value 'window-system) nil) "Are in a console?")
-;; TODO: add maemo-p 
+(defconst djcb-console-p (eq (symbol-value 'window-system) nil) "Are in a console?")
+(defconst djcb-machine (substring (shell-command-to-string "hostname") 0 -1))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -44,7 +43,7 @@
 (column-number-mode t)                    ; show column numbers
 (when (fboundp size-indication-mode) 	  
   (size-indication-mode t)) ; show file size (emacs 22+)
-(display-time-mode t)
+(display-time-mode nil) ; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -59,27 +58,21 @@
 (setq search-highlight t        ; highlight when searching... 
   query-replace-highlight t)    ; ...and replacing
 (fset 'yes-or-no-p 'y-or-n-p)   ; enable one letter y/n answers to yes/no 
-
 (global-font-lock-mode t)         ; always do syntax highlighting 
 (when (require-maybe 'jit-lock)    ; enable JIT to make font-lock faster
   (setq jit-lock-stealth-time 1)) ; new with emacs21
-
 (set-language-environment "UTF-8") ; prefer utf-8 for language settings
 (set-input-method nil)             ; no funky input for normal editing;
-
 (setq x-select-enable-clipboard t)  ; copy-paste should work ...
 (setq interprogram-paste-function   ; ...with...
   'x-cut-buffer-or-selection-value) ; ...other X clients
-
 (setq completion-ignore-case t      ; ignore case when completing...
   read-file-name-completion-ignore-case t) ; ...filenames too
-
 (put 'narrow-to-region 'disabled nil) ; enable...
 (put 'erase-buffer 'disabled nil)     ; ... useful things
-
 (when (fboundp file-name-shadow-mode)     ; emacs22+
   (file-name-shadow-mode 1)) ; be smart about filenames
-					   ; (understand ~/ etc.)
+  				   ; (understand ~/ etc.)
 (when (fboundp 'set-fringe-mode)  ; emacs22+ 
   (set-fringe-mode 2))            ; don't have too much space left of col1
 
@@ -122,7 +115,6 @@
 ;(setq list-directory-brief-switches "-C")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks")
@@ -133,22 +125,21 @@
 ;; it all rather dark, and the color differences are rather suble
 ;; just the way I like it :)
 ;; TODO: make a color-theme-evergrey out of these?
-(when (not console-p) 
+(when (and (not djcb-console-p) (not djcb-win32-p)) 
   (set-background-color "black") 
   (set-foreground-color "lightblue") 
-  
-  (set-face-foreground 'font-lock-string-face  "#123467") ; 
-  (set-face-foreground 'font-lock-comment-face  "#aaaaaa") ;
-  (make-face-italic 'font-lock-comment-face)
-  
-  (set-face-foreground 'font-lock-keyword-face  "lemonchiffon") ; 
+ 
+  (set-face-foreground 'font-lock-string-face    "#123467") ; 
+  (set-face-foreground 'font-lock-comment-face   "#aaaaaa") ;
+  (make-face-italic    'font-lock-comment-face)
+  (set-face-foreground 'font-lock-keyword-face   "lemonchiffon") ; 
   (make-face-bold 'font-lock-keyword-face)
   
-  (set-face-foreground 'font-lock-string-face   "#ffffff") ; 
+  (set-face-foreground 'font-lock-string-face    "#ffffff") ; 
   (set-face-foreground 'font-lock-preprocessor-face "red") ; 
   (set-face-foreground 'font-lock-constant-face   "green") ; 
   
-  (set-face-foreground 'font-lock-type-face    "lightblue")
+  (set-face-foreground 'font-lock-type-face      "lightblue")
   (make-face-bold 'font-lock-type-face)
     
   (set-face-foreground 'font-lock-function-name-face "darkcyan")
@@ -159,18 +150,23 @@
   (make-face-unitalic 'font-lock-warning-face)  
   (set-face-underline  'font-lock-warning-face nil)
   
-  (set-face-background 'region "#777777")
+  (set-face-background 'region "#556677")
 
-  (set-face-foreground 'mode-line "#777777")
-  (set-face-background 'mode-line "#333333"))
+  (set-face-foreground 'mode-line "#aabbcc")
+  (set-face-background 'mode-line "#112233"))
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; window-system (ie. _not_ console) specific settings
 ;;
-(when (not console-p)           
+(when (not djcb-console-p)           
   (when (fboundp 'scroll-bar-mode)
     (scroll-bar-mode t)             ;  show the scroll bar ... 
     (set-scroll-bar-mode 'right)))  ; ... on the right side
+
+;; windows
+(when djcb-win32-p
+ (set-default-font
+   "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -178,12 +174,11 @@
 ;; recognize from the normal marking (selection)
 ;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
 (when (fboundp 'global-hl-line-mode)
-  (defface hl-line '((t (:background "#123400")))
+  (defface hl-line '((t (:background "#112233")))
     "Face to use for `hl-line-face'." :group 'hl-line)
   (setq hl-line-face 'hl-line)
   (global-hl-line-mode t)) ;; turn it on for all modes by default
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; erc, the emacs IRC client;http://www.emacswiki.org/emacs/ERC
@@ -229,9 +224,9 @@
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
   (setq show-paren-style 'expression)
-  (set-face-background 'show-paren-match-face "#333333")
+  (set-face-background 'show-paren-match-face nil)
   (set-face-attribute 'show-paren-match-face nil 
-    :weight 'normal :underline nil :overline nil :slant 'normal))
+    :weight 'bold :underline nil :overline nil :slant 'normal))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -241,7 +236,6 @@
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)) ; On when idle
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
@@ -541,20 +535,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
-(display-time)
-(setq holidays-in-diary-buffer          t
-      mark-holidays-in-calendar         t
-      all-christian-calendar-holidays   t)
-(setq display-time-24hr-format t
-      display-time-day-and-date nil
-      display-time-format ""
-      default-indicate-empty-lines t
-      display-time-use-mail-icon t
-      display-time-load-average-threshold 20)
-
-(setq calendar-latitude 60.10)
-(setq calendar-longitude 24.56)
-(setq calendar-location-name "Helsinki, Finland")
+(setq holidays-in-diary-buffer      t
+  mark-holidays-in-calendar         t	
+  all-christian-calendar-holidays   t
+  all-islamic-calendar-holidays     t
+  all-hebrew-calendar-holidays      t 
+  display-time-24hr-format          t 
+  display-time-day-and-date         t       
+  display-time-format               nil      
+  display-time-use-mail-icon        nil      ; don't show mail icon
+  display-time-load-average-threshold 20
+  calendar-latitude 60.10
+  calendar-longitude 24.56
+  calendar-location-name "Helsinki, Finland")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -912,6 +905,10 @@
   (set (make-local-variable 'global-hl-line-mode) nil)
   (local-set-key [(tab)] nil))
 (ad-activate 'term-char-mode)
+
+(add-hook 'term-mode-hook
+  '(lambda() 
+     (term-set-escape-char ?\C-x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1001,8 +998,10 @@
 
 ;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;(find-file "~/.emacs.d/org/agenda/personal.org")
-(org-agenda-list)
-(delete-other-windows)
+(when (string= djcb-machine "mindcrime") 
+  (org-agenda-list)
+  (delete-other-windows))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

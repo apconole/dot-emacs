@@ -1,19 +1,14 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-; Time-stamp: <2009-02-03 14:31:53 (djcb)>
-;;
+;; Time-stamp: <2009-02-05 20:24:02 (djcb)>;
+
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
 
-;; This file is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; This file is free software licensed under the terms of the
+;; GNU General Public License, version 3 or later.
 
-;; .emacs for Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
-
-;; the loadpath ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; this will add all dirs in 'elisp-path' to load-path as well as their 
-;; subdirs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; loadpath; this will recursivel add all dirs in 'elisp-path' to load-path 
 (defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p) 
@@ -39,54 +34,52 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the modeline
-(line-number-mode t)                      ; show line numbers
-(column-number-mode t)                    ; show column numbers
+(line-number-mode t)                     ; show line numbers
+(column-number-mode t)                   ; show column numbers
 (when (fboundp size-indication-mode) 	  
-  (size-indication-mode t)) ; show file size (emacs 22+)
-(display-time-mode nil) ; don't show the time
+  (size-indication-mode t))              ; show file size (emacs 22+)
+(display-time-mode -1)                   ; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; general settings d j c b
-;; use .Xdefaults for menubar/toolbar, it's faster
-(menu-bar-mode -1)              ; don't show the menu 
-(tool-bar-mode -1)              ; don't show the toolbar
-(icomplete-mode t)		; completion in minibuffer
-(blink-cursor-mode 0)		; don't blink cursor
-(transient-mark-mode t)         ; make the current 'selection' visible
-(delete-selection-mode t)       ; delete the selection area with a keypress
-(setq search-highlight t        ; highlight when searching... 
-  query-replace-highlight t)    ; ...and replacing
-(fset 'yes-or-no-p 'y-or-n-p)   ; enable one letter y/n answers to yes/no 
-(global-font-lock-mode t)         ; always do syntax highlighting 
-(when (require-maybe 'jit-lock)    ; enable JIT to make font-lock faster
-  (setq jit-lock-stealth-time 1)) ; new with emacs21
-(set-language-environment "UTF-8") ; prefer utf-8 for language settings
-(set-input-method nil)             ; no funky input for normal editing;
-(setq x-select-enable-clipboard t)  ; copy-paste should work ...
-(setq interprogram-paste-function   ; ...with...
-  'x-cut-buffer-or-selection-value) ; ...other X clients
-(setq completion-ignore-case t      ; ignore case when completing...
+;; general settings
+(menu-bar-mode -1)                       ; don't show the menu 
+(tool-bar-mode -1)                       ; don't show the toolbar
+(icomplete-mode t)		         ; completion in minibuffer
+
+(scroll-bar-mode t)
+(set-scroll-bar-mode 'right)
+
+(when (fboundp 'set-fringe-mode)         ; emacs22+ 
+  (set-fringe-mode 2))                   ; don't have too much space left of col1
+
+(transient-mark-mode t)                  ; make the current 'selection' visible
+(delete-selection-mode t)                ; delete the selection area with a keypress
+(setq x-select-enable-clipboard t)       ; copy-paste should work ...
+(setq interprogram-paste-function        ; ...with...
+  'x-cut-buffer-or-selection-value)      ; ...other X clients
+
+(setq search-highlight t                 ; highlight when searching... 
+  query-replace-highlight t)             ; ...and replacing
+(fset 'yes-or-no-p 'y-or-n-p)            ; enable one letter y/n answers to yes/no 
+
+(global-font-lock-mode t)                ; always do syntax highlighting 
+(when (require-maybe 'jit-lock)          ; enable JIT to make font-lock faster
+  (setq jit-lock-stealth-time 1))        ; new with emacs21
+
+(set-language-environment "UTF-8")       ; prefer utf-8 for language settings
+(set-input-method nil)                   ; no funky input for normal editing;
+
+(setq completion-ignore-case t           ; ignore case when completing...
   read-file-name-completion-ignore-case t) ; ...filenames too
-(put 'narrow-to-region 'disabled nil) ; enable...
-(put 'erase-buffer 'disabled nil)     ; ... useful things
-(when (fboundp file-name-shadow-mode)     ; emacs22+
-  (file-name-shadow-mode 1)) ; be smart about filenames
-  				   ; (understand ~/ etc.)
-(when (fboundp 'set-fringe-mode)  ; emacs22+ 
-  (set-fringe-mode 2))            ; don't have too much space left of col1
 
-;; pretty cool; with this we can shift to different 'windows'
-;;  use M-<arrow keys>
-;; note: a 'window' is emacs-lingo for a partition of what is called 
-;; a window normally --  C-x 2 will split your 'window' in two 'windows' 
-(when (require-maybe 'windmove) 
-  (windmove-default-keybindings 'hyper)
-  (setq windmove-wrap-around t))
+(put 'narrow-to-region 'disabled nil)    ; enable...
+(put 'erase-buffer 'disabled nil)        ; ... useful things
+(when (fboundp file-name-shadow-mode)    ; emacs22+
+  (file-name-shadow-mode 1))             ; be smart about filenames in minbuffer
 
-;; don't show startup messages
-(setq inhibit-startup-message t           
-  inhibit-startup-echo-area-message t)
+(setq inhibit-startup-message t          ; don't show ...    
+  inhibit-startup-echo-area-message t)   ; ... startup messages
 
 ;; define dirs for cacheing file dirs
 ;; see http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
@@ -95,24 +88,6 @@
     (defvar cachedirs 
       '("~/Desktop/" "~/src/"  "~/"))
   (dolist (dir cachedirs) (file-cache-add-directory dir)))
-
-;; set frame title / icon title using filename or buffername
-;; little trick (based on http://www.emacswiki.org/cgi-bin/wiki/ShadyTrees)
-;; to replace  /home/foo with ~
-(defun djcb-title-format ()
-  (if buffer-file-name 
-    (replace-regexp-in-string "\\\\" "/"
-      (replace-regexp-in-string (regexp-quote (getenv "HOME")) "~"
-	(convert-standard-filename buffer-file-name)))
-    (buffer-name)))
-(setq 
-  frame-title-format '(:eval (djcb-title-format))
-  icon-title-format  '(:eval (concat "emacs:" (djcb-title-format))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; for OS2008/Maemo ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(setq dired-use-ls-dired nil) 
-;(setq list-directory-brief-switches "-C")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -121,49 +96,57 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; cursor
+(blink-cursor-mode 0)		; don't blink cursor
+;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
+(when (require-maybe 'cursor-chg)  ; Load this library
+  (change-cursor-mode 1) ; On for overwrite/read-only/input mode
+  (toggle-cursor-type-when-idle 1)
+  (setq 
+    curchg-default-cursor-color "Yellow"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my own custom colors, for non-console mode
 ;; it all rather dark, and the color differences are rather suble
 ;; just the way I like it :)
-;; TODO: make a color-theme-evergrey out of these?
-(when (and (not djcb-console-p) (not djcb-win32-p)) 
-  (set-background-color "black") 
-  (set-foreground-color "lightblue") 
- 
-  (set-face-foreground 'font-lock-string-face    "#123467") ; 
-  (set-face-foreground 'font-lock-comment-face   "#aaaaaa") ;
-  (make-face-italic    'font-lock-comment-face)
-  (set-face-foreground 'font-lock-keyword-face   "lemonchiffon") ; 
-  (make-face-bold 'font-lock-keyword-face)
-  
-  (set-face-foreground 'font-lock-string-face    "#ffffff") ; 
-  (set-face-foreground 'font-lock-preprocessor-face "red") ; 
-  (set-face-foreground 'font-lock-constant-face   "green") ; 
-  
-  (set-face-foreground 'font-lock-type-face      "lightblue")
-  (make-face-bold 'font-lock-type-face)
-    
-  (set-face-foreground 'font-lock-function-name-face "darkcyan")
-  (set-face-foreground 'font-lock-variable-name-face "darkgreen")
-  
-  (set-face-foreground 'font-lock-warning-face "yellow")
-  (make-face-bold 'font-lock-warning-face)
-  (make-face-unitalic 'font-lock-warning-face)  
-  (set-face-underline  'font-lock-warning-face nil)
-  
-  (set-face-background 'region "#556677")
+(defun color-theme-djcb-dark ()
+  "dark color theme created by Dirk-Jan C. Binnema, Jan. 2009."
+  (interactive)
+  (color-theme-install
+    '(color-theme-djcb-dark
+       ((foreground-color . "lightblue")
+	 (background-color . "black") 
+	 (background-mode . dark))
+       (bold ((t (:bold t))))
+       (bold-italic ((t (:italic t :bold t))))
+       (default ((t (nil))))
+       (font-lock-comment-face ((t (:italic t :foreground "#aaaaaa"))))
+       (font-lock-constant-face ((t (:foreground "red"))))
+       (font-lock-doc-string-face ((t (:foreground "green"))))
+       (font-lock-doc-face ((t (:foreground "gray"))))
+       (font-lock-reference-face ((t (:foreground "red"))))
+       (font-lock-function-name-face ((t (:bold t :foreground "#579181"))))
+       (font-lock-keyword-face ((t (:bold t :foreground "lemonchiffon"))))
+       (font-lock-preprocessor-face ((t (:foreground "red"))))
+       (font-lock-string-face ((t (:foreground "#ffffff"))))
+       (font-lock-type-face ((t (:bold t :foreground "darkcyan"))))
+       (font-lock-variable-name-face ((t (:foreground "darkgreen"))))
+       (font-lock-warning-face ((t (:bold t :italic nil :underline nil 
+				     :foreground "orange"))))
+       (hl-line ((t (:background "#112233"))))
+       (mode-line ((t (:foreground "#aabbcc" :background "#112233"))))
+       (region ((t (:foreground nil :background "#555555"))))
+       (show-paren-match-face ((t (:bold t :background "#050505"))))
+       )))
 
-  (set-face-foreground 'mode-line "#aabbcc")
-  (set-face-background 'mode-line "#112233"))
+(when (require-maybe 'color-theme)
+;;  (when (and (not djcb-console-p) (not djcb-win32-p))
+    (color-theme-djcb-dark))
+;l)
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; window-system (ie. _not_ console) specific settings
-;;
-(when (not djcb-console-p)           
-  (when (fboundp 'scroll-bar-mode)
-    (scroll-bar-mode t)             ;  show the scroll bar ... 
-    (set-scroll-bar-mode 'right)))  ; ... on the right side
-
-;; windows
+;; ms-windows
 (when djcb-win32-p
  (set-default-font
    "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
@@ -171,51 +154,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; highlight the current line; set a custom face, so we can
-;; recognize from the normal marking (selection)
 ;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
 (when (fboundp 'global-hl-line-mode)
-  (defface hl-line '((t (:background "#112233")))
-    "Face to use for `hl-line-face'." :group 'hl-line)
-  (setq hl-line-face 'hl-line)
   (global-hl-line-mode t)) ;; turn it on for all modes by default
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; erc, the emacs IRC client;http://www.emacswiki.org/emacs/ERC
-(when (require-maybe 'erc)
-  (setq erc-nick "djcb")
-  (setq erc-away-nick "djcb (away)")
-  (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE" ;; no crap
-				   "324" "329" "332" "333" "353" "477")) 
-  (setq erc-keywords '("djcb" "Dirk-Jan" "Binnema"))
-  (erc-autojoin-mode 1)
-  (setq erc-autojoin-channels-alist 
-    '(("localhost" "&bitlbee")
-       ("irc.freenode.net" "#emacs" "#maemo" "#ubuntu" "#ubuntu-nl")
-       ("irc.gimp.org" "#gnome" "#gtk+")))
-   
-  (add-hook 'erc-join-hook 'bitlbee-identify)
-  (defun bitlbee-identify ()
-    "on the bitlbee server, send the identify command to the &bitlbee channel."
-    (when (and (string= "localhost" erc-session-server)
-	    (string= "&bitlbee" (buffer-name)))
-      (erc-message "PRIVMSG" (format "%s identify %s" 
-			       (erc-default-target) 
-			       bitlbee-password))))
-  (defvar bitlbee-password nil)
-  (defun djcb-erc ()
-    "start ERC ask for password/username if needed"
-    (interactive)
-    (unless bitlbee-password
-      (setq bitlbee-password
-	(read-from-minibuffer "Bitlbee password:")))
-   
-    (interactive)
-    (erc :server "localhost" :port 6667 :nick "djcb")
-    (erc :server "irc.freenode.net" :port 6667 :nick "djcb")
-    (erc :server "irc.gimp.org"     :port 6667 :nick "djcb")))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; show-paren-mode
@@ -223,24 +165,11 @@
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
-  (setq show-paren-style 'expression)
-  (set-face-background 'show-paren-match-face nil)
-  (set-face-attribute 'show-paren-match-face nil 
-    :weight 'bold :underline nil :overline nil :slant 'normal))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; change cursor color based on mode
-;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
-(when (require-maybe 'cursor-chg)  ; Load this library
-  (change-cursor-mode 1) ; On for overwrite/read-only/input mode
-  (toggle-cursor-type-when-idle 1)) ; On when idle
+  (setq show-paren-style 'expression))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
-;;     the arg to 'kbd' is what you get when pushing C-h k and the key(s)
-;;(global-set-key (kbd "<backspace>") 'delete-backward-char) ; bs => bs 
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
 
@@ -260,10 +189,6 @@
 (global-set-key (kbd "<s-left>")  'hs-hide-block)
 (global-set-key (kbd "<s-up>")    'hs-hide-all)
 (global-set-key (kbd "<s-down>")  'hs-show-all)
-(global-set-key (kbd "s-m")       'magit-status)
-
-;; close the current buffer, just like in Win*
-(global-set-key (kbd "C-<f4>")  'kill-buffer-and-window)    
 
 (defmacro djcb-program-shortcut (name key &optional use-existing)
   "* macro to create a key binding KEY to start some terminal program PRG; 
@@ -273,49 +198,30 @@
 	(interactive)
 	(djcb-term-start-or-switch ,name ,use-existing))))
 
-;; will create an interactive function 'zsh', and bind it to s-<F1>
-;; 's' is the "windows-key"
-
 ;; terminal programs are under Shift + Function Key
-(djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)  ; the ubershell
-(djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)  ; console mail client
-(djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)  ; console nttp client
-(djcb-program-shortcut "razzle"(kbd "<S-f4>") t)  ; rss feed reader
-(djcb-program-shortcut "irssi" (kbd "<S-f5>") t)  ; console irc client
-
-
+(djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)   ; the ubershell
+(djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)   ; console mail client
+(djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)   ; console nttp client
+(djcb-program-shortcut "irssi" (kbd "<S-f5>") t)   ; console irc client
 (djcb-program-shortcut "mc"    (kbd "<S-f10>") t)  ; midnight commander
 (djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
 ;; some special buffers are under Super + Function Key
-(global-set-key (kbd "s-<f7>")
-  (lambda()(interactive)(switch-to-buffer "&bitlbee")))
-;; (global-set-key (kbd "s-<f8>")  
-;;   (lambda()(interactive)(switch-to-buffer "*EMMS Playlist*")))
-
 (global-set-key (kbd "s-<f8>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-;;(global-set-key (kbd "s-<f9>") 
-;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/work.org"))) 
 (global-set-key (kbd "s-<f10>") 
   '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
-;;(global-set-key (kbd "s-<f11>") 
-;;  '(lambda()(interactive)(find-file "~/.emacs.d/org/notes.org"))) 
 (global-set-key (kbd "s-<f12>") 
   '(lambda()(interactive)(find-file "~/.emacs"))) 
 
-;;(global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
-
-(global-set-key (kbd "C-c a") 'org-agenda)   ; org mode -- show my agenda
-(global-set-key (kbd "C-c r") 'org-remember) ; org mode -- remember
-(global-set-key (kbd "C-c b") 'org-iswitchb) ; org mode swich buffer
+(global-set-key (kbd "C-c a") 'org-agenda)     ; org mode -- show my agenda
+(global-set-key (kbd "C-c r") 'org-remember)   ; org mode -- remember
+(global-set-key (kbd "C-c b") 'org-iswitchb)   ; org mode swich buffer
 (global-set-key (kbd "C-c l") 'org-store-link) ; org mode
 
-;; *fast* linenumbers on the left (unlike setnu.el)
-;; http://www.emacsblog.org/2007/03/29/quick-tip-line-numbering/
-(global-set-key (kbd "<f6>") 'linum)
-(global-set-key (kbd "<f7>") 'compile) 
+(global-set-key (kbd "<f6>") 'linum)           ; fast line number
+(global-set-key (kbd "<f7>") 'compile)         ; compile
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
@@ -329,7 +235,8 @@
      (if rm-mark-active (rm-kill-ring-save b e) (kill-ring-save b e))))
 (global-set-key (kbd "C-x C-x")  
   '(lambda(&optional p) (interactive "p") 
-     (if rm-mark-active (rm-exchange-point-and-mark p) (exchange-point-and-mark p))))
+     (if rm-mark-active (rm-exchange-point-and-mark p) 
+       (exchange-point-and-mark p))))
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 
@@ -338,28 +245,21 @@
 (global-set-key (kbd "C-c C-c") 'comment-region)
 (global-set-key (kbd "C-c C-u") 'uncomment-region)
 
-;; zooming in and zooming out in emacs like in firefox
-;; zooming; inspired by http://blog.febuiles.com/page/2/
+;; zooming; http://emacs-fu.blogspot.com/2008/12/zooming-inout.html
 (defun djcb-zoom (n) (interactive)
   (set-face-attribute 'default (selected-frame) :height 
     (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
+(global-set-key (kbd "C-+")     '(lambda()(interactive(djcb-zoom 1))))
+(global-set-key [C-kp-add]      '(lambda()(interactive(djcb-zoom 1))))
+(global-set-key (kbd "C--")     '(lambda()(interactive(djcb-zoom -1))))
+(global-set-key [C-kp-subtract] '(lambda()(interactive(djcb-zoom -1))))
 
-(global-set-key (kbd "C-+")      '(lambda()(interactive(djcb-zoom 1))))
-(global-set-key [C-kp-add]       '(lambda()(interactive(djcb-zoom 1))))
-(global-set-key (kbd "C--")      '(lambda()(interactive(djcb-zoom -1))))
-(global-set-key [C-kp-subtract]  '(lambda()(interactive(djcb-zoom -1))))
-
-;; cicle through buffers with Ctrl-Tab (like Firefox)
-;; TODO: some smarter version that ignores certain buffers, see:
-;; http://www.emacswiki.org/cgi-bin/wiki/ControlTABbufferCycling
+;; cycle through buffers with Ctrl-Tab (like Firefox)
+;; http://emacs-fu.blogspot.com/2008/12/cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
-
-(when (require-maybe 'list-register)
-  (global-set-key (kbd "C-x r v") 'list-registers))
 
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list 
@@ -368,14 +268,9 @@
 	try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;; sr-speedbar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(autoload 'sr-speedbar-toggle "sr-speedbar" "a speedbar" t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
-;; http://www.forcix.cx/weblog/2005-08-03.html
 (when (require-maybe 'ido) 
   (ido-mode 'both)
   (setq 
@@ -392,46 +287,19 @@
    ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; emms, the emacs multimedia system
-(when (require-maybe 'emms-setup)
-  (emms-standard)
-  (emms-default-players)
-  (setq emms-source-file-default-directory "~/Music/"
-    emms-show-format "NP: %s"
-    emms-cache-file "~/.emacs.d/emms-cache")
-  
-  ;; inspired by http://real.metasyntax.net:2357/guides/emacs.html
-  (setq emms-track-description-function
-    (lambda (track)
-      (let ((artist (emms-track-get track 'info-artist))
-	     (album  (emms-track-get track 'info-album))
-	     (number (emms-track-get track 'info-tracknumber))
-	     (title  (emms-track-get track 'info-title)))
-	(if (and artist album title)
-	  (if number
-	    (format "%s: %s - [%03d] %s" artist album (string-to-int number) title)
-	    (format "%s: %s - %s" artist album title))
-	  (emms-track-simple-description track))))))
-  
-(when (require-maybe 'emms-mode-line)
-  (emms-mode-line 1))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  abbrevs (emacs will automagically expand abbreviations)
 ;;
-(setq abbrev-file-name          ;; tell emacs where to read abbrev
-      "~/.emacs.d/abbrev_defs")  ; definitions from...
-(abbrev-mode t)                 ; enable abbrevs (abbreviations) ...
+(setq abbrev-file-name                ; tell emacs where to read abbrev
+      "~/.emacs.d/abbrev_defs")       ; definitions from...
+(abbrev-mode t)                       ; enable abbrevs (abbreviations) ...
 (setq default-abbrev-mode t
-  save-abbrevs t)       ; don't ask
+  save-abbrevs t)                     ; don't ask
 (when (file-exists-p abbrev-file-name)
-  (quietly-read-abbrev-file))   ;  don't tell
-
-(add-hook 'kill-emacs-hook  'write-abbrev-file) 
+  (quietly-read-abbrev-file))         ;  don't tell
+(add-hook 'kill-emacs-hook            ; write when ...
+  'write-abbrev-file)                 ; ... exiting emacs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; backups  (emacs will write backups and number them)
@@ -444,12 +312,10 @@
   delete-old-versions t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time-stamps 
 ;; when there is a "Time-stamp: <>" in the first 10 lines of the file,
 ;; emacs will write time-stamp information there when saving the file.
-;; see the top of this file for an example... 
 (setq 
   time-stamp-active t          ; do enable time-stamps
   time-stamp-line-limit 10     ; check first 10 buffer lines for Time-stamp: <>
@@ -457,17 +323,14 @@
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 ;; recent files                                                                   
 (when (require-maybe 'recentf)
   (setq recentf-save-file "~/.emacs.d/recentf"
-	recentf-max-saved-items 500                                            
-	recentf-max-menu-items 60)
+    recentf-max-saved-items 500                                            
+    recentf-max-menu-items 60)
   (recentf-mode t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
@@ -476,10 +339,8 @@
   (list 'local-set-key (list 'kbd key) 
         (list 'lambda nil 
               (list 'interactive nil) expr)))
-
 (defmacro set-key (key str) (list 'local-set-key (list 'kbd key) str))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tramp, for remote access
@@ -494,44 +355,52 @@
 (setq org-default-notes-file (concat org-directory "notes.org")
   org-agenda-files (file-expand-wildcards (concat org-directory "agenda/*.org")) 
   org-agenda-include-diary t
-  org-return-follows-link t   ;; return and ...
-  org-tab-follows-link t      ;; ... tab follow the link in the browser
-
-  org-agenda-skip-deadline-if-done  t  ; don't show in agenda...
-  org-agenda-skip-scheduled-if-done t  ; .. when done
-
-  org-use-fast-todo-selection t ; fast todo selection
-  org-tags-column -77
-
-  org-agenda-todo-ignore-with-date t ; don't include ...
-  org-agenda-todo-ignore-deadlines t ; ...timed/agenda items ...
-  org-agenda-todo-ignore-scheduled t ; ...in the todo list
-  
-  org-log-done 'time                 ; log time when marking as DONE
-  org-hide-leading-stars t	     ; hide 'm
-
-  org-tag-alist '(                   ; some useful tags
-		   ("birtday" . ?b)  
-		   ("family" . ?f)
-		   ("finance" . ?g)
-		   ("home" . ?t)
-		   ("hacking" . ?h)
-		   ("sports"  . ?s)
+  org-return-follows-link t                ; return follows the link
+  org-agenda-skip-deadline-if-done  t      ; don't show in agenda...
+  org-agenda-skip-scheduled-if-done t      ; .. when done
+  org-use-fast-todo-selection t            ; fast todo selection
+  org-tags-column -77                      ;
+  org-completion-use-ido t                  ; use ido when it makes sense
+  org-agenda-todo-ignore-with-date t       ; don't include ...
+  org-agenda-todo-ignore-deadlines t       ; ...timed/agenda items ...
+  org-agenda-todo-ignore-scheduled t       ; ...in the todo list
+  org-enforce-todo-dependencies t          ; parents can't be closed...
+  org-enforce-to-checkbox-dependencies t   ; ...before their children
+  org-log-done 'time                       ; log time when marking as DONE
+  org-hide-leading-stars t	           ; hide 'm
+  org-agenda-start-on-weekday nil          ; start agenda view with today
+  org-tag-alist '( ("birthday" . ?b) ("family" . ?f)
+		   ("finance" . ?g)  ("home" . ?t)
+		   ("hacking" . ?h)  ("sports"  . ?s)
 		   ("work" . ?w))
- 
-  org-agenda-start-on-weekday nil    ; start agenda view with today
   org-todo-keywords '((sequence "TODO" "|" "DONE")))
 (org-remember-insinuate)
 
+(defadvice remember-finalize (after delete-remember-frame activate)  
+  "Advise remember-finalize to close the frame if it is the remember frame"  
+  (if (equal "remember" (frame-parameter nil 'name))  
+    (delete-frame)))  
+
+(defadvice remember-destroy (after delete-remember-frame activate)  
+  "Advise remember-destroy to close the frame if it is the rememeber frame"  
+  (if (equal "remember" (frame-parameter nil 'name))  
+    (delete-frame)))  
+
+;; make the frame contain a single window. by default org-remember  
+;; splits the window.  
+(add-hook 'remember-mode-hook  'delete-other-windows)  
+
+(defun make-remember-frame ()  
+  "Create a new frame and run org-remember."  
+  (interactive)  
+  (make-frame '((name . "remember") (width . 80) (height . 10)))  
+  (select-frame-by-name "remember")
+  (org-remember)
+  (x-clipboard-yank))  
+
 (add-hook 'org-mode-hook
   (lambda() (add-hook 'before-save-hook 'org-agenda-to-appt t t)))
-
-;; emacs <= 22
-;;(add-to-list 'auto-mode-alist '("\\.org$" . org-mode)) ;; for emacs<=22
-;;(setq org-agenda-files '("~/.emacs.d/org/agenda/work.org"
-;;                       "~/.emacs.d/org/agenda/done.org"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
@@ -541,12 +410,11 @@
   all-islamic-calendar-holidays     t
   all-hebrew-calendar-holidays      t 
   display-time-24hr-format          t 
-  display-time-day-and-date         t       
+  display-time-day-and-date         nil       
   display-time-format               nil      
   display-time-use-mail-icon        nil      ; don't show mail icon
-  display-time-load-average-threshold 20
-  calendar-latitude 60.10
-  calendar-longitude 24.56
+  calendar-latitude  60.09
+  calendar-longitude 24.52
   calendar-location-name "Helsinki, Finland")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -621,7 +489,7 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+ 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
@@ -774,8 +642,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c-mode / c++-mode
-(defconst djcb-c-style
-  '((c-tab-always-indent . t)))
+(defconst djcb-c-style '((c-tab-always-indent . t)))
   
 (defun djcb-include-guards ()
   "include the #ifndef/#define/#endif include guards for the current buffer"
@@ -786,19 +653,16 @@
     (insert (concat "#ifndef " tag "\n"))
     (insert (concat "#define " tag "\n"))
     (insert (concat "#endif /*" tag "*/\n"))))
-  
-(defun djcb-include-timestamp ()
-  "include timestamp"
-  (interactive)
-  (insert "/* Time-stamp: <> */\n"))
 
-;; other customizations 
+(defun djcb-include-timestamp ()
+  (interactive) (insert "/* Time-stamp: <> */\n"))
+
 (defun djcb-gtags-create-or-update ()
   "create or update the gnu global tag file"
   (interactive)
   (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
     (let ((olddir default-directory)
-	  (topdir (read-directory-name  
+	   (topdir (read-directory-name  
 		    "gtags: top of source tree:" default-directory)))
       (cd topdir)
       (shell-command "gtags && echo 'created tagfile'")
@@ -808,11 +672,9 @@
 
 (defun djcb-c-mode-common ()
   (interactive) 
-  (c-add-style "djcb" djcb-c-style t)
-  ;; start with the linux style
-  (c-set-style "linux" djcb-c-style)
+  (c-add-style "djcb" djcb-c-style t)  
+   (c-set-style "linux" djcb-c-style)
   (hs-minor-mode t) ; hide-show
-  ;; highlight some stuff; ; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
 	1 font-lock-warning-face prepend)))  
@@ -828,9 +690,7 @@
     c-hungry-delete-key t)                  ; eat as much as possible
   
   ;; guess the identation of the current file, and use
-  ;; that instead of my own settings; nice for foreign
-  ;; files
-  ;; https://savannah.nongnu.org/projects/dtrt-indent/
+  ;; that instead of my own settings
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
   (when (not (string-match "/usr/src/linux" (expand-file-name default-directory)))
@@ -844,24 +704,19 @@
   
   (local-set-key (kbd "C-c i") 'djcb-include-guards)  
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
-
+  
   ;; warn when lines are > 80 characters (in c-mode)
-  (font-lock-add-keywords 'c-mode
-    '(("^[^\n]\\{80\\}\\(.*\\)$"
-	1 font-lock-warning-face prepend))))
+  (font-lock-add-keywords 'c-mode '(("^[^\n]\\{80\\}\\(.*\\)$"
+				      1 font-lock-warning-face prepend))))
 
 (defun djcb-c++-mode ()
   ;; warn when lines are > 100 characters (in c++-mode)
-  (font-lock-add-keywords 'c++-mode 
-    '(("^[^\n]\\{100\\}\\(.*\\)$"
-	1 font-lock-warning-face prepend))))
+  (font-lock-add-keywords 'c++-mode  '(("^[^\n]\\{100\\}\\(.*\\)$"
+					 1 font-lock-warning-face prepend))))
 
-;; run before all c-mode flavours
-(add-hook 'c-mode-common-hook 'djcb-c-mode-common) 
-;; run befor c mode
-;;(add-hook 'c-mode-hook 'djcb-c-mode)
-;; run before c++ mode
-(add-hook 'c++-mode-hook 'djcb-c++-mode)
+(add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-mode flavours
+(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
+(add-hook 'c++-mode-hook 'djcb-c++-mode)           ; run before c++ mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -977,18 +832,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start as server; thus, we can use emacs for mutt, without
-;; starting a new instance for each mail, see: 
-;; http://www.emacswiki.org/cgi-bin/emacs-en/MuttInEmacs
-(server-start)
-;; http://www.emacswiki.org/cgi-bin/wiki/EmacsClient
-
-;; move to current desktop 
-(add-hook 'server-switch-hook
-  (lambda ()
-    (call-process
-      "wmctrl" nil nil nil "-i" "-R"
-      (frame-parameter (or frame (selected-frame)) 'outer-window-id))))
+;; start as server; thus, we can use emacs for mutt without new instances
+;; http://emacs-fu.blogspot.com/2009/01/e-mail-with-emacs-using-mutt.html
+;(server-start)
   
 ;; don't want to use C-x # when closing the client, just C-x k as always
 (add-hook 'server-switch-hook 
@@ -1003,5 +849,5 @@
   (delete-other-windows))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   

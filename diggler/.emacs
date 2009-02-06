@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-05 20:24:02 (djcb)>;
+;; Time-stamp: <2009-02-06 08:53:27 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -222,6 +222,9 @@
 
 (global-set-key (kbd "<f6>") 'linum)           ; fast line number
 (global-set-key (kbd "<f7>") 'compile)         ; compile
+
+;; f12 for copy, in term-mode
+(global-set-key (kbd "<f12>")  '(lambda(b e) (interactive "r")  (kill-ring-save b e))) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark

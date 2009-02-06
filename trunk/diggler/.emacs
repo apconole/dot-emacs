@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-06 08:53:27 (djcb)>;
+;; Time-stamp: <2009-02-06 18:35:48 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -46,12 +46,12 @@
 (menu-bar-mode -1)                       ; don't show the menu 
 (tool-bar-mode -1)                       ; don't show the toolbar
 (icomplete-mode t)		         ; completion in minibuffer
-
-(scroll-bar-mode t)
+(setq icomplete-prospects-height 2)      ; don't spam my minibuffer
+(scroll-bar-mode t)              
 (set-scroll-bar-mode 'right)
 
 (when (fboundp 'set-fringe-mode)         ; emacs22+ 
-  (set-fringe-mode 2))                   ; don't have too much space left of col1
+  (set-fringe-mode 3))                   ; don't have too much space left of col1
 
 (transient-mark-mode t)                  ; make the current 'selection' visible
 (delete-selection-mode t)                ; delete the selection area with a keypress
@@ -105,46 +105,7 @@
   (setq 
     curchg-default-cursor-color "Yellow"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; my own custom colors, for non-console mode
-;; it all rather dark, and the color differences are rather suble
-;; just the way I like it :)
-(defun color-theme-djcb-dark ()
-  "dark color theme created by Dirk-Jan C. Binnema, Jan. 2009."
-  (interactive)
-  (color-theme-install
-    '(color-theme-djcb-dark
-       ((foreground-color . "lightblue")
-	 (background-color . "black") 
-	 (background-mode . dark))
-       (bold ((t (:bold t))))
-       (bold-italic ((t (:italic t :bold t))))
-       (default ((t (nil))))
-       (font-lock-comment-face ((t (:italic t :foreground "#aaaaaa"))))
-       (font-lock-constant-face ((t (:foreground "red"))))
-       (font-lock-doc-string-face ((t (:foreground "green"))))
-       (font-lock-doc-face ((t (:foreground "gray"))))
-       (font-lock-reference-face ((t (:foreground "red"))))
-       (font-lock-function-name-face ((t (:bold t :foreground "#579181"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "lemonchiffon"))))
-       (font-lock-preprocessor-face ((t (:foreground "red"))))
-       (font-lock-string-face ((t (:foreground "#ffffff"))))
-       (font-lock-type-face ((t (:bold t :foreground "darkcyan"))))
-       (font-lock-variable-name-face ((t (:foreground "darkgreen"))))
-       (font-lock-warning-face ((t (:bold t :italic nil :underline nil 
-				     :foreground "orange"))))
-       (hl-line ((t (:background "#112233"))))
-       (mode-line ((t (:foreground "#aabbcc" :background "#112233"))))
-       (region ((t (:foreground nil :background "#555555"))))
-       (show-paren-match-face ((t (:bold t :background "#050505"))))
-       )))
-
-(when (require-maybe 'color-theme)
-;;  (when (and (not djcb-console-p) (not djcb-win32-p))
-    (color-theme-djcb-dark))
-;l)
-	  
+				  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows
 (when djcb-win32-p
@@ -169,13 +130,51 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; my own custom colors, for non-console mode
+;; it all rather dark, and the color differences are rather suble
+;; just the way I like it :)
+(defun color-theme-djcb-dark ()
+  "dark color theme created by Dirk-Jan C. Binnema, Jan. 2009."
+  (interactive)
+  (color-theme-install
+    '(color-theme-djcb-dark
+       ((foreground-color . "#a9eadf")
+	 (background-color . "black") 
+	 (background-mode . dark))
+       (bold ((t (:bold t))))
+       (bold-italic ((t (:italic t :bold t))))
+       (default ((t (nil))))
+       
+       (font-lock-builtin-face ((t (:italic t :foreground "#7c4eab"))))
+       (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
+       (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
+       (font-lock-constant-face ((t (:bold t :foreground "#197b6e"))))
+       (font-lock-doc-string-face ((t (:foreground "#3041c4"))))
+       (font-lock-doc-face ((t (:foreground "gray"))))
+       (font-lock-reference-face ((t (:foreground "white"))))
+       (font-lock-function-name-face ((t (:foreground "#2439d7"))))
+       (font-lock-keyword-face ((t (:bold t :foreground "bcf0f1"))))
+       (font-lock-preprocessor-face ((t (:foreground "#e3ea94"))))
+       (font-lock-string-face ((t (:foreground "#ffffff"))))
+       (font-lock-type-face ((t (:bold t :foreground "#364498"))))
+       (font-lock-variable-name-face ((t (:foreground "#7685de"))))
+       (font-lock-warning-face ((t (:bold t :italic t :underline t 
+				     :foreground "red"))))
+       (hl-line ((t (:background "#112233"))))
+       (mode-line ((t (:foreground "#aabbcc" :background "#112233"))))
+       (region ((t (:foreground nil :background "#555555"))))
+       (show-paren-match-face ((t (:bold t :background "#050505"))))
+       )))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
 
 ;; C-pgup goes to the start, C-pgdw goes to the end
-(global-set-key [C-prior] '(lambda()(interactive)(goto-char (point-min))))
-(global-set-key [C-next]  '(lambda()(interactive)(goto-char (point-max))))
+(global-set-key [C-prior] (lambda()(interactive)(goto-char (point-min))))
+(global-set-key [C-next]  (lambda()(interactive)(goto-char (point-max))))
 
 ;; step through errors; 's' is the Hyper or 'windows' key
 (global-set-key (kbd "<C-s-up>")   'previous-error) 
@@ -211,9 +210,9 @@
 (global-set-key (kbd "s-<f8>")  ;make <f10> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 (global-set-key (kbd "s-<f10>") 
-  '(lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
 (global-set-key (kbd "s-<f12>") 
-  '(lambda()(interactive)(find-file "~/.emacs"))) 
+  (lambda()(interactive)(find-file "~/.emacs"))) 
 
 (global-set-key (kbd "C-c a") 'org-agenda)     ; org mode -- show my agenda
 (global-set-key (kbd "C-c r") 'org-remember)   ; org mode -- remember
@@ -224,22 +223,22 @@
 (global-set-key (kbd "<f7>") 'compile)         ; compile
 
 ;; f12 for copy, in term-mode
-(global-set-key (kbd "<f12>")  '(lambda(b e) (interactive "r")  (kill-ring-save b e))) 
+(global-set-key (kbd "<f12>")  (lambda(b e) (interactive "r")  (kill-ring-save b e))) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
 (require 'rect-mark)
 (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
 (global-set-key (kbd "C-w")  
-  '(lambda(b e) (interactive "r") 
+  (lambda(b e) (interactive "r") 
      (if rm-mark-active (rm-kill-region b e) (kill-region b e))))
 (global-set-key (kbd "M-w")  
-  '(lambda(b e) (interactive "r") 
+  (lambda(b e) (interactive "r") 
      (if rm-mark-active (rm-kill-ring-save b e) (kill-ring-save b e))))
 (global-set-key (kbd "C-x C-x")  
-  '(lambda(&optional p) (interactive "p") 
-     (if rm-mark-active (rm-exchange-point-and-mark p) 
-       (exchange-point-and-mark p))))
+  (lambda(&optional p) (interactive "p") 
+    (if rm-mark-active (rm-exchange-point-and-mark p) 
+      (exchange-point-and-mark p))))
 
 ;; ignore C-z, i keep on typing it accidentaly...
 (global-set-key (kbd "C-z") nil) 
@@ -252,10 +251,10 @@
 (defun djcb-zoom (n) (interactive)
   (set-face-attribute 'default (selected-frame) :height 
     (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
-(global-set-key (kbd "C-+")     '(lambda()(interactive(djcb-zoom 1))))
-(global-set-key [C-kp-add]      '(lambda()(interactive(djcb-zoom 1))))
-(global-set-key (kbd "C--")     '(lambda()(interactive(djcb-zoom -1))))
-(global-set-key [C-kp-subtract] '(lambda()(interactive(djcb-zoom -1))))
+(global-set-key (kbd "C-+")     (lambda()(interactive(djcb-zoom 1))))
+(global-set-key [C-kp-add]      (lambda()(interactive(djcb-zoom 1))))
+(global-set-key (kbd "C--")     (lambda()(interactive(djcb-zoom -1))))
+(global-set-key [C-kp-subtract] (lambda()(interactive(djcb-zoom -1))))
 
 ;; cycle through buffers with Ctrl-Tab (like Firefox)
 ;; http://emacs-fu.blogspot.com/2008/12/cycling-through-your-buffers-with-ctrl.html
@@ -456,10 +455,14 @@
     (message "Word count: %s" (how-many "\\w+" b e))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; twiki; see http://www.neilvandyke.org/erin-twiki-emacs/
+(autoload 'erin-mode "erin" "mode for twiki documents" t)
+(add-to-list 'auto-mode-alist '("\\.*.twiki$" . erin-mode))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; email / news
-;;
 ;; remove parts of old email, and replace with <snip (n lines): ... >
 (defun djcb-snip (b e summ)
   "remove selected lines, and replace it with [snip:summary (n lines)]"
@@ -765,7 +768,7 @@
 (ad-activate 'term-char-mode)
 
 (add-hook 'term-mode-hook
-  '(lambda() 
+  (lambda() 
      (term-set-escape-char ?\C-x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -834,16 +837,9 @@
     (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start as server; thus, we can use emacs for mutt without new instances
-;; http://emacs-fu.blogspot.com/2009/01/e-mail-with-emacs-using-mutt.html
-;(server-start)
-  
-;; don't want to use C-x # when closing the client, just C-x k as always
-(add-hook 'server-switch-hook 
-  (lambda ()
-    (local-set-key (kbd "C-x k") 'server-edit)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when (require-maybe 'color-theme)
+  (color-theme-djcb-dark))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;(find-file "~/.emacs.d/org/agenda/personal.org")
@@ -851,6 +847,4 @@
   (org-agenda-list)
   (delete-other-windows))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-06 18:35:48 (djcb)>;
+;; Time-stamp: <2009-02-08 21:34:09 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -28,7 +28,8 @@
 (defconst djcb-win32-p (eq system-type 'windows-nt) "Are we on Windows?")
 (defconst djcb-linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
   "Are we running on a GNU/Linux system?")
-(defconst djcb-console-p (eq (symbol-value 'window-system) nil) "Are in a console?")
+(defconst djcb-console-p (eq (symbol-value 'window-system) nil) 
+  "Are we in a console?")
 (defconst djcb-machine (substring (shell-command-to-string "hostname") 0 -1))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -51,17 +52,17 @@
 (set-scroll-bar-mode 'right)
 
 (when (fboundp 'set-fringe-mode)         ; emacs22+ 
-  (set-fringe-mode 3))                   ; don't have too much space left of col1
+  (set-fringe-mode 1))                   ; space left of col1 in pixels
 
 (transient-mark-mode t)                  ; make the current 'selection' visible
-(delete-selection-mode t)                ; delete the selection area with a keypress
+(delete-selection-mode t)                ; delete the selection with a keypress
 (setq x-select-enable-clipboard t)       ; copy-paste should work ...
 (setq interprogram-paste-function        ; ...with...
   'x-cut-buffer-or-selection-value)      ; ...other X clients
 
 (setq search-highlight t                 ; highlight when searching... 
   query-replace-highlight t)             ; ...and replacing
-(fset 'yes-or-no-p 'y-or-n-p)            ; enable one letter y/n answers to yes/no 
+(fset 'yes-or-no-p 'y-or-n-p)            ; enable y/n answers to yes/no 
 
 (global-font-lock-mode t)                ; always do syntax highlighting 
 (when (require-maybe 'jit-lock)          ; enable JIT to make font-lock faster
@@ -126,7 +127,7 @@
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
-  (setq show-paren-style 'expression))
+  (setq show-paren-style 'parenthesis))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -139,31 +140,32 @@
   (color-theme-install
     '(color-theme-djcb-dark
        ((foreground-color . "#a9eadf")
-	 (background-color . "black") 
+	 (background-color . "#020112") 
 	 (background-mode . dark))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))
        (default ((t (nil))))
        
-       (font-lock-builtin-face ((t (:italic t :foreground "#7c4eab"))))
+       (font-lock-builtin-face ((t (:italic t :foreground "#a96da0"))))
        (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
        (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
        (font-lock-constant-face ((t (:bold t :foreground "#197b6e"))))
        (font-lock-doc-string-face ((t (:foreground "#3041c4"))))
        (font-lock-doc-face ((t (:foreground "gray"))))
        (font-lock-reference-face ((t (:foreground "white"))))
-       (font-lock-function-name-face ((t (:foreground "#2439d7"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "bcf0f1"))))
+       (font-lock-function-name-face ((t (:foreground "#356da0"))))
+       (font-lock-keyword-face ((t (:bold t :foreground "#bcf0f1"))))
        (font-lock-preprocessor-face ((t (:foreground "#e3ea94"))))
        (font-lock-string-face ((t (:foreground "#ffffff"))))
        (font-lock-type-face ((t (:bold t :foreground "#364498"))))
        (font-lock-variable-name-face ((t (:foreground "#7685de"))))
        (font-lock-warning-face ((t (:bold t :italic t :underline t 
-				     :foreground "red"))))
+				     :foreground "yellow"))))
        (hl-line ((t (:background "#112233"))))
-       (mode-line ((t (:foreground "#aabbcc" :background "#112233"))))
+       (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
        (region ((t (:foreground nil :background "#555555"))))
-       (show-paren-match-face ((t (:bold t :background "#050505"))))
+       (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
+				    :background "#050505"))))
        )))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -207,8 +209,14 @@
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
 ;; some special buffers are under Super + Function Key
-(global-set-key (kbd "s-<f8>")  ;make <f10> switch to *scratch*     
+(global-set-key (kbd "s-<f8>")  ;make Super-<f8> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
+(global-set-key (kbd "s-<f9>")  ;make Super-<f9> switch to TODO     
+  (lambda()(interactive)(org-agenda-list)))
+(global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to *scratch*     
+  (lambda()(interactive)(switch-to-buffer "*scratch*")))
+
+
 (global-set-key (kbd "s-<f10>") 
   (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
 (global-set-key (kbd "s-<f12>") 
@@ -223,7 +231,8 @@
 (global-set-key (kbd "<f7>") 'compile)         ; compile
 
 ;; f12 for copy, in term-mode
-(global-set-key (kbd "<f12>")  (lambda(b e) (interactive "r")  (kill-ring-save b e))) 
+(global-set-key (kbd "<f12>")  (lambda(b e) (interactive "r")  
+				 (kill-ring-save b e))) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
@@ -256,8 +265,8 @@
 (global-set-key (kbd "C--")     (lambda()(interactive(djcb-zoom -1))))
 (global-set-key [C-kp-subtract] (lambda()(interactive(djcb-zoom -1))))
 
-;; cycle through buffers with Ctrl-Tab (like Firefox)
-;; http://emacs-fu.blogspot.com/2008/12/cycling-through-your-buffers-with-ctrl.html
+;; http://emacs-fu.blogspot.com/2008/12 ... 
+;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
 
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
@@ -325,16 +334,16 @@
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-;; recent files                                                                   
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;; recent files                                                                  
 (when (require-maybe 'recentf)
   (setq recentf-save-file "~/.emacs.d/recentf"
     recentf-max-saved-items 500                                            
     recentf-max-menu-items 60)
   (recentf-mode t))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
 (defmacro set-key-func (key expr)
   "macro to save me typing"
@@ -354,38 +363,51 @@
 ;; we use org-mode as the backend for remember
 ;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
+(setq djcb-org-remember-file (concat org-directory "remember.org"))
 (setq org-default-notes-file (concat org-directory "notes.org")
-  org-agenda-files (file-expand-wildcards (concat org-directory "agenda/*.org")) 
+  org-agenda-files (directory-files (concat org-directory "agenda/")
+				    t  "^[^#].*\\.org$") ; ignore backup files
   org-agenda-include-diary t
-  org-return-follows-link t                ; return follows the link
+  org-agenda-show-all-dates t              ; shows days without items
   org-agenda-skip-deadline-if-done  t      ; don't show in agenda...
   org-agenda-skip-scheduled-if-done t      ; .. when done
-  org-use-fast-todo-selection t            ; fast todo selection
-  org-tags-column -77                      ;
-  org-completion-use-ido t                  ; use ido when it makes sense
-  org-agenda-todo-ignore-with-date t       ; don't include ...
-  org-agenda-todo-ignore-deadlines t       ; ...timed/agenda items ...
-  org-agenda-todo-ignore-scheduled t       ; ...in the todo list
-  org-enforce-todo-dependencies t          ; parents can't be closed...
-  org-enforce-to-checkbox-dependencies t   ; ...before their children
-  org-log-done 'time                       ; log time when marking as DONE
-  org-hide-leading-stars t	           ; hide 'm
   org-agenda-start-on-weekday nil          ; start agenda view with today
+  org-agenda-todo-ignore-deadlines t       ; don't include ... 
+  org-agenda-todo-ignore-scheduled t       ; ...timed/agenda items...
+  org-agenda-todo-ignore-with-date t       ; ...in the todo list
+  org-completion-use-ido t                  ; use ido when it makes sense
+  org-enforce-to-checkbox-dependencies t   ; parents can't be closed... 
+  org-enforce-todo-dependencies t          ; ...before their children
+  org-hide-leading-stars t	           ; hide leading stars
+  org-log-done 'time                       ; log time when marking as DONE
+  org-return-follows-link t                ; return follows the link
+  org-tags-column -77                      ;
+  org-use-fast-todo-selection t            ; fast todo selection
+ org-archive-location (concat org-directory "agenda/archive.org::%s")
   org-tag-alist '( ("birthday" . ?b) ("family" . ?f)
 		   ("finance" . ?g)  ("home" . ?t)
-		   ("hacking" . ?h)  ("sports"  . ?s)
+		   ("hacking" . ?h)  ("sports" . ?s)
 		   ("work" . ?w))
-  org-todo-keywords '((sequence "TODO" "|" "DONE")))
+  org-todo-keywords '((sequence "TODO" "|" "DONE"))
+
+  djcb-remember-file (concat org-directory "remember.org")
+  org-remember-templates '(
+			    ("Clipboard" ?c "* %T %^{Description}\n%?%^C"
+			      djcb-org-remember-file "Interesting")
+			    ("ToDo" ?t "* %T %^{Summary}" 
+			      djcb-orgremember-file "Todo")))
 (org-remember-insinuate)
+
+
 
 (defadvice remember-finalize (after delete-remember-frame activate)  
   "Advise remember-finalize to close the frame if it is the remember frame"  
-  (if (equal "remember" (frame-parameter nil 'name))  
+  (if (equal "*Remember*" (frame-parameter nil 'name))  
     (delete-frame)))  
 
 (defadvice remember-destroy (after delete-remember-frame activate)  
-  "Advise remember-destroy to close the frame if it is the rememeber frame"  
-  (if (equal "remember" (frame-parameter nil 'name))  
+  "Advise remember-destroy to close the frame if it is the remember frame"  
+  (if (equal "*Remember*" (frame-parameter nil 'name))  
     (delete-frame)))  
 
 ;; make the frame contain a single window. by default org-remember  
@@ -393,13 +415,17 @@
 (add-hook 'remember-mode-hook  'delete-other-windows)  
 
 (defun make-remember-frame ()  
-  "Create a new frame and run org-remember."  
+  "Create a new frame and run org-remember"
   (interactive)  
-  (make-frame '((name . "remember") (width . 80) (height . 10)))  
-  (select-frame-by-name "remember")
-  (org-remember)
-  (x-clipboard-yank))  
+  (make-frame '((name . "*Remember*") (width . 80) (height . 10)))  
+  (select-frame-by-name "*Remember*")
+  (org-remember))
 
+(defun make-remember-frame-yank ()
+  (interactive)
+  (make-remember-frame)
+  (x-clipboard-yank))
+    
 (add-hook 'org-mode-hook
   (lambda() (add-hook 'before-save-hook 'org-agenda-to-appt t t)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -448,7 +474,7 @@
 (toggle-text-mode-auto-fill) 
 
 (defun djcb-count-words (&optional begin end)
-  "count words between BEGIN and END (region); if no region defined, count words in buffer"
+  "if there's a region, count words between BEGIN and END; otherwise in buffer" 
   (interactive "r")
   (let ((b (if mark-active begin (point-min)))
       (e (if mark-active end (point-max))))
@@ -459,6 +485,12 @@
 ;; twiki; see http://www.neilvandyke.org/erin-twiki-emacs/
 (autoload 'erin-mode "erin" "mode for twiki documents" t)
 (add-to-list 'auto-mode-alist '("\\.*.twiki$" . erin-mode))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; htmlizetwiki; see http://www.nei
+(autoload 'htmlize-region "htmlize" "htmlize the region" t)
+(autoload 'htmlize-buffer "htmlize" "htmlize the buffer" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -495,7 +527,15 @@
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; newsticker
+(setq
+  newsticker-groups-filename "~/.emacs.d/newsticker/groups"
+  newsticker-html-renderer 'w3m-region)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
@@ -598,25 +638,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp
 (defun djcb-emacs-lisp-mode-hook ()
-  (interactive)
-  
-  ;; overrides the global f7 for compilation
-  (local-set-key (kbd "<f7>") 'eval-buffer)
-       
-  (set-input-method nil)       ; i don't want accented chars, funny "a etc.
+  (interactive)  
+  (local-set-key (kbd "<f7>") 'eval-buffer) ; overrides global f7 for compilation
   (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
 
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
 	1 font-lock-warning-face prepend)))  
-  
   (font-lock-add-keywords nil 
     '(("\\<\\(require-maybe\\|add-hook\\|setq\\)" 
-	1 font-lock-keyword-face prepend)))  
-)  
+	1 font-lock-keyword-face prepend))))
+
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
@@ -666,7 +700,7 @@
 (defun djcb-gtags-create-or-update ()
   "create or update the gnu global tag file"
   (interactive)
-  (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; tagfile doesn't exist?
+  (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; no tagfile?
     (let ((olddir default-directory)
 	   (topdir (read-directory-name  
 		    "gtags: top of source tree:" default-directory)))
@@ -679,7 +713,7 @@
 (defun djcb-c-mode-common ()
   (interactive) 
   (c-add-style "djcb" djcb-c-style t)  
-   (c-set-style "linux" djcb-c-style)
+  (c-set-style "linux" djcb-c-style)
   (hs-minor-mode t) ; hide-show
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
@@ -699,7 +733,8 @@
   ;; that instead of my own settings
   (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
-  (when (not (string-match "/usr/src/linux" (expand-file-name default-directory)))
+  (when (not (string-match "/usr/src/linux" 
+	       (expand-file-name default-directory)))
     (when (require-maybe 'gtags) 
       (gtags-mode t)
       (djcb-gtags-create-or-update)))
@@ -720,7 +755,7 @@
   (font-lock-add-keywords 'c++-mode  '(("^[^\n]\\{100\\}\\(.*\\)$"
 					 1 font-lock-warning-face prepend))))
 
-(add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-mode flavours
+(add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-modes
 (add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)           ; run before c++ mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -746,8 +781,7 @@
           (run-with-timer 2 nil                      
 	    'delete-window              
 	    (get-buffer-window buffer t)))
-    (t                                                                    
-      (message "Compilation exited abnormally: %s" string))))
+    (t (message "Compilation exited abnormally: %s" string))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -764,12 +798,15 @@
   (set (make-local-variable 'cua-mode) nil)
   (set (make-local-variable 'transient-mark-mode) nil)
   (set (make-local-variable 'global-hl-line-mode) nil)
-  (local-set-key [(tab)] nil))
+  (local-set-key [(tab)] nil)
+  (local-set-key (kbd "<f8>") '(lambda()(interactive) 
+				 (shell-command "killall -SIGWINCH mutt"))))
+
 (ad-activate 'term-char-mode)
 
 (add-hook 'term-mode-hook
   (lambda() 
-     (term-set-escape-char ?\C-x)))
+    (term-set-escape-char ?\C-x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -840,11 +877,15 @@
 (when (require-maybe 'color-theme)
   (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; start with my agenda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(find-file "~/.emacs.d/org/agenda/personal.org")
-(when (string= djcb-machine "mindcrime") 
-  (org-agenda-list)
-  (delete-other-windows))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/recurring.org"))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )

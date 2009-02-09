@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-08 21:34:09 (djcb)>;
+;; Time-stamp: <2009-02-09 00:09:31 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -211,14 +211,12 @@
 ;; some special buffers are under Super + Function Key
 (global-set-key (kbd "s-<f8>")  ;make Super-<f8> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f9>")  ;make Super-<f9> switch to TODO     
-  (lambda()(interactive)(org-agenda-list)))
-(global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to *scratch*     
-  (lambda()(interactive)(switch-to-buffer "*scratch*")))
-
-
-(global-set-key (kbd "s-<f10>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
+(global-set-key (kbd "s-<f9>")  ;makae Super-<f9> switch to todo     
+  (lambda()(interactive)(org-todo-list "ALL")(delete-other-windows)))
+(global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to agenda     
+  (lambda()(interactive)(org-agenda-list)(delete-other-windows)))
+(global-set-key (kbd "s-<f11>") 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
 (global-set-key (kbd "s-<f12>") 
   (lambda()(interactive)(find-file "~/.emacs"))) 
 
@@ -877,15 +875,3 @@
 (when (require-maybe 'color-theme)
   (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/recurring.org"))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )

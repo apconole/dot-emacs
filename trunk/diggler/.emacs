@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-09 00:09:31 (djcb)>;
+;; Time-stamp: <2009-02-10 07:48:36 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -140,7 +140,7 @@
   (color-theme-install
     '(color-theme-djcb-dark
        ((foreground-color . "#a9eadf")
-	 (background-color . "#020112") 
+	 (background-color . "#070727") 
 	 (background-mode . dark))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))

@@ -754,7 +754,7 @@
 					 1 font-lock-warning-face prepend))))
 
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-modes
-(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
+;(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)           ; run before c++ mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

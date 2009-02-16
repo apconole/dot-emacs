@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-10 07:48:36 (djcb)>;
+;; Time-stamp: <2009-02-16 08:29:07 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -140,7 +140,7 @@
   (color-theme-install
     '(color-theme-djcb-dark
        ((foreground-color . "#a9eadf")
-	 (background-color . "#070727") 
+	 (background-color . "black") 
 	 (background-mode . dark))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))
@@ -381,12 +381,12 @@
   org-return-follows-link t                ; return follows the link
   org-tags-column -77                      ;
   org-use-fast-todo-selection t            ; fast todo selection
- org-archive-location (concat org-directory "agenda/archive.org::%s")
+  org-archive-location (concat org-directory "agenda/archive.org::%s")
   org-tag-alist '( ("birthday" . ?b) ("family" . ?f)
 		   ("finance" . ?g)  ("home" . ?t)
-		   ("hacking" . ?h)  ("sports" . ?s)
+		   ("hacking" . ?h)  ("sport" . ?s)
 		   ("work" . ?w))
-  org-todo-keywords '((sequence "TODO" "|" "DONE"))
+  org-todo-keywords '((sequence "MAYBE" "TODO" "|" "DONE"))
 
   djcb-remember-file (concat org-directory "remember.org")
   org-remember-templates '(
@@ -875,3 +875,15 @@
 (when (require-maybe 'color-theme)
   (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/archive.org" "/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )

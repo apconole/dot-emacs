@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-16 08:29:07 (djcb)>;
+;; Time-stamp: <2009-02-22 15:21:56 (djcb)>;
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -130,9 +130,10 @@
   (setq show-paren-style 'parenthesis))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my own custom colors, for non-console mode
-;; it all rather dark, and the color differences are rather suble
+;; it all rather dark, and the color differences are rather subtle
 ;; just the way I like it :)
 (defun color-theme-djcb-dark ()
   "dark color theme created by Dirk-Jan C. Binnema, Jan. 2009."
@@ -159,14 +160,21 @@
        (font-lock-string-face ((t (:foreground "#ffffff"))))
        (font-lock-type-face ((t (:bold t :foreground "#364498"))))
        (font-lock-variable-name-face ((t (:foreground "#7685de"))))
-       (font-lock-warning-face ((t (:bold t :italic t :underline t 
+       (font-lock-warning-face ((t (:bold t :italic nil :underline nil 
 				     :foreground "yellow"))))
        (hl-line ((t (:background "#112233"))))
        (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
        (region ((t (:foreground nil :background "#555555"))))
        (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
 				    :background "#050505"))))
+       (org-done ((t (:foreground "grey"))))
+       (org-tag ((t (:foreground  "blue"))))
+       (org-todo ((t (:foreground "green"))))
+       
        )))
+
+(when (require 'color-theme)
+  (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -263,10 +271,26 @@
 (global-set-key (kbd "C--")     (lambda()(interactive(djcb-zoom -1))))
 (global-set-key [C-kp-subtract] (lambda()(interactive(djcb-zoom -1))))
 
+(defun djcb-opacity-modify (&optional dec)
+  "modify the transparency of the emacs frame; if DEC is t,
+    decrease the transparency, otherwise increase it in 10%-steps"
+  (let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
+	  (oldalpha (if alpha-or-nil alpha-or-nil 100))
+	  (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
+    (when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
+      (modify-frame-parameters nil (list (cons 'alpha newalpha))))))
+
+ ;; C-8 will increase opacity (== decrease transparency)
+ ;; C-9 will decrease opacity (== increaase transparency
+ ;; C-0 will returns the state to normal
+(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
+(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
+(global-set-key (kbd "C-0") '(lambda()(interactive)
+			       (modify-frame-parameters nil `((alpha . 100)))))
+
 ;; http://emacs-fu.blogspot.com/2008/12 ... 
 ;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
-
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -364,7 +388,7 @@
 (setq djcb-org-remember-file (concat org-directory "remember.org"))
 (setq org-default-notes-file (concat org-directory "notes.org")
   org-agenda-files (directory-files (concat org-directory "agenda/")
-				    t  "^[^#].*\\.org$") ; ignore backup files
+		     t  "^[^#].*\\.org$") ; ignore backup files
   org-agenda-include-diary t
   org-agenda-show-all-dates t              ; shows days without items
   org-agenda-skip-deadline-if-done  t      ; don't show in agenda...
@@ -381,19 +405,20 @@
   org-return-follows-link t                ; return follows the link
   org-tags-column -77                      ;
   org-use-fast-todo-selection t            ; fast todo selection
-  org-archive-location (concat org-directory "agenda/archive.org::%s")
-  org-tag-alist '( ("birthday" . ?b) ("family" . ?f)
+  org-archive-location (concat org-directory "/archive.org::%s")
+  org-tag-alist '(("birthday" . ?b) ("family" . ?f)
 		   ("finance" . ?g)  ("home" . ?t)
 		   ("hacking" . ?h)  ("sport" . ?s)
 		   ("work" . ?w))
-  org-todo-keywords '((sequence "MAYBE" "TODO" "|" "DONE"))
-
+  org-todo-keywords '((type "TODO(t)" "MAYBE(m)" "WAITING(w)" "|" 
+			    "DONE(d)" "CANCELLED(c)"))
+ 
   djcb-remember-file (concat org-directory "remember.org")
   org-remember-templates '(
 			    ("Clipboard" ?c "* %T %^{Description}\n%?%^C"
 			      djcb-org-remember-file "Interesting")
 			    ("ToDo" ?t "* %T %^{Summary}" 
-			      djcb-orgremember-file "Todo")))
+			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
 
 
@@ -872,18 +897,3 @@
     (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(when (require-maybe 'color-theme)
-  (color-theme-djcb-dark))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/archive.org" "/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )

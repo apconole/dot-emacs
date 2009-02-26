@@ -14,21 +14,22 @@
 ; function so that if the project settings intialized them then we know that
 ; we should use them, e.g. project-default-file could provide a file name for
 ; the default file to open when loading the project
-(setq project-list '(("bauble-trunk" "~/devel/bauble/trunk/.emacs-prj")
-		     ))
-(defun open-project ()
-  (interactive)
-  (let (completions '())
-    (dolist (element project-list completions)
-      (setq completions (cons (car element) completions))
-    )
-    (load-file
-     (cadr (assoc (completing-read "Project name: " completions nil t)
-		 project-list)))
-    )
-)
+;; (setq project-list '(("bauble-trunk" "~/devel/bauble/trunk/.emacs-prj")
+;; 		     ))
+;; (defun open-project ()
+;;   (interactive)
+;;   (let (completions '())
+;;     (dolist (element project-list completions)
+;;       (setq completions (cons (car element) completions))
+;;     )
+;;     (load-file
+;;      (cadr (assoc (completing-read "Project name: " completions nil t)
+;; 		 project-list)))
+;;     )
+;; )
+;; 
+;; (global-set-key (kbd "\C-c p") 'open-project)
 
-(global-set-key (kbd "\C-c p") 'open-project)
 
 ; for the Xft enable emacs, need a conditional here to make sure we only enable
 ; this if Xft is compiled in
@@ -37,6 +38,7 @@
 
 ; my emacs config directory
 (setq data-dir (expand-file-name "~/emacs/"))
+(add-to-list 'load-path data-dir)
 
 ; custom directories
 ; data-dir is the location of all the local user emacs lisp files
@@ -118,10 +120,15 @@
 ; crashing my computer
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
+(require 'goto-last-change)
+; on Emacs 22 by default 'C-\' is bound to toggle-input-method but i
+; don't use this anyways
+(global-set-key (kbd "C-\\") 'goto-last-change)
+
 ;
 ; key bindings
 ;
-(global-set-key (kbd "\C-c g") 'goto-line)
+(global-set-key (kbd "\C-x g") 'goto-line)
 
 ; EasyPG for GPG support
 
@@ -149,6 +156,9 @@
   "*Run `grep` on the files visited in buffers marked with '>'." t)
 (autoload 'igrep-insinuate "igrep"
   "Define `grep' aliases for the corresponding `igrep' commands." t)
+
+; TODO: We either need to change this binding or change the default
+; ropemacs binding since it also uses C-c f
 (global-set-key (kbd "\C-c ff") 'igrep-find)
 
 ; allowe recusrive deletes in dired
@@ -213,7 +223,9 @@
 
 ; nxhtml mode
 ; -- I don't really know what this offers
-(load (concat package-dir "nxhtml/autostart.el"))
+(add-hook 'html-mode 
+	  (lambda ()
+	    (load (concat package-dir "nxhtml/autostart.el"))))
 
 ;
 ; DVC
@@ -234,13 +246,24 @@
 ;; save the history to an external file
 (require 'savehist)
 (setq savehist-file (concat data-dir "history"))
-;(savehist-load)
-(setq savehist-mode t)
+(savehist-mode 1)
 
 ;; (add-to-list 'load-path (concat package-dir "yas"))
 ;; (require 'yasnippet) ;; not yasnippet-bundle
 ;; (yas/initialize)
 ;; (yas/load-directory (concat package-dir "yas/snippets"))
+
+; eproject
+(require 'eproject)
+(define-project-type python (generic)
+  (look-for "setup.py")
+  :relevant-files ("\\.py$" "\\.t$" ""))
+(global-set-key (kbd "\C-c p f") 'eproject-ifind-file)
+
+;; (add-hook 'python-project-file-visit-hook
+;; 	  (if (file-exists-p 'python-project
+;; )
+
 
 
 ;; buffer management
@@ -257,6 +280,13 @@
 ;(iswitchb-mode t)
 (ido-mode 'buffers) ; provides buffer switch and file open completion
 (setq ido-enable-flex-matching t) ; fuzzy matching is a must have
+
+;; TODO: keep settings file for specific os/emacs versions
+ 
+;; (setq system-specific-config
+;;       (concat dotfiles-dir system-name ".el"))
+;; (if (file-exists-p system-specific-config)
+;;     (load system-specific-config))
 
 ;
 ; custom file

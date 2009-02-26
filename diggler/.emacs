@@ -1,6 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-02-22 15:21:56 (djcb)>;
-
+;;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
 
@@ -35,7 +34,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the modeline
-(line-number-mode t)                     ; show line numbers
+1(line-number-mode t)                     ; show line numbers
 (column-number-mode t)                   ; show column numbers
 (when (fboundp size-indication-mode) 	  
   (size-indication-mode t))              ; show file size (emacs 22+)
@@ -82,14 +81,29 @@
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
 
-;; define dirs for cacheing file dirs
-;; see http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
-;; for more tricks with this...
-(when (fboundp 'file-cache-add-directory)   ; emacs 22+
-    (defvar cachedirs 
-      '("~/Desktop/" "~/src/"  "~/"))
-  (dolist (dir cachedirs) (file-cache-add-directory dir)))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; File cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
+(eval-after-load
+  "filecache"
+  '(progn
+     (message "Loading file cache...")
+     (file-cache-add-directory "~/")
+     (file-cache-add-directory-list (list "~/Desktop" "~/Documents"))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; dired
+(add-hook 'dired-load-hook
+  (lambda() 
+    (load "dired-x")
+    ;; put dired-x config here
+))
+(add-hook 'dired-mode-hook
+  (lambda()
+    ;; dired-x buffer local variables here
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
@@ -166,12 +180,7 @@
        (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
        (region ((t (:foreground nil :background "#555555"))))
        (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
-				    :background "#050505"))))
-       (org-done ((t (:foreground "grey"))))
-       (org-tag ((t (:foreground  "blue"))))
-       (org-todo ((t (:foreground "green"))))
-       
-       )))
+				    :background "#050505")))))))
 
 (when (require 'color-theme)
   (color-theme-djcb-dark))
@@ -191,7 +200,7 @@
 (global-set-key (kbd "<C-s-down>") 'next-error)
 
 ;; function keys
-(global-set-key (kbd "<f11>")  'djcb-full-screen-toggle)
+(global-set-key (kbd "<f11>")  'djcb-fullscreen-toggle)
 
 ;; super key bindings
 (global-set-key (kbd "<s-right>") 'hs-show-block)
@@ -275,18 +284,18 @@
   "modify the transparency of the emacs frame; if DEC is t,
     decrease the transparency, otherwise increase it in 10%-steps"
   (let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
-	  (oldalpha (if alpha-or-nil alpha-or-nil 100))
-	  (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
+          (oldalpha (if alpha-or-nil alpha-or-nil 100))
+          (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
     (when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
       (modify-frame-parameters nil (list (cons 'alpha newalpha))))))
 
  ;; C-8 will increase opacity (== decrease transparency)
- ;; C-9 will decrease opacity (== increaase transparency
+ ;; C-9 will decrease opacity (== increase transparency
  ;; C-0 will returns the state to normal
 (global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
 (global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
 (global-set-key (kbd "C-0") '(lambda()(interactive)
-			       (modify-frame-parameters nil `((alpha . 100)))))
+                               (modify-frame-parameters nil `((alpha . 100)))))
 
 ;; http://emacs-fu.blogspot.com/2008/12 ... 
 ;; ... /cycling-through-your-buffers-with-ctrl.html
@@ -301,23 +310,47 @@
 	try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
-(when (require-maybe 'ido) 
-  (ido-mode 'both)
-  (setq 
-   ido-save-directory-list-file "~/.emacs.d/ido.last"
-   ido-ignore-buffers ;; ignore these guys
-   '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
-   ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
-   ido-everywhere t            ; use for many file dialogs
-   ido-case-fold  t            ; be case-insensitive
-   ido-use-filename-at-point nil ; don't use filename at point (annoying)
-   ido-use-url-at-point nil      ;  don't use url at point (annoying)
-   ido-enable-flex-matching t  ; be flexible
-   ido-max-prospects 4         ; don't spam my minibuffer
-   ido-confirm-unique-completion t)) ; wait for RET, even with unique completion
+(require 'ido) 
+(ido-mode 'both)
+(setq 
+  ido-save-directory-list-file "~/.emacs.d/ido.last"
+  ido-ignore-buffers ;; ignore these guys
+  '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
+  ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
+  ido-everywhere t            ; use for many file dialogs
+  ido-case-fold  t            ; be case-insensitive
+  ido-use-filename-at-point nil ; don't use filename at point (annoying)
+  ido-use-url-at-point nil      ;  don't use url at point (annoying)
+  ido-enable-flex-matching t  ; be flexible
+  ido-max-prospects 4         ; don't spam my minibuffer
+  ido-confirm-unique-completion t) ; wait for RET, even with unique completion
+
+;; http://www.emacswiki.org/emacs/FileNameCache
+(defun file-cache-ido-find-file (file)
+  "Using ido, interactively open file from file cache'.
+First select a file, matched using ido-switch-buffer against the contents
+in `file-cache-alist'. If the file exist in more than one
+directory, select directory. Lastly the file is opened."
+  (interactive 
+    (list (file-cache-ido-read "File: " 
+	    (mapcar (lambda (x) (car x)) file-cache-alist))))
+  (let* ((record (assoc file file-cache-alist)))
+    (find-file
+     (expand-file-name
+      file
+      (if (= (length record) 2)
+          (car (cdr record))
+        (file-cache-ido-read
+         (format "Find %s in dir: " file) (cdr record)))))))
+
+(defun file-cache-ido-read (prompt choices)
+  (let ((ido-make-buffer-list-hook
+	 (lambda ()
+	   (setq ido-temp-list choices))))
+    (ido-read-buffer prompt)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -492,9 +525,7 @@
     (filladapt-mode t))) ; ... (bullets, numbering) if
 					; available
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
-  
-;; turn on autofill for all text-related modes
-(toggle-text-mode-auto-fill) 
+
 
 (defun djcb-count-words (&optional begin end)
   "if there's a region, count words between BEGIN and END; otherwise in buffer" 
@@ -724,12 +755,13 @@
   "create or update the gnu global tag file"
   (interactive)
   (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; no tagfile?
-    (let ((olddir default-directory)
-	   (topdir (read-directory-name  
-		    "gtags: top of source tree:" default-directory)))
-      (cd topdir)
-      (shell-command "gtags && echo 'created tagfile'")
-      (cd olddir)) ; restore   
+    (when (yes-or-no-p "gtags: create tagfile?")
+      (let ((olddir default-directory)
+	     (topdir (read-directory-name  
+		       "gtags: top of source tree:" default-directory)))
+	(cd topdir)
+	(shell-command "gtags && echo 'created tagfile'")
+	(cd olddir))) ; restore   
     ;;  tagfile already exists; update it
     (shell-command "global -u && echo 'updated tagfile'")))
 
@@ -779,7 +811,7 @@
 					 1 font-lock-warning-face prepend))))
 
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-modes
-;(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
+;;(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)           ; run before c++ mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -824,7 +856,6 @@
   (local-set-key [(tab)] nil)
   (local-set-key (kbd "<f8>") '(lambda()(interactive) 
 				 (shell-command "killall -SIGWINCH mutt"))))
-
 (ad-activate 'term-char-mode)
 
 (add-hook 'term-mode-hook
@@ -887,13 +918,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; full-screen mode
-;; based on http://www.emacswiki.org/cgi-bin/wiki/WriteRoom
-;; toggle full screen with F11; require 'wmctrl'
+;; full-screen mode (http://www.emacswiki.org/cgi-bin/wiki/FullScreen
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
-(when (executable-find "wmctrl") ; apt-get install wmctrl
-  (defun djcb-full-screen-toggle ()
-    (interactive)
-    (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen")))
+(defun djcb-fullscreen-toggle ()
+  (interactive)
+  (set-frame-parameter nil 'fullscreen
+    (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

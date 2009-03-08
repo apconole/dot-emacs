@@ -180,7 +180,12 @@
        (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
        (region ((t (:foreground nil :background "#555555"))))
        (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
-				    :background "#050505")))))))
+				    :background "#050505"))))
+       (twitter-user-name-face ((t (:bold t :foreground "white" 
+				    :background "blue"))))
+       (twitter-time-stamp-face ((t (:bold nil :foreground "white" 
+				      :background "blue"))))
+       )))
 
 (when (require 'color-theme)
   (color-theme-djcb-dark))
@@ -888,11 +893,12 @@ directory, select directory. Lastly the file is opened."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; twitter; see http://www.emacswiki.org/emacs/TwIt
-(autoload 'twit-post "twit" "post on twitter" t)
-(autoload 'twit-post-region "twit" "post on twitter" t)
-(autoload 'twit-show-recent-tweets "twit" "read from twitter" t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.busydoingnothing.co.uk/twitter-el/
+(autoload 'twitter-get-friends-timeline "twitter" nil t)
+(autoload 'twitter-status-edit "twitter" nil t)
+;;(global-set-key "\C-xt" 'twitter-get-friends-timeline)
+(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some html-related functions

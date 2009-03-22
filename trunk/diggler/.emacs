@@ -1,4 +1,4 @@
-;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
+; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
 ;;;
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -13,6 +13,8 @@
 	   (add-to-list 'load-path p) 
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
@@ -34,12 +36,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the modeline
-1(line-number-mode t)                     ; show line numbers
+(line-number-mode t)                     ; show line numbers
 (column-number-mode t)                   ; show column numbers
 (when (fboundp size-indication-mode) 	  
   (size-indication-mode t))              ; show file size (emacs 22+)
 (display-time-mode -1)                   ; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
@@ -447,10 +450,10 @@ directory, select directory. Lastly the file is opened."
   org-tag-alist '(("birthday" . ?b) ("family" . ?f)
 		   ("finance" . ?g)  ("home" . ?t)
 		   ("hacking" . ?h)  ("sport" . ?s)
-		   ("work" . ?w))
-  org-todo-keywords '((type "TODO(t)" "MAYBE(m)" "WAITING(w)" "|" 
-			    "DONE(d)" "CANCELLED(c)"))
- 
+		   ("work" . ?w)     ("tv" . ?v))
+  org-todo-keywords '((type "TODO(t)" "MAYBE(m)" "WAITING(w)" 
+			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
+		   
   djcb-remember-file (concat org-directory "remember.org")
   org-remember-templates '(
 			    ("Clipboard" ?c "* %T %^{Description}\n%?%^C"
@@ -458,8 +461,6 @@ directory, select directory. Lastly the file is opened."
 			    ("ToDo" ?t "* %T %^{Summary}" 
 			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
-
-
 
 (defadvice remember-finalize (after delete-remember-frame activate)  
   "Advise remember-finalize to close the frame if it is the remember frame"  
@@ -932,3 +933,15 @@ directory, select directory. Lastly the file is opened."
     (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )

@@ -1,6 +1,6 @@
 ;; texdrive.el
-;; Time-stamp: <2008-11-26 17:18:34 (djcb)>
-;; Copyright (C) 2008  Dirk-Jan C. Binnema.
+;; Time-stamp: <2009-02-09 23:50:37 (djcb)>
+;; Copyright (C) 2008-2009 Dirk-Jan C. Binnema.
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it undr the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@
 ;; the images.
 
 ;; NOTE: while texdrive was specifically written to include the images in
-;; webpages, it can be use for general formula-to-png conversion as well, using e.g.:
+;; webpages, it can be use for general formula-to-png conversion as well, 
+;; using e.g.:
 ;; (texdrive-create-png "abc" "a^2 + b^2 = c^2")
 
 ;; Installation / customization:
@@ -75,9 +76,8 @@
 (defconst texdrive-output "*texdrive-output*"
   "name of texdrive output buffer")
 
-(defconst texdrive-version "0.0.1")
+(defconst texdrive-version "0.0.2")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 (defun texdrive-basename-from-title-lst (lst)
   (when lst
@@ -101,14 +101,15 @@
       "src=\"" (texdrive-target-png title) "\" "
       "title=\"" title "\" "
       "class=\"texdrive-formula\" "
-      "name=\"" tex   "\" "    
+      "alt=\"" tex   "\" "    
       "border=\"0\">"))) 
 
 (defun texdrive-formulae-assoc ()
   "return an assoc of (<name> <formula>) starting from point"
+  (goto-char 0)
     (when 
       (re-search-forward
-	"<img src=\"\\(.+?\\)\.png\".*?class=\"texdrive-formula\".*?name=\"\\(.+?\\)\"" 
+	"<img src=\"\\(.+?\\)\.png\".*?class=\"texdrive-formula\".*?alt=\"\\(.+?\\)\"" 
 	nil t)
       (cons (list 
 	      (match-string-no-properties 1) 
@@ -251,7 +252,7 @@ For more information, see: http://www.djcbsoftware.nl/code/texdrive/
   ;; the initial value
   :init-value nil
   ;; modeline indicator
-  :lighter " TX"
+  :lighter " TXD"
   ;; minor mode bindings
   :keymap texdrive-minor-mode-map)
 

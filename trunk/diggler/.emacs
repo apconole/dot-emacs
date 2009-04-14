@@ -14,8 +14,6 @@
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
 ;; this is useful when this .emacs is used in an env where not all of the
@@ -42,7 +40,6 @@
   (size-indication-mode t))              ; show file size (emacs 22+)
 (display-time-mode -1)                   ; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
@@ -83,30 +80,15 @@
 
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; File cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
-(eval-after-load
-  "filecache"
-  '(progn
-     (message "Loading file cache...")
+(eval-after-load "filecache"
+  '(progn (message "Loading file cache...")
      (file-cache-add-directory "~/")
      (file-cache-add-directory-list (list "~/Desktop" "~/Documents"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; dired
-(add-hook 'dired-load-hook
-  (lambda() 
-    (load "dired-x")
-    ;; put dired-x config here
-))
-(add-hook 'dired-mode-hook
-  (lambda()
-    ;; dired-x buffer local variables here
-    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bookmarks
@@ -120,8 +102,7 @@
 (when (require-maybe 'cursor-chg)  ; Load this library
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)
-  (setq 
-    curchg-default-cursor-color "Yellow"))
+  (setq curchg-default-cursor-color "Yellow"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -234,9 +215,11 @@
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
 ;; some special buffers are under Super + Function Key
+(global-set-key (kbd "s-<f7>")  ;make Super-<f8> switch to the twitter buffer     
+  (lambda()(interactive)(twitter-get-friends-timeline)))
 (global-set-key (kbd "s-<f8>")  ;make Super-<f8> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f9>")  ;makae Super-<f9> switch to todo     
+(global-set-key (kbd "s-<f9>")  ;make Super-<f9> switch to todo     
   (lambda()(interactive)(org-todo-list "ALL")(delete-other-windows)))
 (global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to agenda     
   (lambda()(interactive)(org-agenda-list)(delete-other-windows)))
@@ -309,6 +292,35 @@
 ;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
+
+;; http://nschum.de/src/emacs/rotate-text/
+;; FIXME: add some useful patterns
+(autoload 'rotate-text "rotate-text" nil t)
+(global-set-key (kbd "<C-escape>" 'rotate-text)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; custom menu; http://emacs-fu.blogspot.com/2009/04/adding-custom-menus.html
+(easy-menu-define djcb-menu global-map "MyMenu"
+  '("djcb"
+     ("Programs" ;; submenu
+       ["mutt"  (djcb-term-start-or-switch "mutt" t)]
+       ["mc"    (djcb-term-start-or-switch "mc" t)]
+       ["htop"  (djcb-term-start-or-switch "htop" t)]
+       ["iotop" (djcb-term-start-or-switch "iotop" t)])
+     ("TeXDrive"  :visible (or (string= major-mode "html-helper-mode") 
+			     (string= major-mode "html-mode"))
+       ["Insert formula"   texdrive-insert-formula 
+	 :help "Insert some formula"]
+       ["Generate images"  texdrive-generate-images 
+	 :help "(Re)generate the images for the formulae"])
+     ("Twitter" ;; submenu
+       ["View friends" twitter-get-friends-timeline]
+       ["What are you doing?" twitter-status-edit])
+     ("Misc"  ;; submenu
+       ["Count words" djcb-count-words]
+       ["Show/hide line numbers" linum]
+       ["Toggle full-screen" djcb-fullscreen-toggle])))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -462,6 +474,7 @@ directory, select directory. Lastly the file is opened."
 			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
 
+;; http://metajack.im/2008/12/30/gtd-capture-with-emacs-orgmode/
 (defadvice remember-finalize (after delete-remember-frame activate)  
   "Advise remember-finalize to close the frame if it is the remember frame"  
   (if (equal "*Remember*" (frame-parameter nil 'name))  
@@ -482,11 +495,6 @@ directory, select directory. Lastly the file is opened."
   (make-frame '((name . "*Remember*") (width . 80) (height . 10)))  
   (select-frame-by-name "*Remember*")
   (org-remember))
-
-(defun make-remember-frame-yank ()
-  (interactive)
-  (make-remember-frame)
-  (x-clipboard-yank))
     
 (add-hook 'org-mode-hook
   (lambda() (add-hook 'before-save-hook 'org-agenda-to-appt t t)))
@@ -518,7 +526,6 @@ directory, select directory. Lastly the file is opened."
   (add-to-list 'auto-mode-alist '("muttrc"   . muttrc-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;text-mode
 (defun djcb-text-mode-hook ()
@@ -531,7 +538,6 @@ directory, select directory. Lastly the file is opened."
     (filladapt-mode t))) ; ... (bullets, numbering) if
 					; available
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
-
 
 (defun djcb-count-words (&optional begin end)
   "if there's a region, count words between BEGIN and END; otherwise in buffer" 
@@ -548,7 +554,7 @@ directory, select directory. Lastly the file is opened."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; htmlizetwiki; see http://www.nei
+;; htmlize; http://fly.cc.fer.hr/~hniksic/emacs/htmlize.el.html
 (autoload 'htmlize-region "htmlize" "htmlize the region" t)
 (autoload 'htmlize-buffer "htmlize" "htmlize the buffer" t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -587,15 +593,7 @@ directory, select directory. Lastly the file is opened."
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; newsticker
-(setq
-  newsticker-groups-filename "~/.emacs.d/newsticker/groups"
-  newsticker-html-renderer 'w3m-region)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- 	
-
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
@@ -603,17 +601,12 @@ directory, select directory. Lastly the file is opened."
   (interactive)
   (abbrev-mode t)             ; support abbrevs
   (auto-fill-mode -1)         ; don't do auto-filling
-  
-  ;; cursor up go to up one line *as show on screen*
-  ;; instead of one line in editor
-  (when (require-maybe 'screen-lines) (screen-lines-mode t))
+  (set-input-method nil)      ; no funky "o => o-umlaut action should happen
 
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
   (when (require-maybe 'texdrive) (texdrive-mode t))
-      
-  (set-input-method nil) ;; no funky "o => o-umlaut action should happen
-  
+        
   (set-key-func "C-c i"      (djcb-html-tag-region-or-point "em"))
   (set-key-func "C-c b"      (djcb-html-tag-region-or-point "strong"))
   (set-key-func "C-c s"      (djcb-html-tag-region-or-point "small"))
@@ -640,6 +633,26 @@ directory, select directory. Lastly the file is opened."
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
+
+(defun djcb-html-tag-region-or-point (el)
+  "tag the region or the point if there is no region"
+  (when (not mark-active)
+    (set-mark (point)))
+  (djcb-html-tag-region (region-beginning) (region-end) el))
+
+(defun djcb-html-tag-region (b e el)
+  "put '<el>...</el>' around text" 
+  (let ((tb (concat "<" el ">")) (te (concat "</" el ">")))
+    (insert 
+     (concat tb (delete-and-extract-region b e) te))
+    (goto-char (- (point) (+ (length te) (- e b))))))
+
+(defun djcb-blog-insert-img (name align)
+  (interactive "sName of picture:\nsAlign:")
+  (let ((img-dir "image/"))
+    (insert
+      (concat
+        "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -902,29 +915,6 @@ directory, select directory. Lastly the file is opened."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; some html-related functions
-(defun djcb-html-tag-region-or-point (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-html-tag-region (region-beginning) (region-end) el))
-
-(defun djcb-html-tag-region (b e el)
-  "put '<el>...</el>' around text" 
-  (let ((tb (concat "<" el ">")) (te (concat "</" el ">")))
-    (insert 
-     (concat tb (delete-and-extract-region b e) te))
-    (goto-char (- (point) (+ (length te) (- e b))))))
-
-(defun djcb-blog-insert-img (name align)
-  (interactive "sName of picture:\nsAlign:")
-  (let ((img-dir "image/"))
-    (insert
-      (concat
-        "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode (http://www.emacswiki.org/cgi-bin/wiki/FullScreen
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
 (defun djcb-fullscreen-toggle ()
@@ -933,15 +923,14 @@ directory, select directory. Lastly the file is opened."
     (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )
+
+
+;;; This was installed by package-install.el.
+;;; This provides support for the package system and
+;;; interfacing with ELPA, the package archive.
+;;; Move this code earlier if you want to reference
+;;; packages in your .emacs.
+(when
+  (load
+    (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))

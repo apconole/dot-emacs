@@ -9,15 +9,9 @@
 
 (define-abbrev-table 'c++-mode-abbrev-table '(    ))
 
-(define-abbrev-table 'c-mode-abbrev-table '(    ("grif" "g_return_if_fail ( );" nil 0)
-    ("grvif" "g_return_value_if_fail ( );" nil 0)
-    ("mmain" "int
-main (int argc, char *argv[])
-{
-	return 0;
-}" nil 1)
-    ("stdio" "#include <stdio.h>" nil 1)
-    ))
+(define-abbrev-table 'c-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'calendar-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'change-log-mode-abbrev-table '(    ))
 
@@ -53,15 +47,19 @@ main (int argc, char *argv[])
     ("formy" "formy" cperl-electric-keyword 0)
     ("head1" "head1" cperl-electric-pod 0)
     ("head2" "head2" cperl-electric-pod 0)
-    ("if" "if" cperl-electric-keyword 0)
+    ("if" "if" cperl-electric-keyword 2)
     ("over" "over" cperl-electric-pod 0)
     ("pod" "pod" cperl-electric-pod 0)
     ("unless" "unless" cperl-electric-keyword 0)
     ("until" "until" cperl-electric-keyword 0)
-    ("while" "while" cperl-electric-keyword 0)
+    ("while" "while" cperl-electric-keyword 1)
     ))
 
 (define-abbrev-table 'custom-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'diary-fancy-display-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'diary-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'diff-mode-abbrev-table '(    ))
 
@@ -79,25 +77,34 @@ main (int argc, char *argv[])
 
 (define-abbrev-table 'fundamental-mode-abbrev-table '(    ))
 
-(define-abbrev-table 'global-abbrev-table '(    ))
+(define-abbrev-table 'gdb-script-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'global-abbrev-table '(    ("iig" "in ieder geval" nil 1)
+    ("maw" "met andere woorden" nil 2)
+    ))
 
 (define-abbrev-table 'gnus-article-edit-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'gnus-sticky-article-mode-abbrev-table '(    ))
 
+(define-abbrev-table 'grep-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'gud-mode-abbrev-table '(    ))
+
 (define-abbrev-table 'haskell-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'html-helper-mode-abbrev-table '(    ("llchangelog" "<a href=\"http://www.djcbsoftware.nl/ChangeLog\">ChangeLog</a>" nil 0)
     ("lldjcbflux" "<a href=\"http://djcbflux.blogspot.com\">djcbflux</a>" nil 0)
-    ("lldotemacs" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs.html\"><tt>.emacs</tt></a>" nil 2)
+    ("lldotemacs" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs.html\"><tt>.emacs</tt></a>" nil 5)
     ("llemacsfu" "<a href=\"http://emacs-fu.blogspot.com\">emacs-fu</a>" nil 0)
     ("llgnuvd" "<a href=\"http://www.djcbsoftware.nl/code/gnuvd\">gnuvd</a>" nil 0)
-    ("llkeys" "<a href=\"http://emacs-fu.blogspot.com/2000/12/binding-keys.html\">key bindings</a>" nil 4)
+    ("llkeys" "<a href=\"http://emacs-fu.blogspot.com/2000/12/binding-keys.html\">key bindings</a>" nil 5)
     ("llmu" "<a href=\"http://www.djcbsoftware.nl/code/mu\">mu</a>" nil 0)
     ("llmyemacs" "<a href=\"http://www.djcbsoftware.nl/dot-emacs.html\"><tt>.emacs</tt></a>" nil 0)
-    ("llpkg" "<a href=\"http://emacs-fu.blogspot.com/2000/12/installing-packages.html\">installing packages</a>" nil 1)
+    ("llpkg" "<a href=\"http://emacs-fu.blogspot.com/2000/12/installing-packages.html\">installing packages</a>" nil 2)
+    ("llprefix" "<a href=\"http://emacs-fu.blogspot.com/2008/12/prefix-arguments.html\">prefix key</a>" nil 1)
     ("llspuug" "<a href=\"http://www.djcbsoftware.nl/code/spuug\">spuug</a>" nil 0)
-    ("llterm" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs-terminology.html\"><tt>emacs terminology</tt></a>" nil 0)
+    ("llterm" "<a href=\"http://emacs-fu.blogspot.com/2000/12/emacs-terminology.html\"><tt>emacs terminology</tt></a>" nil 1)
     ("llttb" "<a href=\"http://www.djcbsoftware.nl/code/ttb\">ttb</a>" nil 0)
     ))
 
@@ -156,7 +163,7 @@ main (int argc, char *argv[])
 (define-abbrev-table 'plain-tex-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'post-mode-abbrev-table '(    ("bwd" "Best wishes,
-Dirk." nil 8)
+Dirk." nil 9)
     ("guh" "Met vriendelijke groet uit Helsinki,
 Dirk-Jan" nil 0)
     ("tov" "ten opzichte van" nil 1)
@@ -165,6 +172,10 @@ Dirk-Jan" nil 0)
 (define-abbrev-table 'python-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'reb-lisp-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'remember-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'ruby-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'scheme-mode-abbrev-table '(    ))
 

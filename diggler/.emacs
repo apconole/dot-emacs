@@ -12,7 +12,7 @@
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p) 
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
@@ -21,6 +21,15 @@
 (defmacro require-maybe (feature &optional file)
   "*Try to require FEATURE, but don't signal an error if `require' fails."
   `(require ,feature ,file 'noerror)) 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ELPA
+(require 'cl) ;; some package require cl
+(when
+  (load
+    (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -292,11 +301,6 @@
 ;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
-
-;; http://nschum.de/src/emacs/rotate-text/
-;; FIXME: add some useful patterns
-(autoload 'rotate-text "rotate-text" nil t)
-(global-set-key (kbd "<C-escape>" 'rotate-text)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -923,14 +927,4 @@ directory, select directory. Lastly the file is opened."
     (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-  (load
-    (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
+;; FIN 

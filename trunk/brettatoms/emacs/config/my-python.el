@@ -7,10 +7,6 @@
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
-(require 'yasnippet)
-(yas/initialize)
-(yas/load-directory "~/emacs/snippets")
-
 ;; Autofill inside of comments
 (defun python-auto-fill-comments-only ()
   (auto-fill-mode 1)
@@ -19,6 +15,8 @@
          (not (python-in-string/comment)))))
 
 ;; pymacs
+;;
+;; Pymacs has to be on PYTHONPATH for this to work
 (autoload 'pymacs-apply "pymacs")
 (autoload 'pymacs-call "pymacs")
 (autoload 'pymacs-eval "pymacs" nil t)
@@ -26,17 +24,16 @@
 (autoload 'pymacs-load "pymacs" nil t)
 ;;(eval-after-load "pymacs"
 ;; '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
-(pymacs-load "ropemacs" "rope-")
-(setq ropemacs-enable-autoimport t)
 
 (defun my-python-mode-hook ()
   (set (make-local-variable 'compile-command) "python setup.py develop")
-  ;(pymacs-load "ropemacs" "rope-")
-  ;(ropemacs-mode t)
+  (pymacs-load "ropemacs" "rope-")
+  (ropemacs-mode t)
+
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
   
   ;; flymake mode
-  (flymake-mode)
+  (flymake-mode t)
   (local-set-key (kbd "\C-c e") 'flymake-display-err-menu-for-current-line)
   (local-set-key (kbd "\C-c `") 'flymake-goto-next-error)
   (local-set-key (kbd "RET") 'newline-and-indent)

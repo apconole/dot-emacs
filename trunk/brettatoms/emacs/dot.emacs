@@ -30,12 +30,6 @@
 ;; 
 ;; (global-set-key (kbd "\C-c p") 'open-project)
 
-
-; for the Xft enable emacs, need a conditional here to make sure we only enable
-; this if Xft is compiled in
-
-;(set-default-font "-bitstream-bitstream vera sans mono")
-
 ; my emacs config directory
 (setq data-dir (expand-file-name "~/emacs/"))
 (add-to-list 'load-path data-dir)
@@ -98,6 +92,8 @@
 
 (tool-bar-mode -1) ; don't show the toolbar
 
+(setq visible-bell t) ; flash instead of beep
+
 ;; highlight the current line
 (global-hl-line-mode 1)
 
@@ -110,7 +106,7 @@
 (add-to-list 'default-frame-alist '(width . 80))
 
 ; scroll bar on the right
-;(set-scroll-bar-mode 'right)
+(set-scroll-bar-mode 'right)
 (setq scroll-step 2)
 ; always font lock
 (global-font-lock-mode t)
@@ -132,8 +128,8 @@
 
 ; EasyPG for GPG support
 
-(add-to-list 'load-path (concat package-dir "epg-0.0.16/"))
-(require 'epa-setup)
+;(add-to-list 'load-path (concat package-dir "epg-0.0.16/"))
+;(require 'epa-setup)
 
 ;
 ; tramp 
@@ -176,7 +172,7 @@
 
 ;; new Customize GUI
 ;; see http://www.emacswiki.org/cgi-bin/wiki/CustomizeNewGUI
-(require 'cus-new-gui)
+;(require 'cus-new-gui)
 
 ;; custom settings files for some modes
 (require 'my-python) ; python-mode settings
@@ -196,22 +192,13 @@
 )
 (add-hook 'shell-mode-hook 'my-shell-mode-hook)
 
-;****************
-; html-helper mode - a better html mode
-; ***************
-;(autoload 'html-helper-mode "html-helper-mode" "Yay HTML" t)
-;(setq auto-mode-alist (cons '("\\.html$" . html-helper-mode)       auto-mode-alist))
-;(add-hook 'html-mode-hook
-;	  (lambda ()
-;	    (setq indent-line-function 'indent-relative)))
-
 ;; Uncomment if using abbreviations
 ;(abbrev-mode t)
 
 ;; pabbrev mode from
 ;; http://homepages.cs.ncl.ac.uk/phillip.lord/download/emacs/pabbrev.el
-(require 'pabbrev)
-(global-pabbrev-mode)
+;(require 'pabbrev)
+;(global-pabbrev-mode)
 
 ; i'm not sure if this is really looking here for info files
 (add-to-list 'Info-default-directory-list (concat data-dir "info/"))
@@ -220,12 +207,6 @@
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
-
-; nxhtml mode
-; -- I don't really know what this offers
-(add-hook 'html-mode 
-	  (lambda ()
-	    (load (concat package-dir "nxhtml/autostart.el"))))
 
 ;
 ; DVC
@@ -248,23 +229,26 @@
 (setq savehist-file (concat data-dir "history"))
 (savehist-mode 1)
 
-;; (add-to-list 'load-path (concat package-dir "yas"))
-;; (require 'yasnippet) ;; not yasnippet-bundle
-;; (yas/initialize)
-;; (yas/load-directory (concat package-dir "yas/snippets"))
+(add-to-list 'load-path (concat package-dir "yasnippet"))
+(require 'yasnippet)
+(yas/initialize)
+(yas/load-directory (concat package-dir "yasnippet/snippets"))
 
-; eproject
-(require 'eproject)
-(define-project-type python (generic)
-  (look-for "setup.py")
-  :relevant-files ("\\.py$" "\\.t$" ""))
-(global-set-key (kbd "\C-c p f") 'eproject-ifind-file)
+; TODO: we need to figure out the best way for project management and
+; settings, there seem to be two projects called eproject
+
+;eproject
+;(add-to-list 'load-path (concat package-dir "eproject"))
+;(require 'eproject)
+;; (define-project-type python (generic)
+;;   (look-for "setup.py")
+;;   :relevant-files ("\\.py$" "\\.t$" ""))
+;; (global-set-key (kbd "\C-c p f") 'eproject-ifind-file)
+;(setq prj-last-open nil)
 
 ;; (add-hook 'python-project-file-visit-hook
 ;; 	  (if (file-exists-p 'python-project
 ;; )
-
-
 
 ;; buffer management
 ; uniquify has to be loaded after Pymacs or we get lots of

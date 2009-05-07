@@ -12,7 +12,7 @@
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p) 
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
-	   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
@@ -59,6 +59,7 @@
 (scroll-bar-mode t)              
 (set-scroll-bar-mode 'right)
 
+
 (when (fboundp 'set-fringe-mode)         ; emacs22+ 
   (set-fringe-mode 1))                   ; space left of col1 in pixels
 
@@ -92,7 +93,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; File cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
+;; save minibuffer history
+(setq savehist-file "~/.emacs.d/savehist")
+(savehist-mode t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; file cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
 (eval-after-load "filecache"
   '(progn (message "Loading file cache...")
      (file-cache-add-directory "~/")
@@ -103,6 +111,15 @@
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; savehist-mode: save my history across sessions
+(setq savehist-additional-variables    ;; also save...
+  '(search-ring regexp-search-ring)    ;; ... my search entries
+  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+(savehist-mode t)                      ;; do customization before activate
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cursor
@@ -154,6 +171,9 @@
        (bold-italic ((t (:italic t :bold t))))
        (default ((t (nil))))
        
+       (button ((t (:italic nil :bold t :foreground "yellow" 
+		     :background "blue" :underline t))))
+
        (font-lock-builtin-face ((t (:italic t :foreground "#a96da0"))))
        (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
        (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
@@ -175,6 +195,8 @@
        (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
 				    :background "#050505"))))
        (twitter-user-name-face ((t (:bold t :foreground "white" 
+				    :background "blue"))))
+       (twitter-header-face ((t (:bold t :foreground "white" 
 				    :background "blue"))))
        (twitter-time-stamp-face ((t (:bold nil :foreground "white" 
 				      :background "blue"))))
@@ -461,6 +483,10 @@ directory, select directory. Lastly the file is opened."
   org-log-done 'time                       ; log time when marking as DONE
   org-return-follows-link t                ; return follows the link
   org-tags-column -77                      ;
+  org-export-with-section-numbers nil	   ; no numbers in export headings
+  org-export-with-toc nil                  ; no ToC in export
+  org-export-with-author-info nil          ; no author info in export
+  org-export-with-creator-info nil         ; no creator info
   org-use-fast-todo-selection t            ; fast todo selection
   org-archive-location (concat org-directory "/archive.org::%s")
   org-tag-alist '(("birthday" . ?b) ("family" . ?f)
@@ -501,7 +527,11 @@ directory, select directory. Lastly the file is opened."
   (org-remember))
     
 (add-hook 'org-mode-hook
-  (lambda() (add-hook 'before-save-hook 'org-agenda-to-appt t t)))
+  (lambda() 
+    (add-hook 'before-save-hook 'org-agenda-to-appt t t)
+    (font-lock-add-keywords nil 
+      '(("\\<\\(FIXME\\)" 
+	  1 font-lock-warning-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

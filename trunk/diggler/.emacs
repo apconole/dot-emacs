@@ -24,11 +24,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; my environment vars
+(setq djcb-env '(("NNTPSERVER" "news.kolumbus.fi")))
+(dolist (pair djcb-env) (setenv (car pair) (cadr pair)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ELPA
 (require 'cl) ;; some package require cl
 (when
-  (load
-    (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (load (expand-file-name "~/.emacs.d/elpa/package.el"))
   (package-initialize))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -98,6 +103,12 @@
 (savehist-mode t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; save minibuffer history
+(setq save-place-file "~/.emacs.d/saveplace") ;; keep my ~/ clean
+(setq-default save-place t)                   ;; activate it for all buffers
+(require 'saveplace)                          ;; get the package
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; file cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
@@ -202,7 +213,7 @@
 				      :background "blue"))))
        )))
 
-(when (require 'color-theme)
+(when (and (require 'color-theme) (not djcb-console-p))
   (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -351,9 +362,10 @@
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list 
-      '(try-expand-all-abbrevs try-expand-dabbrev
-	try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
-	try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+  '(yas/hippie-try-expand
+     try-expand-all-abbrevs try-expand-dabbrev
+     try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
+     try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -493,7 +505,7 @@ directory, select directory. Lastly the file is opened."
 		   ("finance" . ?g)  ("home" . ?t)
 		   ("hacking" . ?h)  ("sport" . ?s)
 		   ("work" . ?w)     ("tv" . ?v))
-  org-todo-keywords '((type "TODO(t)" "MAYBE(m)" "WAITING(w)" 
+  org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
 			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
 		   
   djcb-remember-file (concat org-directory "remember.org")
@@ -503,6 +515,12 @@ directory, select directory. Lastly the file is opened."
 			    ("ToDo" ?t "* %T %^{Summary}" 
 			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
+;; ya-snippets
+(yas/define-snippets 'org-mode 
+  '(
+     ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
+     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
+     ("codeblock" "#+BEGIN_HTML\n<pre>${0}</pre>\n#+END_HTML\n")))
 
 ;; http://metajack.im/2008/12/30/gtd-capture-with-emacs-orgmode/
 (defadvice remember-finalize (after delete-remember-frame activate)  
@@ -581,6 +599,12 @@ directory, select directory. Lastly the file is opened."
     (message "Word count: %s" (how-many "\\w+" b e))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ya-snippets; it's to be loaded with elpa
+(require 'yasnippet-bundle) ;; not yasnippet-bundle
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; twiki; see http://www.neilvandyke.org/erin-twiki-emacs/
 (autoload 'erin-mode "erin" "mode for twiki documents" t)
@@ -635,7 +659,6 @@ directory, select directory. Lastly the file is opened."
   (interactive)
   (abbrev-mode t)             ; support abbrevs
   (auto-fill-mode -1)         ; don't do auto-filling
-  (set-input-method nil)      ; no funky "o => o-umlaut action should happen
 
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
@@ -649,21 +672,6 @@ directory, select directory. Lastly the file is opened."
   (set-key-func "C-c tt"     (djcb-html-tag-region-or-point "tt"))
   (set-key-func "C-c <down>" (djcb-html-tag-region-or-point "sub"))
   (set-key-func "C-c <up>"   (djcb-html-tag-region-or-point "sup"))
-  (set-key "C-: a" "&auml;")
-  (set-key "C-` a" "&agrave;")
-  (set-key "C-' a" "&aacute;")    
-  (set-key "C-: e" "&euml;")
-  (set-key "C-` e" "&egrave;")
-  (set-key "C-' e" "&eacute;")
-  (set-key "C-: i" "&iuml;")
-  (set-key "C-` i" "&igrave;")
-  (set-key "C-' i" "&iacute;")
-  (set-key "C-: o" "&ouml;")
-  (set-key "C-` o" "&ograve;")
-  (set-key "C-' o" "&oacute;")
-  (set-key "C-: u" "&uuml;")
-  (set-key "C-` u" "&ugrave;")
-  (set-key "C-' u" "&uacute;"))
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
@@ -766,11 +774,12 @@ directory, select directory. Lastly the file is opened."
 (defun djcb-cperl-mode-hook ()
   (interactive)
   (eval-when-compile (require 'cperl-mode))
+  (abbrev-mode nil)                  ; turn-off the annoying electric expansion..
   (setq 
-   cperl-hairy nil                  ; parse hairy perl constructs
-   cperl-indent-level 4           ; indent with 4 positions
-   cperl-invalid-face (quote off) ; don't show stupid underlines
-   cperl-electric-keywords t))    ; complete keywords
+    cperl-hairy nil                  ; parse hairy perl constructs
+    cperl-indent-level 4             ; indent with 4 positions
+    cperl-invalid-face (quote off)   ; don't show stupid underlines
+    cperl-electric-keywords t))      ; complete keywords
 
 (add-hook 'cperl-mode-hook 'djcb-cperl-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
@@ -791,6 +800,7 @@ directory, select directory. Lastly the file is opened."
 ;; c-mode / c++-mode
 (defconst djcb-c-style '((c-tab-always-indent . t)))
   
+
 (defun djcb-include-guards ()
   "include the #ifndef/#define/#endif include guards for the current buffer"
   (interactive)

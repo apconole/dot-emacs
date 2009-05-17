@@ -205,6 +205,10 @@ Dirk-Jan" nil 0)
 
 (define-abbrev-table 'text-mode-abbrev-table '(    ))
 
+(define-abbrev-table 'twitter-status-edit-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'twitter-timeline-view-mode-abbrev-table '(    ))
+
 (define-abbrev-table 'vala-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'vc-annotate-mode-abbrev-table '(    ))

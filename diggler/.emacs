@@ -165,6 +165,15 @@
   (setq show-paren-style 'parenthesis))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; savehist-mode: save my history across sessions
+(setq savehist-additional-variables    ;; also save...
+  '(search ring regexp-search-ring)    ;; ... my search entries
+  savehist-autosave-interval 60        ;; save every minute (default: 5 min)
+  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+(savehist-mode t)                      ;; do customization before activation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my own custom colors, for non-console mode
@@ -223,8 +232,8 @@
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
 
 ;; C-pgup goes to the start, C-pgdw goes to the end
-(global-set-key [C-prior] (lambda()(interactive)(goto-char (point-min))))
-(global-set-key [C-next]  (lambda()(interactive)(goto-char (point-max))))
+(global-set-key [C-prior](lambda()(interactive)(goto-char(point-min))))
+(global-set-key [C-next] (lambda()(interactive)(goto-char(point-max))))
 
 ;; step through errors; 's' is the Hyper or 'windows' key
 (global-set-key (kbd "<C-s-up>")   'previous-error) 
@@ -233,7 +242,7 @@
 ;; function keys
 (global-set-key (kbd "<f11>")  'djcb-fullscreen-toggle)
 
-;; super key bindings
+;; super key bindings for show/hide
 (global-set-key (kbd "<s-right>") 'hs-show-block)
 (global-set-key (kbd "<s-left>")  'hs-hide-block)
 (global-set-key (kbd "<s-up>")    'hs-hide-all)
@@ -257,7 +266,9 @@
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
 ;; some special buffers are under Super + Function Key
-(global-set-key (kbd "s-<f7>")  ;make Super-<f8> switch to the twitter buffer     
+(global-set-key (kbd "s-<f6>")  ;make Super-<f6> switch to gnus     
+  (lambda()(interactive)(gnus)))
+(global-set-key (kbd "s-<f7>")  ;make Super-<f7> switch to the twitter buffer     
   (lambda()(interactive)(twitter-get-friends-timeline)))
 (global-set-key (kbd "s-<f8>")  ;make Super-<f8> switch to *scratch*     
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
@@ -266,7 +277,7 @@
 (global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to agenda     
   (lambda()(interactive)(org-agenda-list)(delete-other-windows)))
 (global-set-key (kbd "s-<f11>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
+  (lambda()(interactive)(find-file "~/.gnus.el")))
 (global-set-key (kbd "s-<f12>") 
   (lambda()(interactive)(find-file "~/.emacs"))) 
 
@@ -586,8 +597,9 @@ directory, select directory. Lastly the file is opened."
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
   
-  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
-    (filladapt-mode t))) ; ... (bullets, numbering) if
+;;  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
+;;    (filladapt-mode t))
+) ; ... (bullets, numbering) if
 					; available
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
 
@@ -676,6 +688,7 @@ directory, select directory. Lastly the file is opened."
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
 
+
 (defun djcb-html-tag-region-or-point (el)
   "tag the region or the point if there is no region"
   (when (not mark-active)
@@ -756,6 +769,7 @@ directory, select directory. Lastly the file is opened."
   (interactive)  
   (local-set-key (kbd "<f7>") 'eval-buffer) ; overrides global f7 for compilation
   (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
+  (require-maybe 'folding)
 
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
@@ -765,6 +779,7 @@ directory, select directory. Lastly the file is opened."
 	1 font-lock-keyword-face prepend))))
 
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
+;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

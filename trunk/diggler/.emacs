@@ -213,7 +213,7 @@
 				      :background "blue"))))
        )))
 
-(when (and (require 'color-theme) (not djcb-console-p))
+(when  (require 'color-theme)
   (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -671,7 +671,7 @@ directory, select directory. Lastly the file is opened."
   (set-key-func "C-c -"      (djcb-html-tag-region-or-point "strike"))
   (set-key-func "C-c tt"     (djcb-html-tag-region-or-point "tt"))
   (set-key-func "C-c <down>" (djcb-html-tag-region-or-point "sub"))
-  (set-key-func "C-c <up>"   (djcb-html-tag-region-or-point "sup"))
+  (set-key-func "C-c <up>"   (djcb-html-tag-region-or-point "sup")))
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))

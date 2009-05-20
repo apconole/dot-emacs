@@ -1,8 +1,8 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;;;
+;; Time-stamp: <2009-05-20 08:29:47 (djcb)>
+
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
-
 ;; This file is free software licensed under the terms of the
 ;; GNU General Public License, version 3 or later.
 
@@ -57,21 +57,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
-(menu-bar-mode -1)                       ; don't show the menu 
-(tool-bar-mode -1)                       ; don't show the toolbar
+(menu-bar-mode  t)                       ; show the menu... 
+(tool-bar-mode -1)                       ; ... but not the the toolbar
 (icomplete-mode t)		         ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
-(scroll-bar-mode t)              
-(set-scroll-bar-mode 'right)
-
+(scroll-bar-mode t)                      ; show a scrollbar...
+(set-scroll-bar-mode 'right)             ; ... on the right
 
 (when (fboundp 'set-fringe-mode)         ; emacs22+ 
   (set-fringe-mode 1))                   ; space left of col1 in pixels
 
 (transient-mark-mode t)                  ; make the current 'selection' visible
 (delete-selection-mode t)                ; delete the selection with a keypress
-(setq x-select-enable-clipboard t)       ; copy-paste should work ...
-(setq interprogram-paste-function        ; ...with...
+(setq x-select-enable-clipboard t        ; copy-paste should work ...
+  interprogram-paste-function            ; ...with...
   'x-cut-buffer-or-selection-value)      ; ...other X clients
 
 (setq search-highlight t                 ; highlight when searching... 
@@ -79,8 +78,6 @@
 (fset 'yes-or-no-p 'y-or-n-p)            ; enable y/n answers to yes/no 
 
 (global-font-lock-mode t)                ; always do syntax highlighting 
-(when (require-maybe 'jit-lock)          ; enable JIT to make font-lock faster
-  (setq jit-lock-stealth-time 1))        ; new with emacs21
 
 (set-language-environment "UTF-8")       ; prefer utf-8 for language settings
 (set-input-method nil)                   ; no funky input for normal editing;
@@ -91,56 +88,111 @@
 (put 'narrow-to-region 'disabled nil)    ; enable...
 (put 'erase-buffer 'disabled nil)        ; ... useful things
 (when (fboundp file-name-shadow-mode)    ; emacs22+
-  (file-name-shadow-mode 1))             ; be smart about filenames in minbuffer
+  (file-name-shadow-mode t))             ; be smart about filenames in minibuffer
 
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; save minibuffer history
-(setq savehist-file "~/.emacs.d/savehist")
-(savehist-mode t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; save minibuffer history
+;; saving things across sessions
+;;
+;; bookmarks
+(setq bookmark-default-file "~/.emacs.d/bookmarks") ;; bookmarks
+;;
+;; saveplace: save location in file when saving files
 (setq save-place-file "~/.emacs.d/saveplace") ;; keep my ~/ clean
 (setq-default save-place t)                   ;; activate it for all buffers
 (require 'saveplace)                          ;; get the package
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; file cache http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
-(eval-after-load "filecache"
+;;
+;; savehist: save some history
+(setq savehist-additional-variables    ;; also save...
+  '(search ring regexp-search-ring)    ;; ... my search entries
+  savehist-autosave-interval 60        ;; save every minute (default: 5 min)
+  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+(savehist-mode t)                      ;; do customization before activation
+;;
+;; recentf
+(when (require-maybe 'recentf)         ;; save recently used files
+  (setq recentf-save-file "~/.emacs.d/recentf" ;; keep ~/ clean
+    recentf-max-saved-items 500        ;; max save 500
+    recentf-max-menu-items 60)         ;; max 50 in menu
+  (recentf-mode t))                    ;; turn it on
+;;
+;; abbrevs (abbreviations)
+(setq abbrev-file-name                 ;; tell emacs where to read abbrev
+      "~/.emacs.d/abbrev_defs")        ;; definitions from...
+(abbrev-mode t)                        ;; enable abbrevs (abbreviations) ...
+(setq default-abbrev-mode t            ;; turn it on
+  save-abbrevs t)                      ;; don't ask
+(when (file-exists-p abbrev-file-name)
+  (quietly-read-abbrev-file))          ;;  don't tell
+(add-hook 'kill-emacs-hook             ;; write when ...
+  'write-abbrev-file)                  ;; ... exiting emacs
+;;
+;; filecache: http://www.emacswiki.org/cgi-bin/wiki/FileNameCache
+(eval-after-load "filecache" 
   '(progn (message "Loading file cache...")
      (file-cache-add-directory "~/")
      (file-cache-add-directory-list (list "~/Desktop" "~/Documents"))))
+;;
+;; backups
+(setq make-backup-files t ; do make backups
+  backup-by-copying t ; and copy them ...
+  backup-directory-alist '(("." . "~/.emacs.d/backup/")) ; ... here
+  version-control t
+  kept-new-versions 2
+  kept-old-versions 5
+  delete-old-versions t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; bookmarks
-(setq bookmark-default-file "~/.emacs.d/bookmarks")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; misc small stuff ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; time-stamps 
+(setq ;; when there's "Time-stamp: <>" in the first 10 lines of the file
+  time-stamp-active t          ; do enable time-stamps
+  time-stamp-line-limit 10     ; check first 10 buffer lines for Time-stamp: <>
+  time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
+(add-hook 'write-file-hooks 'time-stamp) ; update when saving
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; savehist-mode: save my history across sessions
-(setq savehist-additional-variables    ;; also save...
-  '(search-ring regexp-search-ring)    ;; ... my search entries
-  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
-(savehist-mode t)                      ;; do customization before activate
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cursor
 (blink-cursor-mode 0)		; don't blink cursor
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
+
+;; change cursor for verwrite/read-only/input 
 (when (require-maybe 'cursor-chg)  ; Load this library
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)
   (setq curchg-default-cursor-color "Yellow"))
+
+;; highlight the current line
+(when (fboundp 'global-hl-line-mode)
+  (global-hl-line-mode t)) ;; turn it on for all modes by default
+
+;; show-paren-mode: subtle blinking of matching paren (defaults are ugly)
+;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
+(when (fboundp 'show-paren-mode)
+  (show-paren-mode t)
+  (setq show-paren-style 'parenthesis))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; time/date/calendar stuff
+(setq holidays-in-diary-buffer      t
+  mark-holidays-in-calendar         t	
+  all-christian-calendar-holidays   t
+  all-islamic-calendar-holidays     t
+  all-hebrew-calendar-holidays      t 
+  display-time-24hr-format          t 
+  display-time-day-and-date         nil       
+  display-time-format               nil      
+  display-time-use-mail-icon        nil      ; don't show mail icon
+  calendar-latitude  60.09
+  calendar-longitude 24.52
+  calendar-location-name "Helsinki, Finland")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 				  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows
@@ -150,33 +202,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; highlight the current line; set a custom face, so we can
-;; don't turn in on globally, only in specific modes (see djcb-c-mode-hook)
-(when (fboundp 'global-hl-line-mode)
-  (global-hl-line-mode t)) ;; turn it on for all modes by default
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; show-paren-mode
-;; show a subtle blinking of the matching paren (the defaults are ugly)
-;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
-(when (fboundp 'show-paren-mode)
-  (show-paren-mode t)
-  (setq show-paren-style 'parenthesis))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; savehist-mode: save my history across sessions
-(setq savehist-additional-variables    ;; also save...
-  '(search ring regexp-search-ring)    ;; ... my search entries
-  savehist-autosave-interval 60        ;; save every minute (default: 5 min)
-  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
-(savehist-mode t)                      ;; do customization before activation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; my own custom colors, for non-console mode
+;; color-theme: my own custom colors, for non-console mode
 ;; it all rather dark, and the color differences are rather subtle
 ;; just the way I like it :)
 (defun color-theme-djcb-dark ()
@@ -422,51 +448,6 @@ directory, select directory. Lastly the file is opened."
     (ido-read-buffer prompt)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  abbrevs (emacs will automagically expand abbreviations)
-;;
-(setq abbrev-file-name                ; tell emacs where to read abbrev
-      "~/.emacs.d/abbrev_defs")       ; definitions from...
-(abbrev-mode t)                       ; enable abbrevs (abbreviations) ...
-(setq default-abbrev-mode t
-  save-abbrevs t)                     ; don't ask
-(when (file-exists-p abbrev-file-name)
-  (quietly-read-abbrev-file))         ;  don't tell
-(add-hook 'kill-emacs-hook            ; write when ...
-  'write-abbrev-file)                 ; ... exiting emacs
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; backups  (emacs will write backups and number them)
-(setq make-backup-files t ; do make backups
-  backup-by-copying t ; and copy them ...
-  backup-directory-alist '(("." . "~/.emacs.d/backup/")) ; ... here
-  version-control t
-  kept-new-versions 2
-  kept-old-versions 5
-  delete-old-versions t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; time-stamps 
-;; when there is a "Time-stamp: <>" in the first 10 lines of the file,
-;; emacs will write time-stamp information there when saving the file.
-(setq 
-  time-stamp-active t          ; do enable time-stamps
-  time-stamp-line-limit 10     ; check first 10 buffer lines for Time-stamp: <>
-  time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
-(add-hook 'write-file-hooks 'time-stamp) ; update when saving
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-;; recent files                                                                  
-(when (require-maybe 'recentf)
-  (setq recentf-save-file "~/.emacs.d/recentf"
-    recentf-max-saved-items 500                                            
-    recentf-max-menu-items 60)
-  (recentf-mode t))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
 (defmacro set-key-func (key expr)
@@ -564,23 +545,6 @@ directory, select directory. Lastly the file is opened."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; time/date/calendar stuff
-(setq holidays-in-diary-buffer      t
-  mark-holidays-in-calendar         t	
-  all-christian-calendar-holidays   t
-  all-islamic-calendar-holidays     t
-  all-hebrew-calendar-holidays      t 
-  display-time-24hr-format          t 
-  display-time-day-and-date         nil       
-  display-time-format               nil      
-  display-time-use-mail-icon        nil      ; don't show mail icon
-  calendar-latitude  60.09
-  calendar-longitude 24.52
-  calendar-location-name "Helsinki, Finland")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;some special purpose modes
 ;; muttrc-mode (used when editing muttrc)
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/muttrc-mode.el
@@ -610,7 +574,6 @@ directory, select directory. Lastly the file is opened."
       (e (if mark-active end (point-max))))
     (message "Word count: %s" (how-many "\\w+" b e))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ya-snippets; it's to be loaded with elpa
@@ -688,7 +651,6 @@ directory, select directory. Lastly the file is opened."
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
 
-
 (defun djcb-html-tag-region-or-point (el)
   "tag the region or the point if there is no region"
   (when (not mark-active)
@@ -701,67 +663,19 @@ directory, select directory. Lastly the file is opened."
     (insert 
      (concat tb (delete-and-extract-region b e) te))
     (goto-char (- (point) (+ (length te) (- e b))))))
-
-(defun djcb-blog-insert-img (name align)
-  (interactive "sName of picture:\nsAlign:")
-  (let ((img-dir "image/"))
-    (insert
-      (concat
-        "<img src=\"" img-dir name "\" border=\"0\" align=\"" align "\">"))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TeX/LaTex
 (defun djcb-tex-mode-hook ()
+  "my TeX/LaTeX (auctex) settings"
   (interactive)
-
   (setq TeX-parse-self t) ; Enable parse on load.
-  (setq TeX-auto-save t) ; Enable parse on save.
-
-  (set-key-func "C-c 1"  (djcb-tex-tag-region-or-point-outside "section"))
-  (set-key-func "C-c 2"  (djcb-tex-tag-region-or-point-outside "subsection"))
-  (set-key-func "C-c 3"  (djcb-tex-tag-region-or-point-outside "subsubsection"))
-  
-  (set-key-func "C-c C-a l"  (djcb-tex-tag-region-or-point-outside "href{}"))
-
-  (set-key-func "C-c i"  (djcb-tex-tag-region-or-point "em"))
-  (set-key-func "C-c b"  (djcb-tex-tag-region-or-point "bf"))
-  (set-key-func "C-c s"  (djcb-tex-tag-region-or-point "small"))
-  (set-key-func "C-c u"  (djcb-tex-tag-region-or-point "underline"))
-  (set-key-func "C-c tt" (djcb-tex-tag-region-or-point "tt")))
+  (setq TeX-auto-save t)) ; Enable parse on save.
   
 (add-hook 'tex-mode-hook 'djcb-tex-mode-hook)
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; some TeX/LaTeX-related functions
-(defun djcb-tex-tag-region (b e tag)
-  "put '{\tag...}' around text" 
-  (let ((tb (concat "{\\" tag " ")))
-    (insert 
-     (concat tb (delete-and-extract-region b e) "}"))
-    (goto-char (- (point) 1))))
-
-(defun djcb-tex-tag-region-or-point (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-tex-tag-region (region-beginning) (region-end) el))
-
-(defun djcb-tex-tag-region-outside (b e tag)
-  "put '{\tag...}' around text" 
-  (let ((tb (concat "\\" tag "{")))
-    (insert 
-      (concat tb (delete-and-extract-region b e) "}"))
-    (goto-char (- (point) 1))))
-
-(defun djcb-tex-tag-region-or-point-outside (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-tex-tag-region-outside (region-beginning) (region-end) el))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp

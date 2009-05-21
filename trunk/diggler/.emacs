@@ -1,60 +1,61 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-21 19:05:22 (djcb)>
+;; Time-stamp: <2009-05-22 00:18:16 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
 ;; This file is free software licensed under the terms of the
 ;; GNU General Public License, version 3 or later.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; loadpath; this will recursivel add all dirs in 'elisp-path' to load-path
 (defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p)
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
 ;; this is useful when this .emacs is used in an env where not all of the
 ;; other stuff is available
 (defmacro require-maybe (feature &optional file)
   "*Try to require FEATURE, but don't signal an error if `require' fails."
   `(require ,feature ,file 'noerror))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my environment vars
-(setq djcb-env '(("NNTPSERVER" "news.kolumbus.fi")))
+(setq djcb-env 
+  '( ("NNTPSERVER" "news.kolumbus.fi")))
 (dolist (pair djcb-env) (setenv (car pair) (cadr pair)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ELPA
 (require 'cl) ;; some package require cl
 (when (load (expand-file-name "~/.emacs.d/elpa/package.el"))
   (package-initialize))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; system type  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst djcb-win32-p (eq system-type 'windows-nt) "Are we on Windows?")
 (defconst djcb-linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
   "Are we running on a GNU/Linux system?")
 (defconst djcb-console-p (eq (symbol-value 'window-system) nil)
   "Are we in a console?")
 (defconst djcb-machine (substring (shell-command-to-string "hostname") 0 -1))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the modeline
 (line-number-mode t)                     ; show line numbers
 (column-number-mode t)                   ; show column numbers
 (when (fboundp size-indication-mode)
   (size-indication-mode t))              ; show file size (emacs 22+)
 (display-time-mode -1)                   ; don't show the time
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
@@ -78,24 +79,31 @@
 
 (global-font-lock-mode t)                ; always do syntax highlighting 
 
-(set-language-environment "UTF-8")       ; prefer utf-8 for language settings
-(set-input-method nil)                   ; no funky input for normal editing;
-
 (setq completion-ignore-case t           ; ignore case when completing...
   read-file-name-completion-ignore-case t) ; ...filenames too
 
 (put 'narrow-to-region 'disabled nil)    ; enable...
 (put 'erase-buffer 'disabled nil)        ; ... useful things
 (when (fboundp file-name-shadow-mode)    ; emacs22+
-  (file-name-shadow-mode t))             ; be smart about filenames in minibuffer
+  (file-name-shadow-mode t))             ; be smart about filenames in mbuf
 
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; utf8 / input-method
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(set-language-environment "UTF-8")       ; prefer utf-8 for language settings
+(set-input-method nil)                   ; no funky input for normal editing;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; saving things across sessions
-;;
 ;; bookmarks
 (setq bookmark-default-file "~/.emacs.d/bookmarks") ;; bookmarks
 ;;
@@ -110,7 +118,7 @@
   savehist-autosave-interval 60        ;; save every minute (default: 5 min)
   savehist-file "~/.emacs.d/savehist") ;; keep my home clean
 (savehist-mode t)                      ;; do customization before activation
-;;
+
 ;; recentf
 (when (require-maybe 'recentf)         ;; save recently used files
   (setq recentf-save-file "~/.emacs.d/recentf" ;; keep ~/ clean
@@ -143,21 +151,20 @@
   kept-new-versions 2
   kept-old-versions 5
   delete-old-versions t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; misc small stuff ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; misc small stuff ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time-stamps 
 (setq ;; when there's "Time-stamp: <>" in the first 10 lines of the file
-  time-stamp-active t          ; do enable time-stamps
-  time-stamp-line-limit 10     ; check first 10 buffer lines for Time-stamp: <>
+  time-stamp-active t        ; do enable time-stamps
+  time-stamp-line-limit 10   ; check first 10 buffer lines for Time-stamp: <>
   time-stamp-format "%04y-%02m-%02d %02H:%02M:%02S (%u)") ; date format
 (add-hook 'write-file-hooks 'time-stamp) ; update when saving
 
 ;; cursor
 (blink-cursor-mode 0)		; don't blink cursor
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
-
 ;; change cursor for verwrite/read-only/input 
 (when (require-maybe 'cursor-chg)  ; Load this library
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
@@ -174,11 +181,21 @@
   (show-paren-mode t)
   (setq show-paren-style 'parenthesis))
 
-;; higlight changes mode
+;; higlight changes mode; only load in hook, or emacs --daemon will complain
 (when (fboundp 'highlight-changes-mode)
-  (highlight-changes-mode t)
-  (highlight-changes-visible-mode nil)) ; by default, don't show changes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (add-hook 'find-file-hook 
+    (lambda()
+      (highlight-changes-mode t)
+      (highlight-changes-visible-mode -1)))) ; by default, don't show changes
+
+;; make buffer names more unique (include dirnames if needed)
+(when (require-maybe 'uniquify)
+  (setq 
+    uniquify-buffer-name-style 'post-forward
+    uniquify-separator ":"
+    uniquify-after-kill-buffer-p t
+    uniquify-ignore-buffers-re "^\\*"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list
@@ -186,14 +203,14 @@
      try-expand-all-abbrevs try-expand-dabbrev
      try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
      try-complete-lisp-symbol-partially try-complete-lisp-symbol))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tramp, for remote access
 (setq tramp-default-method "ssh")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
 (setq holidays-in-diary-buffer      t
   mark-holidays-in-calendar         t
@@ -207,16 +224,16 @@
   calendar-latitude  60.09
   calendar-longitude 24.52
   calendar-location-name "Helsinki, Finland")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows
 (when djcb-win32-p
  (set-default-font
    "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; color-theme: my own custom colors, for non-console mode
 ;; it all rather dark, and the color differences are rather subtle
 ;; just the way I like it :)
@@ -260,9 +277,9 @@
        (twitter-time-stamp-face ((t (:bold nil :foreground "white" 
 				      :background "blue")))))))
 (when  (require 'color-theme) (color-theme-djcb-dark))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
@@ -276,13 +293,14 @@
 (global-set-key (kbd "<C-s-down>") 'next-error)
 
 ;; function keys
-(global-set-key (kbd "<f5>")   'whitespace-mode)        ;; show blanks
+(global-set-key (kbd "<f5>")  'whitespace-mode)        ;; show blanks
 (autoload 'linum "linum" "mode for line numbers" t) 
-(global-set-key (kbd "<f6>")   'linum)                  ;; show line numbers
-(global-set-key (kbd "<f7>")   'compile)                ;; compile
-(global-set-key (kbd "<f9>")   'djcb-count-words)       ;; count words
-(global-set-key (kbd "<f10>")  'highlight-changes-visible-mode) ;; count words
-(global-set-key (kbd "<f11>")  'djcb-fullscreen-toggle) ;; fullscreen
+(global-set-key (kbd "<f6>")  'linum)                        ;; line numbers
+(global-set-key (kbd "<f7>")  'compile)                      ;; compile
+(global-set-key (kbd "<f8>")  'comment-or-uncomment-region)  ;; (un)comment
+(global-set-key (kbd "<f9>")  'djcb-count-words)       ;; count words
+(global-set-key (kbd "<f10>") 'highlight-changes-visible-mode) ;; changes
+(global-set-key (kbd "<f11>") 'djcb-fullscreen-toggle) ;; fullscreen
 
 ;; super key bindings for show/hide
 (global-set-key (kbd "<s-right>") 'hs-show-block)
@@ -294,7 +312,8 @@
   "* macro to create a key binding KEY to start some terminal program PRG; 
     if USE-EXISTING is true, try to switch to an existing buffer"
   `(global-set-key ,key 
-     '(lambda() (interactive) (djcb-term-start-or-switch ,name ,use-existing))))
+     '(lambda() (interactive) 
+	(djcb-term-start-or-switch ,name ,use-existing))))
 
 ;; terminal programs are under Shift + Function Key
 (djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)   ; the ubershell
@@ -303,7 +322,6 @@
 (djcb-program-shortcut "irssi" (kbd "<S-f5>") t)   ; console irc client
 (djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
-
 
 ;; some special buffers are under Super (s-)  + Function Key (<fn>)
 (global-set-key (kbd "s-<f5>") 'magit-status)
@@ -373,9 +391,17 @@
 ;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(yas/define-snippets 'org-mode ;; ya-snippets
+  '(
+     ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
+     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
+     ("codeblock" "#+BEGIN_HTML\n<pre>${0}</pre>\n#+END_HTML\n")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; custom menu; http://emacs-fu.blogspot.com/2009/04/adding-custom-menus.html
 (easy-menu-define djcb-menu global-map "MyMenu"
   '("djcb"
@@ -397,10 +423,10 @@
        ["Count words" djcb-count-words]
        ["Show/hide line numbers" linum]
        ["Toggle full-screen" djcb-fullscreen-toggle])))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 (require 'ido) 
@@ -417,9 +443,9 @@
   ido-enable-flex-matching t  ; be flexible
   ido-max-prospects 4         ; don't spam my minibuffer
   ido-confirm-unique-completion t) ; wait for RET, even with unique completion
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
 (defmacro set-key-func (key expr)
   "macro to save me typing"
@@ -427,9 +453,9 @@
         (list 'lambda nil 
               (list 'interactive nil) expr)))
 (defmacro set-key (key str) (list 'local-set-key (list 'kbd key) str))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; org-mode / remember-mode
 ;; we use org-mode as the backend for remember
 ;;(org-remember-insinuate)
@@ -473,12 +499,6 @@
 			    ("ToDo" ?t "* %T %^{Summary}"
 			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
-;; ya-snippets
-(yas/define-snippets 'org-mode
-  '(
-     ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
-     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
-     ("codeblock" "#+BEGIN_HTML\n<pre>${0}</pre>\n#+END_HTML\n")))
 
 ;; http://metajack.im/2008/12/30/gtd-capture-with-emacs-orgmode/
 (defadvice remember-finalize (after delete-remember-frame activate)
@@ -508,28 +528,29 @@
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
 	  1 font-lock-warning-face prepend)))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;some special purpose modes
 ;; muttrc-mode (used when editing muttrc)
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/muttrc-mode.el
 (when (locate-library "muttrc-mode")
   (autoload 'muttrc-mode "muttrc-mode" "mode for editing muttrc" t)
   (add-to-list 'auto-mode-alist '("muttrc"   . muttrc-mode)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;text-mode
 (defun djcb-text-mode-hook ()
   (interactive)
   (set-fill-column 78)                    ; lines are 78 chars long ...
-  (auto-fill-mode t)                      ; ... and wrapped around automagically
-  (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
+  (auto-fill-mode t)                      ; ... and wrapped around 
+  (set-input-method "latin-1-prefix"))    ; make " + e => ë etc.
 
 ;;  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
 ;;    (filladapt-mode t))
-) ; ... (bullets, numbering) if
+;; ... (bullets, numbering) if
+
 					; available
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
 
@@ -541,24 +562,24 @@
     (message "Word count: %s" (how-many "\\w+" b e))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ya-snippets; it's to be loaded with elpa
 (require 'yasnippet-bundle) ;; not yasnippet-bundle
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; twiki; see http://www.neilvandyke.org/erin-twiki-emacs/
 (autoload 'erin-mode "erin" "mode for twiki documents" t)
 (add-to-list 'auto-mode-alist '("\\.*.twiki$" . erin-mode))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; htmlize; http://fly.cc.fer.hr/~hniksic/emacs/htmlize.el.html
 (autoload 'htmlize-region "htmlize" "htmlize the region" t)
 (autoload 'htmlize-buffer "htmlize" "htmlize the buffer" t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; email / news
 (defun djcb-snip (b e summ)
   "remove selected lines, and replace it with [snip:summary (n lines)]"
@@ -589,7 +610,7 @@
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
 (defun djcb-html-helper-mode-hook ()
@@ -603,9 +624,9 @@
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TeX/LaTex
 (defun djcb-tex-mode-hook ()
   "my TeX/LaTeX (auctex) settings"
@@ -615,9 +636,9 @@
   
 (add-hook 'tex-mode-hook 'djcb-tex-mode-hook)
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp
 (defun djcb-emacs-lisp-mode-hook ()
   (interactive)  
@@ -636,14 +657,14 @@
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
 (defalias 'perl-mode 'cperl-mode) ; cperl mode is what we want
 
 (defun djcb-cperl-mode-hook ()
   (interactive)
   (eval-when-compile (require 'cperl-mode))
-  (abbrev-mode nil)                  ; turn-off the annoying electric expansion..
+  (abbrev-mode nil)                  ; turn-off the annoying elecric crap
   (setq 
     cperl-hairy nil                  ; parse hairy perl constructs
     cperl-indent-level 4             ; indent with 4 positions
@@ -651,9 +672,9 @@
     cperl-electric-keywords t))      ; complete keywords
 
 (add-hook 'cperl-mode-hook 'djcb-cperl-mode-hook)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;; gtags
 (add-hook 'gtags-mode-hook 
   (lambda()
@@ -662,9 +683,9 @@
     (local-set-key (kbd "s-n") 'gtags-pop-stack)
     (local-set-key (kbd "s-p") 'gtags-find-pattern)
     (local-set-key (kbd "s-g") 'gtags-find-with-grep)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c-mode / c++-mode
 (defconst djcb-c-style '((c-tab-always-indent . t)))
   
@@ -722,12 +743,10 @@
 	       (expand-file-name default-directory)))
     (when (require-maybe 'gtags) 
       (gtags-mode t)
-      (djcb-gtags-create-or-update)))
-  
+      (djcb-gtags-create-or-update)))  
   (when (require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
-  
   (local-set-key (kbd "C-c i") 'djcb-include-guards)  
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
   
@@ -742,17 +761,17 @@
 (add-hook 'c-mode-common-hook 'djcb-c-mode-common) ; run before all c-modes
 ;;(add-hook 'c-mode-hook 'djcb-c-mode)               ; run before c mode
 (add-hook 'c++-mode-hook 'djcb-c++-mode)           ; run before c++ mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
 (defun djcb-makefile-mode-hook ()
   (interactive)
   (setq show-trailing-whitespace t))
 (add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compilation; if compilation is successful, autoclose the compilation win
 ;; http://www.emacswiki.org/cgi-bin/wiki/ModeCompile
 ;; TODO: don't hide when there are warnings either (not just errors)
@@ -766,14 +785,14 @@
 	    'delete-window
 	    (get-buffer-window buffer t)))
     (t (message "Compilation exited abnormally: %s" string))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
 (require-maybe 'magit)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; customization for term, ansi-term
 ;; disable cua and transient mark modes in term-char-mode
 ;; http://www.emacswiki.org/emacs/AnsiTermHints
@@ -782,6 +801,7 @@
   (set (make-local-variable 'cua-mode) nil)
   (set (make-local-variable 'transient-mark-mode) nil)
   (set (make-local-variable 'global-hl-line-mode) nil)
+  (set-terminal-coding-system 'utf-8)
   (local-set-key [(tab)] nil)
   (local-set-key (kbd "<f8>") '(lambda()(interactive)
 				 (shell-command "killall -SIGWINCH mutt")))
@@ -790,18 +810,18 @@
 )
 (ad-activate 'term-char-mode)
 (add-hook 'term-mode-hook (lambda() (term-set-escape-char ?\C-x)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying
 ;; warnings
 (setq safe-local-variable-values
       (quote ((auto-recompile . t)
 	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; elisp function/macros
 ;; switch to a buffer it already exists, otherwise return nil
 (defun djcb-term-start-or-switch (prg &optional use-existing)
@@ -814,9 +834,9 @@
 		 (let ((buf (get-buffer bufname)))
 		   (and buf (buffer-name (switch-to-buffer bufname))))))
       (ansi-term prg prg))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; http://www.busydoingnothing.co.uk/twitter-el/
 (autoload 'twitter-get-friends-timeline "twitter" nil t)
 (autoload 'twitter-status-edit "twitter" nil t)
@@ -824,11 +844,11 @@
 (add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; full-screen mode (http://www.emacswiki.org/cgi-bin/wiki/FullScreen
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
 (defun djcb-fullscreen-toggle ()
   (interactive)
   (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN

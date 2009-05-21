@@ -1,5 +1,5 @@
-; -*-mode: Emacs-Lisp; outline-minor-mode:t-*- 
-;; Time-stamp: <2009-05-20 08:29:47 (djcb)>
+; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
+;; Time-stamp: <2009-05-21 19:05:22 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -7,10 +7,10 @@
 ;; GNU General Public License, version 3 or later.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; loadpath; this will recursivel add all dirs in 'elisp-path' to load-path 
+;; loadpath; this will recursivel add all dirs in 'elisp-path' to load-path
 (defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
 (mapcar '(lambda(p)
-	   (add-to-list 'load-path p) 
+	   (add-to-list 'load-path p)
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -20,7 +20,7 @@
 ;; other stuff is available
 (defmacro require-maybe (feature &optional file)
   "*Try to require FEATURE, but don't signal an error if `require' fails."
-  `(require ,feature ,file 'noerror)) 
+  `(require ,feature ,file 'noerror))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,8 +32,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ELPA
 (require 'cl) ;; some package require cl
-(when
-  (load (expand-file-name "~/.emacs.d/elpa/package.el"))
+(when (load (expand-file-name "~/.emacs.d/elpa/package.el"))
   (package-initialize))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -41,7 +40,7 @@
 (defconst djcb-win32-p (eq system-type 'windows-nt) "Are we on Windows?")
 (defconst djcb-linux-p (or (eq system-type 'gnu/linux) (eq system-type 'linux))
   "Are we running on a GNU/Linux system?")
-(defconst djcb-console-p (eq (symbol-value 'window-system) nil) 
+(defconst djcb-console-p (eq (symbol-value 'window-system) nil)
   "Are we in a console?")
 (defconst djcb-machine (substring (shell-command-to-string "hostname") 0 -1))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50,16 +49,16 @@
 ;; the modeline
 (line-number-mode t)                     ; show line numbers
 (column-number-mode t)                   ; show column numbers
-(when (fboundp size-indication-mode) 	  
+(when (fboundp size-indication-mode)
   (size-indication-mode t))              ; show file size (emacs 22+)
 (display-time-mode -1)                   ; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
-(menu-bar-mode  t)                       ; show the menu... 
+(menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
-(icomplete-mode t)		         ; completion in minibuffer
+(icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
 (scroll-bar-mode t)                      ; show a scrollbar...
 (set-scroll-bar-mode 'right)             ; ... on the right
@@ -93,7 +92,6 @@
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; saving things across sessions
@@ -175,25 +173,42 @@
 (when (fboundp 'show-paren-mode)
   (show-paren-mode t)
   (setq show-paren-style 'parenthesis))
+
+;; higlight changes mode
+(when (fboundp 'highlight-changes-mode)
+  (highlight-changes-mode t)
+  (highlight-changes-visible-mode nil)) ; by default, don't show changes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq hippie-expand-try-functions-list
+  '(yas/hippie-try-expand
+     try-expand-all-abbrevs try-expand-dabbrev
+     try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
+     try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; tramp, for remote access
+(setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
 (setq holidays-in-diary-buffer      t
-  mark-holidays-in-calendar         t	
+  mark-holidays-in-calendar         t
   all-christian-calendar-holidays   t
   all-islamic-calendar-holidays     t
-  all-hebrew-calendar-holidays      t 
-  display-time-24hr-format          t 
-  display-time-day-and-date         nil       
-  display-time-format               nil      
+  all-hebrew-calendar-holidays      t
+  display-time-24hr-format          t
+  display-time-day-and-date         nil
+  display-time-format               nil
   display-time-use-mail-icon        nil      ; don't show mail icon
   calendar-latitude  60.09
   calendar-longitude 24.52
   calendar-location-name "Helsinki, Finland")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-				  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ms-windows
 (when djcb-win32-p
@@ -210,16 +225,14 @@
   (interactive)
   (color-theme-install
     '(color-theme-djcb-dark
-       ((foreground-color . "#a9eadf")
-	 (background-color . "black") 
+       ((foreground-color . "#edebc4")
+	 (background-color . "#242424") 
 	 (background-mode . dark))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))
        (default ((t (nil))))
-       
        (button ((t (:italic nil :bold t :foreground "yellow" 
 		     :background "blue" :underline t))))
-
        (font-lock-builtin-face ((t (:italic t :foreground "#a96da0"))))
        (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
        (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
@@ -227,10 +240,10 @@
        (font-lock-doc-string-face ((t (:foreground "#3041c4"))))
        (font-lock-doc-face ((t (:foreground "gray"))))
        (font-lock-reference-face ((t (:foreground "white"))))
-       (font-lock-function-name-face ((t (:foreground "#356da0"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "#bcf0f1"))))
+       (font-lock-function-name-face ((t (:foreground "#cae682"))))
+       (font-lock-keyword-face ((t (:bold t :foreground "#8888cf"))))
        (font-lock-preprocessor-face ((t (:foreground "#e3ea94"))))
-       (font-lock-string-face ((t (:foreground "#ffffff"))))
+       (font-lock-string-face ((t (:foreground "#a9eadf"))))
        (font-lock-type-face ((t (:bold t :foreground "#364498"))))
        (font-lock-variable-name-face ((t (:foreground "#7685de"))))
        (font-lock-warning-face ((t (:bold t :italic nil :underline nil 
@@ -238,18 +251,15 @@
        (hl-line ((t (:background "#112233"))))
        (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
        (region ((t (:foreground nil :background "#555555"))))
-       (show-paren-match-face ((t (:bold t :foreground "#ffffff" 
-				    :background "#050505"))))
+       (show-paren-match-face ((t (:bold t :foreground "#7f3380" 
+				    :background "black"))))
        (twitter-user-name-face ((t (:bold t :foreground "white" 
 				    :background "blue"))))
        (twitter-header-face ((t (:bold t :foreground "white" 
 				    :background "blue"))))
        (twitter-time-stamp-face ((t (:bold nil :foreground "white" 
-				      :background "blue"))))
-       )))
-
-(when  (require 'color-theme)
-  (color-theme-djcb-dark))
+				      :background "blue")))))))
+(when  (require 'color-theme) (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -266,7 +276,13 @@
 (global-set-key (kbd "<C-s-down>") 'next-error)
 
 ;; function keys
-(global-set-key (kbd "<f11>")  'djcb-fullscreen-toggle)
+(global-set-key (kbd "<f5>")   'whitespace-mode)        ;; show blanks
+(autoload 'linum "linum" "mode for line numbers" t) 
+(global-set-key (kbd "<f6>")   'linum)                  ;; show line numbers
+(global-set-key (kbd "<f7>")   'compile)                ;; compile
+(global-set-key (kbd "<f9>")   'djcb-count-words)       ;; count words
+(global-set-key (kbd "<f10>")  'highlight-changes-visible-mode) ;; count words
+(global-set-key (kbd "<f11>")  'djcb-fullscreen-toggle) ;; fullscreen
 
 ;; super key bindings for show/hide
 (global-set-key (kbd "<s-right>") 'hs-show-block)
@@ -278,46 +294,32 @@
   "* macro to create a key binding KEY to start some terminal program PRG; 
     if USE-EXISTING is true, try to switch to an existing buffer"
   `(global-set-key ,key 
-     '(lambda()
-	(interactive)
-	(djcb-term-start-or-switch ,name ,use-existing))))
+     '(lambda() (interactive) (djcb-term-start-or-switch ,name ,use-existing))))
 
 ;; terminal programs are under Shift + Function Key
 (djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)   ; the ubershell
 (djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)   ; console mail client
 (djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)   ; console nttp client
 (djcb-program-shortcut "irssi" (kbd "<S-f5>") t)   ; console irc client
-(djcb-program-shortcut "mc"    (kbd "<S-f10>") t)  ; midnight commander
 (djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
 (djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
 
-;; some special buffers are under Super + Function Key
-(global-set-key (kbd "s-<f6>")  ;make Super-<f6> switch to gnus     
-  (lambda()(interactive)(gnus)))
-(global-set-key (kbd "s-<f7>")  ;make Super-<f7> switch to the twitter buffer     
+
+;; some special buffers are under Super (s-)  + Function Key (<fn>)
+(global-set-key (kbd "s-<f5>") 'magit-status)
+(global-set-key (kbd "s-<f6>") (lambda()(interactive)(gnus)))
+(global-set-key (kbd "s-<f7>") 
   (lambda()(interactive)(twitter-get-friends-timeline)))
-(global-set-key (kbd "s-<f8>")  ;make Super-<f8> switch to *scratch*     
+(global-set-key (kbd "s-<f8>") 
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f9>")  ;make Super-<f9> switch to todo     
+(global-set-key (kbd "s-<f9>")  
   (lambda()(interactive)(org-todo-list "ALL")(delete-other-windows)))
-(global-set-key (kbd "s-<f10>")  ;make Super-<f10> switch to agenda     
+(global-set-key (kbd "s-<f10>")
   (lambda()(interactive)(org-agenda-list)(delete-other-windows)))
 (global-set-key (kbd "s-<f11>") 
   (lambda()(interactive)(find-file "~/.gnus.el")))
-(global-set-key (kbd "s-<f12>") 
+(global-set-key (kbd "s-<f12>")
   (lambda()(interactive)(find-file "~/.emacs"))) 
-
-(global-set-key (kbd "C-c a") 'org-agenda)     ; org mode -- show my agenda
-(global-set-key (kbd "C-c r") 'org-remember)   ; org mode -- remember
-(global-set-key (kbd "C-c b") 'org-iswitchb)   ; org mode swich buffer
-(global-set-key (kbd "C-c l") 'org-store-link) ; org mode
-
-(global-set-key (kbd "<f6>") 'linum)           ; fast line number
-(global-set-key (kbd "<f7>") 'compile)         ; compile
-
-;; f12 for copy, in term-mode
-(global-set-key (kbd "<f12>")  (lambda(b e) (interactive "r")  
-				 (kill-ring-save b e))) 
 
 ;; some commands for rectangular selections;
 ;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
@@ -354,8 +356,8 @@
   "modify the transparency of the emacs frame; if DEC is t,
     decrease the transparency, otherwise increase it in 10%-steps"
   (let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
-          (oldalpha (if alpha-or-nil alpha-or-nil 100))
-          (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
+	  (oldalpha (if alpha-or-nil alpha-or-nil 100))
+	  (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
     (when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
       (modify-frame-parameters nil (list (cons 'alpha newalpha))))))
 
@@ -365,7 +367,7 @@
 (global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
 (global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
 (global-set-key (kbd "C-0") '(lambda()(interactive)
-                               (modify-frame-parameters nil `((alpha . 100)))))
+			       (modify-frame-parameters nil `((alpha . 100)))))
 
 ;; http://emacs-fu.blogspot.com/2008/12 ... 
 ;; ... /cycling-through-your-buffers-with-ctrl.html
@@ -397,13 +399,6 @@
        ["Toggle full-screen" djcb-fullscreen-toggle])))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq hippie-expand-try-functions-list 
-  '(yas/hippie-try-expand
-     try-expand-all-abbrevs try-expand-dabbrev
-     try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
-     try-complete-lisp-symbol-partially try-complete-lisp-symbol))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
@@ -422,30 +417,6 @@
   ido-enable-flex-matching t  ; be flexible
   ido-max-prospects 4         ; don't spam my minibuffer
   ido-confirm-unique-completion t) ; wait for RET, even with unique completion
-
-;; http://www.emacswiki.org/emacs/FileNameCache
-(defun file-cache-ido-find-file (file)
-  "Using ido, interactively open file from file cache'.
-First select a file, matched using ido-switch-buffer against the contents
-in `file-cache-alist'. If the file exist in more than one
-directory, select directory. Lastly the file is opened."
-  (interactive 
-    (list (file-cache-ido-read "File: " 
-	    (mapcar (lambda (x) (car x)) file-cache-alist))))
-  (let* ((record (assoc file file-cache-alist)))
-    (find-file
-     (expand-file-name
-      file
-      (if (= (length record) 2)
-          (car (cdr record))
-        (file-cache-ido-read
-         (format "Find %s in dir: " file) (cdr record)))))))
-
-(defun file-cache-ido-read (prompt choices)
-  (let ((ido-make-buffer-list-hook
-	 (lambda ()
-	   (setq ido-temp-list choices))))
-    (ido-read-buffer prompt)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -456,11 +427,6 @@ directory, select directory. Lastly the file is opened."
         (list 'lambda nil 
               (list 'interactive nil) expr)))
 (defmacro set-key (key str) (list 'local-set-key (list 'kbd key) str))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; tramp, for remote access
-(setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -483,10 +449,10 @@ directory, select directory. Lastly the file is opened."
   org-completion-use-ido t                  ; use ido when it makes sense
   org-enforce-to-checkbox-dependencies t   ; parents can't be closed... 
   org-enforce-todo-dependencies t          ; ...before their children
-  org-hide-leading-stars t	           ; hide leading stars
+  org-hide-leading-stars t		   ; hide leading stars
   org-log-done 'time                       ; log time when marking as DONE
   org-return-follows-link t                ; return follows the link
-  org-tags-column -77                      ;
+  org-tags-column -77                      ; tags at pos 77
   org-export-with-section-numbers nil	   ; no numbers in export headings
   org-export-with-toc nil                  ; no ToC in export
   org-export-with-author-info nil          ; no author info in export
@@ -499,48 +465,48 @@ directory, select directory. Lastly the file is opened."
 		   ("work" . ?w)     ("tv" . ?v))
   org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
 			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
-		   
+
   djcb-remember-file (concat org-directory "remember.org")
   org-remember-templates '(
 			    ("Clipboard" ?c "* %T %^{Description}\n%?%^C"
 			      djcb-org-remember-file "Interesting")
-			    ("ToDo" ?t "* %T %^{Summary}" 
+			    ("ToDo" ?t "* %T %^{Summary}"
 			      djcb-org-remember-file "Todo")))
 (org-remember-insinuate)
 ;; ya-snippets
-(yas/define-snippets 'org-mode 
+(yas/define-snippets 'org-mode
   '(
      ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
      ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
      ("codeblock" "#+BEGIN_HTML\n<pre>${0}</pre>\n#+END_HTML\n")))
 
 ;; http://metajack.im/2008/12/30/gtd-capture-with-emacs-orgmode/
-(defadvice remember-finalize (after delete-remember-frame activate)  
-  "Advise remember-finalize to close the frame if it is the remember frame"  
-  (if (equal "*Remember*" (frame-parameter nil 'name))  
-    (delete-frame)))  
+(defadvice remember-finalize (after delete-remember-frame activate)
+  "Advise remember-finalize to close the frame if it is the remember frame"
+  (if (equal "*Remember*" (frame-parameter nil 'name))
+    (delete-frame)))
 
-(defadvice remember-destroy (after delete-remember-frame activate)  
-  "Advise remember-destroy to close the frame if it is the remember frame"  
-  (if (equal "*Remember*" (frame-parameter nil 'name))  
-    (delete-frame)))  
+(defadvice remember-destroy (after delete-remember-frame activate)
+  "Advise remember-destroy to close the frame if it is the remember frame"
+  (if (equal "*Remember*" (frame-parameter nil 'name))
+    (delete-frame)))
 
-;; make the frame contain a single window. by default org-remember  
-;; splits the window.  
-(add-hook 'remember-mode-hook  'delete-other-windows)  
+;; make the frame contain a single window. by default org-remember
+;; splits the window.
+(add-hook 'remember-mode-hook  'delete-other-windows)
 
-(defun make-remember-frame ()  
+(defun make-remember-frame ()
   "Create a new frame and run org-remember"
-  (interactive)  
-  (make-frame '((name . "*Remember*") (width . 80) (height . 10)))  
+  (interactive)
+  (make-frame '((name . "*Remember*") (width . 80) (height . 10)))
   (select-frame-by-name "*Remember*")
   (org-remember))
-    
+
 (add-hook 'org-mode-hook
-  (lambda() 
+  (lambda()
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
-    (font-lock-add-keywords nil 
-      '(("\\<\\(FIXME\\)" 
+    (font-lock-add-keywords nil
+      '(("\\<\\(FIXME\\)"
 	  1 font-lock-warning-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -557,10 +523,10 @@ directory, select directory. Lastly the file is opened."
 ;;text-mode
 (defun djcb-text-mode-hook ()
   (interactive)
-  (set-fill-column 78)                    ; lines are 78 chars long ...         
+  (set-fill-column 78)                    ; lines are 78 chars long ...
   (auto-fill-mode t)                      ; ... and wrapped around automagically
   (set-input-method "latin-1-prefix")     ; make " + e => ë etc.
-  
+
 ;;  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
 ;;    (filladapt-mode t))
 ) ; ... (bullets, numbering) if
@@ -568,7 +534,7 @@ directory, select directory. Lastly the file is opened."
 (add-hook 'text-mode-hook 'djcb-text-mode-hook)
 
 (defun djcb-count-words (&optional begin end)
-  "if there's a region, count words between BEGIN and END; otherwise in buffer" 
+  "if there's a region, count words between BEGIN and END; otherwise in buffer"
   (interactive "r")
   (let ((b (if mark-active begin (point-min)))
       (e (if mark-active end (point-max))))
@@ -594,16 +560,15 @@ directory, select directory. Lastly the file is opened."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; email / news
-;; remove parts of old email, and replace with <snip (n lines): ... >
 (defun djcb-snip (b e summ)
   "remove selected lines, and replace it with [snip:summary (n lines)]"
   (interactive "r\nsSummary:")
   (let ((n (count-lines b e)))
     (delete-region b e)
     (insert (format "[snip%s (%d line%s)]" 
-              (if (= 0 (length summ)) "" (concat ": " summ))
-              n 
-              (if (= 1 n) "" "s")))))
+	      (if (= 0 (length summ)) "" (concat ": " summ))
+	      n 
+	      (if (= 1 n) "" "s")))))
 
 (defun djcb-post-mode-hook ()
   (interactive)
@@ -613,9 +578,6 @@ directory, select directory. Lastly the file is opened."
 ;;  (set-face-foreground 'post-bold-face "#ffffff")
   (when (require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
-  ;;(font-lock-add-keywords nil 
-  ;;  '(("\\<\\(FIXME\\|TODO):" 
-  ;; 1 font-lock-warning-face prepend)))  
   (require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
@@ -626,7 +588,7 @@ directory, select directory. Lastly the file is opened."
 	     '("\\.*mutt-*\\|.article\\|\\.followup" 
 		. post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
@@ -637,32 +599,10 @@ directory, select directory. Lastly the file is opened."
 
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
-  (when (require-maybe 'texdrive) (texdrive-mode t))
-        
-  (set-key-func "C-c i"      (djcb-html-tag-region-or-point "em"))
-  (set-key-func "C-c b"      (djcb-html-tag-region-or-point "strong"))
-  (set-key-func "C-c s"      (djcb-html-tag-region-or-point "small"))
-  (set-key-func "C-c u"      (djcb-html-tag-region-or-point "u"))
-  (set-key-func "C-c -"      (djcb-html-tag-region-or-point "strike"))
-  (set-key-func "C-c tt"     (djcb-html-tag-region-or-point "tt"))
-  (set-key-func "C-c <down>" (djcb-html-tag-region-or-point "sub"))
-  (set-key-func "C-c <up>"   (djcb-html-tag-region-or-point "sup")))
+  (when (require-maybe 'texdrive) (texdrive-mode t)))
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
-
-(defun djcb-html-tag-region-or-point (el)
-  "tag the region or the point if there is no region"
-  (when (not mark-active)
-    (set-mark (point)))
-  (djcb-html-tag-region (region-beginning) (region-end) el))
-
-(defun djcb-html-tag-region (b e el)
-  "put '<el>...</el>' around text" 
-  (let ((tb (concat "<" el ">")) (te (concat "</" el ">")))
-    (insert 
-     (concat tb (delete-and-extract-region b e) te))
-    (goto-char (- (point) (+ (length te) (- e b))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -681,20 +621,20 @@ directory, select directory. Lastly the file is opened."
 ;; Elisp
 (defun djcb-emacs-lisp-mode-hook ()
   (interactive)  
-  (local-set-key (kbd "<f7>") 'eval-buffer) ; overrides global f7 for compilation
+  (local-set-key (kbd "<f7>") 'eval-buffer) ; overrides global f7 (compile)
   (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
   (require-maybe 'folding)
-
+  (font-lock-add-keywords nil '(("^[^\n]\\{80\\}\\(.*\\)$"
+				  1 font-lock-warning-face prepend)))
   (font-lock-add-keywords nil 
-    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
+    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\)" 
 	1 font-lock-warning-face prepend)))  
   (font-lock-add-keywords nil 
-    '(("\\<\\(require-maybe\\|add-hook\\|setq\\)" 
-	1 font-lock-keyword-face prepend))))
+  '(("\\<\\(require-maybe\\|add-hook\\|setq\\)" 
+      1 font-lock-keyword-face prepend))))
 
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
@@ -724,12 +664,10 @@ directory, select directory. Lastly the file is opened."
     (local-set-key (kbd "s-g") 'gtags-find-with-grep)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c-mode / c++-mode
 (defconst djcb-c-style '((c-tab-always-indent . t)))
   
-
 (defun djcb-include-guards ()
   "include the #ifndef/#define/#endif include guards for the current buffer"
   (interactive)
@@ -796,7 +734,6 @@ directory, select directory. Lastly the file is opened."
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode '(("^[^\n]\\{80\\}\\(.*\\)$"
 				      1 font-lock-warning-face prepend))))
-
 (defun djcb-c++-mode ()
   ;; warn when lines are > 100 characters (in c++-mode)
   (font-lock-add-keywords 'c++-mode  '(("^[^\n]\\{100\\}\\(.*\\)$"
@@ -812,7 +749,7 @@ directory, select directory. Lastly the file is opened."
 (defun djcb-makefile-mode-hook ()
   (interactive)
   (setq show-trailing-whitespace t))
-(add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)  
+(add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -825,8 +762,8 @@ directory, select directory. Lastly the file is opened."
   (cond ((and (string-match "finished" string)
 	   (not (string-match "warning" string)))
 	  (message "Build maybe successful: closing window.")
-          (run-with-timer 2 nil                      
-	    'delete-window              
+	  (run-with-timer 2 nil
+	    'delete-window
 	    (get-buffer-window buffer t)))
     (t (message "Compilation exited abnormally: %s" string))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -846,21 +783,21 @@ directory, select directory. Lastly the file is opened."
   (set (make-local-variable 'transient-mark-mode) nil)
   (set (make-local-variable 'global-hl-line-mode) nil)
   (local-set-key [(tab)] nil)
-  (local-set-key (kbd "<f8>") '(lambda()(interactive) 
-				 (shell-command "killall -SIGWINCH mutt"))))
+  (local-set-key (kbd "<f8>") '(lambda()(interactive)
+				 (shell-command "killall -SIGWINCH mutt")))
+  (local-set-key (kbd "<f12>") (lambda(b e) (interactive "r")
+				 (kill-ring-save b e))) ; copy
+)
 (ad-activate 'term-char-mode)
-
-(add-hook 'term-mode-hook
-  (lambda() 
-    (term-set-escape-char ?\C-x)))
+(add-hook 'term-mode-hook (lambda() (term-set-escape-char ?\C-x)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying 
+;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying
 ;; warnings
-(setq safe-local-variable-values 
-      (quote ((auto-recompile . t) 
-	      (outline-minor-mode . t) 
+(setq safe-local-variable-values
+      (quote ((auto-recompile . t)
+	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -892,8 +829,6 @@ directory, select directory. Lastly the file is opened."
 ;; http://stevenpoole.net/blog/goodbye-cruel-word/
 (defun djcb-fullscreen-toggle ()
   (interactive)
-  (set-frame-parameter nil 'fullscreen
-    (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
+  (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIN 
+;; FIN

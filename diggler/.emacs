@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-22 00:18:16 (djcb)>
+;; Time-stamp: <2009-05-22 17:32:42 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -122,8 +122,8 @@
 ;; recentf
 (when (require-maybe 'recentf)         ;; save recently used files
   (setq recentf-save-file "~/.emacs.d/recentf" ;; keep ~/ clean
-    recentf-max-saved-items 500        ;; max save 500
-    recentf-max-menu-items 60)         ;; max 50 in menu
+    recentf-max-saved-items 100        ;; max save 100
+    recentf-max-menu-items 15)         ;; max 15 in menu
   (recentf-mode t))                    ;; turn it on
 ;;
 ;; abbrevs (abbreviations)
@@ -186,10 +186,9 @@
   (add-hook 'find-file-hook 
     (lambda()
       (highlight-changes-mode t)
-      (highlight-changes-visible-mode -1)))) ; by default, don't show changes
+      (setq highlight-changes-visibility-initial-state nil)))) ; initially, hide
 
-;; make buffer names more unique (include dirnames if needed)
-(when (require-maybe 'uniquify)
+(when (require-maybe 'uniquify) ;; make buffer names more unique
   (setq 
     uniquify-buffer-name-style 'post-forward
     uniquify-separator ":"
@@ -243,7 +242,7 @@
   (color-theme-install
     '(color-theme-djcb-dark
        ((foreground-color . "#edebc4")
-	 (background-color . "#242424") 
+	 (background-color . "black") 
 	 (background-mode . dark))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))
@@ -270,6 +269,8 @@
        (region ((t (:foreground nil :background "#555555"))))
        (show-paren-match-face ((t (:bold t :foreground "#7f3380" 
 				    :background "black"))))
+       (highlight-changes ((t (:foreground nil :background "#382f2f"))))
+       (highlight-changes-delete ((t (:foreground nil :background "#916868")))) 
        (twitter-user-name-face ((t (:bold t :foreground "white" 
 				    :background "blue"))))
        (twitter-header-face ((t (:bold t :foreground "white" 
@@ -292,21 +293,30 @@
 (global-set-key (kbd "<C-s-up>")   'previous-error) 
 (global-set-key (kbd "<C-s-down>") 'next-error)
 
-;; function keys
+;; function keys (toggling things)
 (global-set-key (kbd "<f5>")  'whitespace-mode)        ;; show blanks
 (autoload 'linum "linum" "mode for line numbers" t) 
 (global-set-key (kbd "<f6>")  'linum)                        ;; line numbers
-(global-set-key (kbd "<f7>")  'compile)                      ;; compile
-(global-set-key (kbd "<f8>")  'comment-or-uncomment-region)  ;; (un)comment
-(global-set-key (kbd "<f9>")  'djcb-count-words)       ;; count words
-(global-set-key (kbd "<f10>") 'highlight-changes-visible-mode) ;; changes
-(global-set-key (kbd "<f11>") 'djcb-fullscreen-toggle) ;; fullscreen
+(global-set-key (kbd "<f8>")  'highlight-changes-visible-mode) ;; changes
 
-;; super key bindings for show/hide
-(global-set-key (kbd "<s-right>") 'hs-show-block)
-(global-set-key (kbd "<s-left>")  'hs-hide-block)
-(global-set-key (kbd "<s-up>")    'hs-hide-all)
-(global-set-key (kbd "<s-down>")  'hs-show-all)
+;; function keys (productivity/org)
+(djcb-program-shortcut "mutt"  (kbd "<f9>") t)   ; console mail client
+(global-set-key (kbd "<f10>") 'remember)
+(global-set-key (kbd "<f11>")  
+  (lambda()(interactive)(org-todo-list "ALL")))
+(global-set-key (kbd "<f12>")
+  (lambda()(interactive)(org-agenda-list)))
+;; C-Function key (productivity files)
+(global-set-key (kbd "C-<f9>") 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/remember.org")))
+(global-set-key (kbd "C-<f10>") 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
+
+;; ctrl-function keys (doing things)
+(global-set-key (kbd "C-<f5>") 'djcb-count-words)       ;; count words
+(global-set-key (kbd "C-<f6>") 'djcb-fullscreen-toggle) ;; fullscreen
+;;(global-set-key (kbd "C-<f7>") 'compile)                ;; compile
+(global-set-key (kbd "C-<f7>") 'comment-or-uncomment-region)  ;; (un)comment
 
 (defmacro djcb-program-shortcut (name key &optional use-existing)
   "* macro to create a key binding KEY to start some terminal program PRG; 
@@ -317,7 +327,6 @@
 
 ;; terminal programs are under Shift + Function Key
 (djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)   ; the ubershell
-(djcb-program-shortcut "mutt"  (kbd "<S-f2>") t)   ; console mail client
 (djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)   ; console nttp client
 (djcb-program-shortcut "irssi" (kbd "<S-f5>") t)   ; console irc client
 (djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
@@ -330,10 +339,6 @@
   (lambda()(interactive)(twitter-get-friends-timeline)))
 (global-set-key (kbd "s-<f8>") 
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f9>")  
-  (lambda()(interactive)(org-todo-list "ALL")(delete-other-windows)))
-(global-set-key (kbd "s-<f10>")
-  (lambda()(interactive)(org-agenda-list)(delete-other-windows)))
 (global-set-key (kbd "s-<f11>") 
   (lambda()(interactive)(find-file "~/.gnus.el")))
 (global-set-key (kbd "s-<f12>")
@@ -354,8 +359,8 @@
     (if rm-mark-active (rm-exchange-point-and-mark p) 
       (exchange-point-and-mark p))))
 
-;; ignore C-z, i keep on typing it accidentaly...
-(global-set-key (kbd "C-z") nil) 
+; use it like CUA, not like 'suspend'
+(global-set-key (kbd "C-z") 'undo)  
 
 ;; make C-c C-c and C-c C-u work for comment/uncomment region in all modes 
 (global-set-key (kbd "C-c C-c") 'comment-region)
@@ -436,12 +441,15 @@
   ido-ignore-buffers ;; ignore these guys
   '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
   ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
-  ido-everywhere t            ; use for many file dialogs
-  ido-case-fold  t            ; be case-insensitive
-  ido-use-filename-at-point nil ; don't use filename at point (annoying)
-  ido-use-url-at-point nil      ;  don't use url at point (annoying)
-  ido-enable-flex-matching t  ; be flexible
-  ido-max-prospects 4         ; don't spam my minibuffer
+  ido-everywhere t                 ; use for many file dialogs
+  ido-case-fold  t                 ; be case-insensitive
+  ido-enable-last-directory-history t ; remember last used dirs
+  ido-max-work-directory-list 30   ; should be enough
+  ido-max-work-file-list      50   ; remember many
+  ido-use-filename-at-point nil    ; don't use filename at point (annoying)
+  ido-use-url-at-point nil         ;  don't use url at point (annoying)
+  ido-enable-flex-matching t       ; be flexible
+  ido-max-prospects 4              ; don't spam my minibuffer
   ido-confirm-unique-completion t) ; wait for RET, even with unique completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
@@ -631,8 +639,10 @@
 (defun djcb-tex-mode-hook ()
   "my TeX/LaTeX (auctex) settings"
   (interactive)
-  (setq TeX-parse-self t) ; Enable parse on load.
-  (setq TeX-auto-save t)) ; Enable parse on save.
+  (setq
+    LaTeX-item-ident 2
+    TeX-parse-self   t ; Enable parse on load.
+    TeX-auto-save    t)) ; Enable parse on save.
   
 (add-hook 'tex-mode-hook 'djcb-tex-mode-hook)
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
@@ -664,7 +674,7 @@
 (defun djcb-cperl-mode-hook ()
   (interactive)
   (eval-when-compile (require 'cperl-mode))
-  (abbrev-mode nil)                  ; turn-off the annoying elecric crap
+  (abbrev-mode -1)                  ; turn-off the annoying elecric crap
   (setq 
     cperl-hairy nil                  ; parse hairy perl constructs
     cperl-indent-level 4             ; indent with 4 positions

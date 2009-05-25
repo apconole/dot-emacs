@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-22 17:32:42 (djcb)>
+;; Time-stamp: <2009-05-24 22:40:54 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -14,13 +14,8 @@
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
-;; this is useful when this .emacs is used in an env where not all of the
-;; other stuff is available
-(defmacro require-maybe (feature &optional file)
-  "*Try to require FEATURE, but don't signal an error if `require' fails."
-  `(require ,feature ,file 'noerror))
+;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'djcb) ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -120,7 +115,7 @@
 (savehist-mode t)                      ;; do customization before activation
 
 ;; recentf
-(when (require-maybe 'recentf)         ;; save recently used files
+(when (djcb-require-maybe 'recentf)         ;; save recently used files
   (setq recentf-save-file "~/.emacs.d/recentf" ;; keep ~/ clean
     recentf-max-saved-items 100        ;; max save 100
     recentf-max-menu-items 15)         ;; max 15 in menu
@@ -166,7 +161,7 @@
 (blink-cursor-mode 0)		; don't blink cursor
 ;; http://www.emacswiki.org/cgi-bin/wiki/download/cursor-chg.el
 ;; change cursor for verwrite/read-only/input 
-(when (require-maybe 'cursor-chg)  ; Load this library
+(when (djcb-require-maybe 'cursor-chg)  ; Load this library
   (change-cursor-mode 1) ; On for overwrite/read-only/input mode
   (toggle-cursor-type-when-idle 1)
   (setq curchg-default-cursor-color "Yellow"))
@@ -174,7 +169,7 @@
 ;; highlight the current line
 (when (fboundp 'global-hl-line-mode)
   (global-hl-line-mode t)) ;; turn it on for all modes by default
-
+;
 ;; show-paren-mode: subtle blinking of matching paren (defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when (fboundp 'show-paren-mode)
@@ -186,9 +181,9 @@
   (add-hook 'find-file-hook 
     (lambda()
       (highlight-changes-mode t)
-      (setq highlight-changes-visibility-initial-state nil)))) ; initially, hide
+      (highlight-changes-visible-mode -1)))) ; initially, hide
 
-(when (require-maybe 'uniquify) ;; make buffer names more unique
+(when (djcb-require-maybe 'uniquify) ;; make buffer names more unique
   (setq 
     uniquify-buffer-name-style 'post-forward
     uniquify-separator ":"
@@ -198,8 +193,7 @@
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list
-  '(yas/hippie-try-expand
-     try-expand-all-abbrevs try-expand-dabbrev
+  '(yas/hippie-try-expand try-expand-all-abbrevs try-expand-dabbrev
      try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
      try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -232,92 +226,13 @@
    "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; color-theme: my own custom colors, for non-console mode
-;; it all rather dark, and the color differences are rather subtle
-;; just the way I like it :)
-(defun color-theme-djcb-dark ()
-  "dark color theme created by Dirk-Jan C. Binnema, Jan. 2009."
-  (interactive)
-  (color-theme-install
-    '(color-theme-djcb-dark
-       ((foreground-color . "#edebc4")
-	 (background-color . "black") 
-	 (background-mode . dark))
-       (bold ((t (:bold t))))
-       (bold-italic ((t (:italic t :bold t))))
-       (default ((t (nil))))
-       (button ((t (:italic nil :bold t :foreground "yellow" 
-		     :background "blue" :underline t))))
-       (font-lock-builtin-face ((t (:italic t :foreground "#a96da0"))))
-       (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
-       (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
-       (font-lock-constant-face ((t (:bold t :foreground "#197b6e"))))
-       (font-lock-doc-string-face ((t (:foreground "#3041c4"))))
-       (font-lock-doc-face ((t (:foreground "gray"))))
-       (font-lock-reference-face ((t (:foreground "white"))))
-       (font-lock-function-name-face ((t (:foreground "#cae682"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "#8888cf"))))
-       (font-lock-preprocessor-face ((t (:foreground "#e3ea94"))))
-       (font-lock-string-face ((t (:foreground "#a9eadf"))))
-       (font-lock-type-face ((t (:bold t :foreground "#364498"))))
-       (font-lock-variable-name-face ((t (:foreground "#7685de"))))
-       (font-lock-warning-face ((t (:bold t :italic nil :underline nil 
-				     :foreground "yellow"))))
-       (hl-line ((t (:background "#112233"))))
-       (mode-line ((t (:foreground "#ffffff" :background "#333333"))))
-       (region ((t (:foreground nil :background "#555555"))))
-       (show-paren-match-face ((t (:bold t :foreground "#7f3380" 
-				    :background "black"))))
-       (highlight-changes ((t (:foreground nil :background "#382f2f"))))
-       (highlight-changes-delete ((t (:foreground nil :background "#916868")))) 
-       (twitter-user-name-face ((t (:bold t :foreground "white" 
-				    :background "blue"))))
-       (twitter-header-face ((t (:bold t :foreground "white" 
-				    :background "blue"))))
-       (twitter-time-stamp-face ((t (:bold nil :foreground "white" 
-				      :background "blue")))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (when  (require 'color-theme) (color-theme-djcb-dark))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global keybindings
-(global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
-(global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
-
-;; C-pgup goes to the start, C-pgdw goes to the end
-(global-set-key [C-prior](lambda()(interactive)(goto-char(point-min))))
-(global-set-key [C-next] (lambda()(interactive)(goto-char(point-max))))
-
-;; step through errors; 's' is the Hyper or 'windows' key
-(global-set-key (kbd "<C-s-up>")   'previous-error) 
-(global-set-key (kbd "<C-s-down>") 'next-error)
-
-;; function keys (toggling things)
-(global-set-key (kbd "<f5>")  'whitespace-mode)        ;; show blanks
-(autoload 'linum "linum" "mode for line numbers" t) 
-(global-set-key (kbd "<f6>")  'linum)                        ;; line numbers
-(global-set-key (kbd "<f8>")  'highlight-changes-visible-mode) ;; changes
-
-;; function keys (productivity/org)
-(djcb-program-shortcut "mutt"  (kbd "<f9>") t)   ; console mail client
-(global-set-key (kbd "<f10>") 'remember)
-(global-set-key (kbd "<f11>")  
-  (lambda()(interactive)(org-todo-list "ALL")))
-(global-set-key (kbd "<f12>")
-  (lambda()(interactive)(org-agenda-list)))
-;; C-Function key (productivity files)
-(global-set-key (kbd "C-<f9>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/remember.org")))
-(global-set-key (kbd "C-<f10>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
-
-;; ctrl-function keys (doing things)
-(global-set-key (kbd "C-<f5>") 'djcb-count-words)       ;; count words
-(global-set-key (kbd "C-<f6>") 'djcb-fullscreen-toggle) ;; fullscreen
-;;(global-set-key (kbd "C-<f7>") 'compile)                ;; compile
-(global-set-key (kbd "C-<f7>") 'comment-or-uncomment-region)  ;; (un)comment
-
 (defmacro djcb-program-shortcut (name key &optional use-existing)
   "* macro to create a key binding KEY to start some terminal program PRG; 
     if USE-EXISTING is true, try to switch to an existing buffer"
@@ -325,77 +240,81 @@
      '(lambda() (interactive) 
 	(djcb-term-start-or-switch ,name ,use-existing))))
 
-;; terminal programs are under Shift + Function Key
-(djcb-program-shortcut "zsh"   (kbd "<S-f1>") t)   ; the ubershell
-(djcb-program-shortcut "slrn"  (kbd "<S-f3>") t)   ; console nttp client
-(djcb-program-shortcut "irssi" (kbd "<S-f5>") t)   ; console irc client
-(djcb-program-shortcut "iotop" (kbd "<S-f11>") t)  ; i/o
-(djcb-program-shortcut "htop"  (kbd "<S-f12>") t)  ; my processes
+(global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
+(global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
 
-;; some special buffers are under Super (s-)  + Function Key (<fn>)
-(global-set-key (kbd "s-<f5>") 'magit-status)
-(global-set-key (kbd "s-<f6>") (lambda()(interactive)(gnus)))
-(global-set-key (kbd "s-<f7>") 
-  (lambda()(interactive)(twitter-get-friends-timeline)))
-(global-set-key (kbd "s-<f8>") 
-  (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f11>") 
-  (lambda()(interactive)(find-file "~/.gnus.el")))
-(global-set-key (kbd "s-<f12>")
-  (lambda()(interactive)(find-file "~/.emacs"))) 
+;; C-pgup goes to the start, C-pgdw goes to the end
+(global-set-key (kbd "<C-prior>") (lambda()(interactive)(goto-char(point-min))))
+(global-set-key (kbd "<C-next>")  (lambda()(interactive)(goto-char(point-max))))
 
-;; some commands for rectangular selections;
-;; http://www.emacswiki.org/cgi-bin/wiki/RectangleMark
-(require 'rect-mark)
-(global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
-(global-set-key (kbd "C-w")  
-  (lambda(b e) (interactive "r") 
-     (if rm-mark-active (rm-kill-region b e) (kill-region b e))))
-(global-set-key (kbd "M-w")  
-  (lambda(b e) (interactive "r") 
-     (if rm-mark-active (rm-kill-ring-save b e) (kill-ring-save b e))))
-(global-set-key (kbd "C-x C-x")  
-  (lambda(&optional p) (interactive "p") 
-    (if rm-mark-active (rm-exchange-point-and-mark p) 
-      (exchange-point-and-mark p))))
-
-; use it like CUA, not like 'suspend'
-(global-set-key (kbd "C-z") 'undo)  
-
-;; make C-c C-c and C-c C-u work for comment/uncomment region in all modes 
-(global-set-key (kbd "C-c C-c") 'comment-region)
-(global-set-key (kbd "C-c C-u") 'uncomment-region)
-
-;; zooming; http://emacs-fu.blogspot.com/2008/12/zooming-inout.html
-(defun djcb-zoom (n) (interactive)
-  (set-face-attribute 'default (selected-frame) :height 
-    (+ (face-attribute 'default :height) (* (if (> n 0) 1 -1) 10)))) 
-(global-set-key (kbd "C-+")     (lambda()(interactive(djcb-zoom 1))))
-(global-set-key [C-kp-add]      (lambda()(interactive(djcb-zoom 1))))
-(global-set-key (kbd "C--")     (lambda()(interactive(djcb-zoom -1))))
-(global-set-key [C-kp-subtract] (lambda()(interactive(djcb-zoom -1))))
-
-(defun djcb-opacity-modify (&optional dec)
-  "modify the transparency of the emacs frame; if DEC is t,
-    decrease the transparency, otherwise increase it in 10%-steps"
-  (let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
-	  (oldalpha (if alpha-or-nil alpha-or-nil 100))
-	  (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
-    (when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
-      (modify-frame-parameters nil (list (cons 'alpha newalpha))))))
-
- ;; C-8 will increase opacity (== decrease transparency)
- ;; C-9 will decrease opacity (== increase transparency
- ;; C-0 will returns the state to normal
-(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
-(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
-(global-set-key (kbd "C-0") '(lambda()(interactive)
-			       (modify-frame-parameters nil `((alpha . 100)))))
+(global-set-key (kbd "C-z") 'undo)   ;; use it like CUA, not like 'suspend'
 
 ;; http://emacs-fu.blogspot.com/2008/12 ... 
 ;; ... /cycling-through-your-buffers-with-ctrl.html
 (global-set-key [(control tab)] 'bury-buffer)
 (global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
+
+;; programming/writing stuff; f5-f8 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global-set-key (kbd "<f7>") 'compile)                     ;; compile
+(global-set-key (kbd "<f8>") 'comment-or-uncomment-region) ;; (un)comment
+;; for writing
+(global-set-key (kbd "C-<f5>") 'djcb-count-words)               ;; count words
+(when (djcb-require-maybe 'magit)                               ;; marius...
+  (global-set-key (kbd "C-<f6>") 'magit-status))                ;; ...git mode
+;; some toggles; Shift + function key
+(global-set-key (kbd "<S-f6>") 'highlight-changes-visible-mode) ;; changes
+(global-set-key (kbd "<S-f7>") 'whitespace-mode)                ;; show blanks
+(autoload 'linum "linum" "mode for line numbers" t) 
+(global-set-key (kbd "<S-f8>") 'linum)                          ;; line nrs
+(global-set-key (kbd "<S-f9>")   'djcb-fullscreen-toggle)       ;; fullscreen
+(global-set-key (kbd "<S-<f10>")  'package-list-packages)       ;; elpa
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; productivity stuff; f9-f12 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(djcb-program-shortcut "mutt"  (kbd "<f9>") t)             ;; mutt 
+(global-set-key (kbd "<f11>")  
+  (lambda()(interactive)(org-todo-list "ALL")))            ;; todo
+(global-set-key (kbd "<f12>")
+  (lambda()(interactive)(org-agenda-list)))                ;; agenda
+;; some files
+(global-set-key (kbd "C-<f9>") 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/remember.org")))
+(global-set-key (kbd "C-<f10>") 
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
+;; org etc.
+(global-set-key (kbd "C-c r") 'remember)                   ;; remember
+(global-set-key (kbd "C-c w") 'djcb-wikipedia)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; start other programs/special buffers with super-fkey ;;;;;;;;;;;;;;;;;;;
+(djcb-program-shortcut "zsh"   (kbd "C-= z") t)   ; the ubershell
+(djcb-program-shortcut "slrn"  (kbd "C-= s") t)   ; console nttp client
+(djcb-program-shortcut "irssi" (kbd "C-= i") t)   ; console irc client
+(global-set-key (kbd "C-= t") (lambda()(interactive)
+				 (twitter-get-friends-timeline)))
+(djcb-program-shortcut "mutt"  (kbd "C-= m") t)             ;; mutt 
+
+(global-set-key (kbd "s-<f9>")
+  (lambda()(interactive)(switch-to-buffer "*scratch*")))
+(global-set-key (kbd "s-<f11>")
+  (lambda()(interactive)(find-file "~/.emacs.d/elisp/djcb.el")));; djcb
+(global-set-key (kbd "s-<f12>")
+  (lambda()(interactive)(find-file "~/.emacs")))                ;; .emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; zooming/transparancy
+(global-set-key (kbd "C-+")     (lambda()(interactive(djcb-zoom 1))))
+(global-set-key [C-kp-add]      (lambda()(interactive(djcb-zoom 1))))
+(global-set-key (kbd "C--")     (lambda()(interactive(djcb-zoom -1))))
+(global-set-key [C-kp-subtract] (lambda()(interactive(djcb-zoom -1))))
+
+ ;; C-8/9/0 will increase|decrease|normalize opacity
+(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
+(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
+(global-set-key (kbd "C-0") '(lambda()(interactive)
+			       (modify-frame-parameters nil `((alpha . 100)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -429,7 +348,6 @@
        ["Show/hide line numbers" linum]
        ["Toggle full-screen" djcb-fullscreen-toggle])))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido makes completing buffers and ffinding files easier
@@ -468,7 +386,6 @@
 ;; we use org-mode as the backend for remember
 ;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
-(setq djcb-org-remember-file (concat org-directory "remember.org"))
 (setq org-default-notes-file (concat org-directory "notes.org")
   org-agenda-files (directory-files (concat org-directory "agenda/")
 		     t  "^[^#].*\\.org$") ; ignore backup files
@@ -498,37 +415,9 @@
 		   ("hacking" . ?h)  ("sport" . ?s)
 		   ("work" . ?w)     ("tv" . ?v))
   org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
-			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
-
-  djcb-remember-file (concat org-directory "remember.org")
-  org-remember-templates '(
-			    ("Clipboard" ?c "* %T %^{Description}\n%?%^C"
-			      djcb-org-remember-file "Interesting")
-			    ("ToDo" ?t "* %T %^{Summary}"
-			      djcb-org-remember-file "Todo")))
+			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
 (org-remember-insinuate)
 
-;; http://metajack.im/2008/12/30/gtd-capture-with-emacs-orgmode/
-(defadvice remember-finalize (after delete-remember-frame activate)
-  "Advise remember-finalize to close the frame if it is the remember frame"
-  (if (equal "*Remember*" (frame-parameter nil 'name))
-    (delete-frame)))
-
-(defadvice remember-destroy (after delete-remember-frame activate)
-  "Advise remember-destroy to close the frame if it is the remember frame"
-  (if (equal "*Remember*" (frame-parameter nil 'name))
-    (delete-frame)))
-
-;; make the frame contain a single window. by default org-remember
-;; splits the window.
-(add-hook 'remember-mode-hook  'delete-other-windows)
-
-(defun make-remember-frame ()
-  "Create a new frame and run org-remember"
-  (interactive)
-  (make-frame '((name . "*Remember*") (width . 80) (height . 10)))
-  (select-frame-by-name "*Remember*")
-  (org-remember))
 
 (add-hook 'org-mode-hook
   (lambda()
@@ -555,7 +444,7 @@
   (auto-fill-mode t)                      ; ... and wrapped around 
   (set-input-method "latin-1-prefix"))    ; make " + e => ë etc.
 
-;;  (when (require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
+;;  (when (djcb-require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
 ;;    (filladapt-mode t))
 ;; ... (bullets, numbering) if
 
@@ -589,25 +478,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; email / news
-(defun djcb-snip (b e summ)
-  "remove selected lines, and replace it with [snip:summary (n lines)]"
-  (interactive "r\nsSummary:")
-  (let ((n (count-lines b e)))
-    (delete-region b e)
-    (insert (format "[snip%s (%d line%s)]" 
-	      (if (= 0 (length summ)) "" (concat ": " summ))
-	      n 
-	      (if (= 1 n) "" "s")))))
-
 (defun djcb-post-mode-hook ()
   (interactive)
   (djcb-text-mode-hook)    ; inherit text-mode settings 
   (setq fill-column 72)    ; rfc 1855 for usenet
   (turn-on-orgstruct)      ; enable org-mode-style structure editing
 ;;  (set-face-foreground 'post-bold-face "#ffffff")
-  (when (require-maybe 'footnote-mode)   ;; give us footnotes
+  (when (djcb-require-maybe 'footnote-mode)   ;; give us footnotes
     (footnote-mode t))
-  (require-maybe 'boxquote)) ; put text in boxes
+  (djcb-require-maybe 'boxquote)) ; put text in boxes
 
 (add-hook 'post-mode-hook 'djcb-post-mode-hook)
 
@@ -628,7 +507,7 @@
 
   ;; my own texdrive, for including TeX formulae
   ;; http://www.djcbsoftware.nl/code/texdrive/
-  (when (require-maybe 'texdrive) (texdrive-mode t)))
+  (when (djcb-require-maybe 'texdrive) (texdrive-mode t)))
 
 (add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
@@ -652,17 +531,22 @@
 ;; Elisp
 (defun djcb-emacs-lisp-mode-hook ()
   (interactive)  
-  (local-set-key (kbd "<f7>") 'eval-buffer) ; overrides global f7 (compile)
+  
+  (local-set-key (kbd "<f7>") ;; overrides global f7 (compile) 
+    '(lambda()(interactive)
+       (let ((debug-on-error t))
+	 (eval-buffer)))) ; 
+  
   (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
-  (require-maybe 'folding)
+  (djcb-require-maybe 'folding)
   (font-lock-add-keywords nil '(("^[^\n]\\{80\\}\\(.*\\)$"
 				  1 font-lock-warning-face prepend)))
   (font-lock-add-keywords nil 
     '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\)" 
 	1 font-lock-warning-face prepend)))  
   (font-lock-add-keywords nil 
-  '(("\\<\\(require-maybe\\|add-hook\\|setq\\)" 
-      1 font-lock-keyword-face prepend))))
+    '(("\\<\\(djcb-require-maybe\\|add-hook\\|setq\\)" 
+	1 font-lock-keyword-face prepend))))
 
 (add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -698,33 +582,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c-mode / c++-mode
 (defconst djcb-c-style '((c-tab-always-indent . t)))
-  
-(defun djcb-include-guards ()
-  "include the #ifndef/#define/#endif include guards for the current buffer"
-  (interactive)
-  (let ((tag (concat "__"
-	       (mapconcat (lambda(s)(upcase s))
-		 (split-string (buffer-name) "_\\|-\\|\\.") "_")  "__")))
-    (insert (concat "#ifndef " tag "\n"))
-    (insert (concat "#define " tag "\n"))
-    (insert (concat "#endif /*" tag "*/\n"))))
 
-(defun djcb-include-timestamp ()
-  (interactive) (insert "/* Time-stamp: <> */\n"))
-
-(defun djcb-gtags-create-or-update ()
-  "create or update the gnu global tag file"
-  (interactive)
-  (if (not (= 0 (call-process "global" nil nil nil " -p"))) ; no tagfile?
-    (when (yes-or-no-p "gtags: create tagfile?")
-      (let ((olddir default-directory)
-	     (topdir (read-directory-name  
-		       "gtags: top of source tree:" default-directory)))
-	(cd topdir)
-	(shell-command "gtags && echo 'created tagfile'")
-	(cd olddir))) ; restore   
-    ;;  tagfile already exists; update it
-    (shell-command "global -u && echo 'updated tagfile'")))
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -737,7 +595,8 @@
   ;; highlight some stuff; this is for _all_ c modes
   (font-lock-add-keywords nil 
     '(("\\<\\(__FUNCTION__\\|__PRETTY_FUNCTION__\\|__LINE__\\)" 
-	1 font-lock-preprocessor-face prepend)))  
+	1 font-lock-preprocessor-face prepend)))
+ 
   (setq 
     compilation-scroll-output 'first-error  ; scroll until first error
     compilation-read-command nil            ; don't need enter
@@ -747,18 +606,21 @@
   
   ;; guess the identation of the current file, and use
   ;; that instead of my own settings
-  (when  (require-maybe 'dtrt-indent) (dtrt-indent-mode t))
+  (when  (djcb-require-maybe 'dtrt-indent) (dtrt-indent-mode t))
 
   (when (not (string-match "/usr/src/linux" 
 	       (expand-file-name default-directory)))
-    (when (require-maybe 'gtags) 
+    (when (djcb-require-maybe 'gtags) 
       (gtags-mode t)
       (djcb-gtags-create-or-update)))  
-  (when (require-maybe 'doxymacs)
+  (when (djcb-require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
-  (local-set-key (kbd "C-c i") 'djcb-include-guards)  
-  (local-set-key (kbd "C-c o") 'ff-find-other-file)
+  
+  (local-set-key (kbd "<M-up>")   'previous-error) 
+  (local-set-key (kbd "<M-down>") 'next-error)
+  (local-set-key (kbd "C-c i")    'djcb-include-guards)  
+  (local-set-key (kbd "C-c o")    'ff-find-other-file)
   
   ;; warn when lines are > 80 characters (in c-mode)
   (font-lock-add-keywords 'c-mode '(("^[^\n]\\{80\\}\\(.*\\)$"
@@ -798,11 +660,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; magit; marius' git mode for emacs: http://zagadka.vm.bytemark.co.uk/magit/
-(require-maybe 'magit)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; customization for term, ansi-term
 ;; disable cua and transient mark modes in term-char-mode
 ;; http://www.emacswiki.org/emacs/AnsiTermHints
@@ -811,16 +668,24 @@
   (set (make-local-variable 'cua-mode) nil)
   (set (make-local-variable 'transient-mark-mode) nil)
   (set (make-local-variable 'global-hl-line-mode) nil)
-  (set-terminal-coding-system 'utf-8)
-  (local-set-key [(tab)] nil)
-  (local-set-key (kbd "<f8>") '(lambda()(interactive)
-				 (shell-command "killall -SIGWINCH mutt")))
-  (local-set-key (kbd "<f12>") (lambda(b e) (interactive "r")
-				 (kill-ring-save b e))) ; copy
-)
-(ad-activate 'term-char-mode)
-(add-hook 'term-mode-hook (lambda() (term-set-escape-char ?\C-x)))
+  (ad-activate 'term-char-mode)
+  (term-set-escape-char ?\C-x))
+
+(add-hook 'term-mode-hook 
+  (lambda() 
+    (local-set-key [(tab)] nil)
+    (local-set-key (kbd "<C-f1>") 
+      '(lambda()(interactive)
+	 (shell-command "killall -SIGWINCH mutt slrn irssi zsh")))))    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.busydoingnothing.co.uk/twitter-el/
+(autoload 'twitter-get-friends-timeline "twitter" nil t)
+(autoload 'twitter-status-edit "twitter" nil t)
+(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying
@@ -832,33 +697,4 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; elisp function/macros
-;; switch to a buffer it already exists, otherwise return nil
-(defun djcb-term-start-or-switch (prg &optional use-existing)
-  "* run program PRG in a terminal buffer. If USE-EXISTING is non-nil "
-  " and PRG is already running, switch to that buffer instead of starting"
-  " a new instance."
-  (interactive)
-  (let ((bufname (concat "*" prg "*")))
-    (when (not (and use-existing
-		 (let ((buf (get-buffer bufname)))
-		   (and buf (buffer-name (switch-to-buffer bufname))))))
-      (ansi-term prg prg))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; http://www.busydoingnothing.co.uk/twitter-el/
-(autoload 'twitter-get-friends-timeline "twitter" nil t)
-(autoload 'twitter-status-edit "twitter" nil t)
-;;(global-set-key "\C-xt" 'twitter-get-friends-timeline)
-(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; full-screen mode (http://www.emacswiki.org/cgi-bin/wiki/FullScreen
-;; http://stevenpoole.net/blog/goodbye-cruel-word/
-(defun djcb-fullscreen-toggle ()
-  (interactive)
-  (shell-command "wmctrl -r :ACTIVE: -btoggle,fullscreen"))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; FIN
+;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

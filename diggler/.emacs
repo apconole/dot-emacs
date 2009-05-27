@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-24 22:40:54 (djcb)>
+;; Time-stamp: <2009-05-27 07:57:03 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -176,12 +176,9 @@
   (show-paren-mode t)
   (setq show-paren-style 'parenthesis))
 
-;; higlight changes mode; only load in hook, or emacs --daemon will complain
-(when (fboundp 'highlight-changes-mode)
-  (add-hook 'find-file-hook 
-    (lambda()
-      (highlight-changes-mode t)
-      (highlight-changes-visible-mode -1)))) ; initially, hide
+;; higlight changes
+(global-highlight-changes-mode t)
+(highlight-changes-visible-mode -1) ; initially, hide
 
 (when (djcb-require-maybe 'uniquify) ;; make buffer names more unique
   (setq 
@@ -334,6 +331,10 @@
        ["mc"    (djcb-term-start-or-switch "mc" t)]
        ["htop"  (djcb-term-start-or-switch "htop" t)]
        ["iotop" (djcb-term-start-or-switch "iotop" t)])
+
+     ("Org"
+       ["html"  (org-export-as-html 3 nil nil nil t)])
+
      ("TeXDrive"  :visible (or (string= major-mode "html-helper-mode") 
 			     (string= major-mode "html-mode"))
        ["Insert formula"   texdrive-insert-formula 
@@ -343,6 +344,7 @@
      ("Twitter" ;; submenu
        ["View friends" twitter-get-friends-timeline]
        ["What are you doing?" twitter-status-edit])
+
      ("Misc"  ;; submenu
        ["Count words" djcb-count-words]
        ["Show/hide line numbers" linum]
@@ -415,7 +417,9 @@
 		   ("hacking" . ?h)  ("sport" . ?s)
 		   ("work" . ?w)     ("tv" . ?v))
   org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
-			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
+			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
+  
+  org-export-htmlize-output-type 'css)
 (org-remember-insinuate)
 
 

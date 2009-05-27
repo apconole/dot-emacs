@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-23 17:15:55 (djcb)>
+;; Time-stamp: <2009-05-26 21:33:29 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; This file is free software licensed under the terms of the
@@ -100,8 +100,8 @@
   (interactive)
   (color-theme-install
     '(color-theme-djcb-dark
-       ((foreground-color . "#edebc4")
-	 (background-color . "black") 
+       ((foreground-color . "black")
+	 (background-color . "white") 
 	 (background-mode . light))
        (bold ((t (:bold t))))
        (bold-italic ((t (:italic t :bold t))))

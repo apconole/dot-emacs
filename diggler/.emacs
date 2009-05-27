@@ -1,5 +1,5 @@
-; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-27 07:57:03 (djcb)>
+;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
+;; Time-stamp: <2009-05-27 12:51:58 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -16,6 +16,7 @@
 
 ;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'djcb) ;;
+(require 'cl) ;; some package require cl
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -27,7 +28,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ELPA
-(require 'cl) ;; some package require cl
 (when (load (expand-file-name "~/.emacs.d/elpa/package.el"))
   (package-initialize))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,6 +58,11 @@
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
 (scroll-bar-mode t)                      ; show a scrollbar...
 (set-scroll-bar-mode 'right)             ; ... on the right
+
+(setq scroll-margin 1                    ; do smooth scrolling, ...
+  scroll-conservatively 0                ; ... the defaults ...
+  scroll-up-aggressively 0.01            ; ... are very ...
+  scroll-down-aggressively 0.01)         ; ... annoying
 
 (when (fboundp 'set-fringe-mode)         ; emacs22+ 
   (set-fringe-mode 1))                   ; space left of col1 in pixels
@@ -178,7 +183,7 @@
 
 ;; higlight changes
 (global-highlight-changes-mode t)
-(highlight-changes-visible-mode -1) ; initially, hide
+(setq highlight-changes-visibility-initial-state nil)
 
 (when (djcb-require-maybe 'uniquify) ;; make buffer names more unique
   (setq 
@@ -224,8 +229,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(when  (require 'color-theme) (color-theme-djcb-dark))
+(when  (require 'color-theme)  ;; use color theme...
+  (when (not djcb-console-p)   ;; ... but not ...
+    (color-theme-djcb-dark)))  ;; ... on console
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,6 +251,8 @@
 (global-set-key (kbd "<C-next>")  (lambda()(interactive)(goto-char(point-max))))
 
 (global-set-key (kbd "C-z") 'undo)   ;; use it like CUA, not like 'suspend'
+
+(global-set-key (kbd "s-b") 'pop-global-mark) ; jump *back* to previous location
 
 ;; http://emacs-fu.blogspot.com/2008/12 ... 
 ;; ... /cycling-through-your-buffers-with-ctrl.html

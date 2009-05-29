@@ -38,16 +38,34 @@
 #keystate_scrolllock= enable
 
 # djcb
-"gnome-do"
-  Mod1+space
+#"gnome-do"
+#  Mod1+space
 
-"gnome-do"
-  Mod4+space
+#"gnome-do"
+#  Mod4+space
+
+"gnome-terminal"
+  control+alt+t
+
+"emacs"
+  control+alt+e
 
 # Examples of commands:
 
 "xbindkeys_show" 
   control+shift + q
+
+"mplayer -fs /home/djcb/Documents/fireplace.avi"
+  control+alt+f
+
+# pop-up a remember window
+"emacsclient -e '(make-remember-frame)'"
+  control+shift+r
+
+# pop-up a remember window and put in whatever is on the clipboard
+"emacsclient -e '(make-remember-frame-yank)'"
+  control+shift+y
+
 
 # set directly keycode (here control + f with my keyboard)
 #"xterm"

@@ -47,13 +47,15 @@
     ("formy" "formy" cperl-electric-keyword 0)
     ("head1" "head1" cperl-electric-pod 0)
     ("head2" "head2" cperl-electric-pod 0)
-    ("if" "if" cperl-electric-keyword 2)
+    ("if" "if" cperl-electric-keyword 0)
     ("over" "over" cperl-electric-pod 0)
     ("pod" "pod" cperl-electric-pod 0)
     ("unless" "unless" cperl-electric-keyword 0)
     ("until" "until" cperl-electric-keyword 0)
-    ("while" "while" cperl-electric-keyword 1)
+    ("while" "while" cperl-electric-keyword 0)
     ))
+
+(define-abbrev-table 'csv-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'custom-mode-abbrev-table '(    ))
 
@@ -74,6 +76,8 @@
 (define-abbrev-table 'erc-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'eshell-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'ftp-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'fundamental-mode-abbrev-table '(    ))
 
@@ -146,11 +150,15 @@
 
 (define-abbrev-table 'muttrc-mode-abbrev-table '(    ))
 
+(define-abbrev-table 'network-connection-mode-abbrev-table '(    ))
+
 (define-abbrev-table 'newsticker-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'newsticker-treeview-list-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'nroff-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'nslookup-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'objc-mode-abbrev-table '(    ))
 
@@ -173,6 +181,8 @@ Dirk-Jan" nil 0)
 
 (define-abbrev-table 'reb-lisp-mode-abbrev-table '(    ))
 
+(define-abbrev-table 'reb-mode-abbrev-table '(    ))
+
 (define-abbrev-table 'remember-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'ruby-mode-abbrev-table '(    ))
@@ -188,6 +198,8 @@ Dirk-Jan" nil 0)
 (define-abbrev-table 'shell-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'slitex-mode-abbrev-table '(    ))
+
+(define-abbrev-table 'smbclient-mode-abbrev-table '(    ))
 
 (define-abbrev-table 'special-mode-abbrev-table '(    ))
 

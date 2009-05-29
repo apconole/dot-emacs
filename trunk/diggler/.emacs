@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-27 12:51:58 (djcb)>
+;; Time-stamp: <2009-05-28 22:28:40 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -363,7 +363,7 @@
 ;; ido makes completing buffers and ffinding files easier
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 (require 'ido) 
-(ido-mode 'both)
+(ido-mode 'buffers) ;; only for buffers
 (setq 
   ido-save-directory-list-file "~/.emacs.d/ido.last"
   ido-ignore-buffers ;; ignore these guys
@@ -430,7 +430,6 @@
   org-export-htmlize-output-type 'css)
 (org-remember-insinuate)
 
-
 (add-hook 'org-mode-hook
   (lambda()
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
@@ -450,25 +449,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;text-mode
-(defun djcb-text-mode-hook ()
-  (interactive)
-  (set-fill-column 78)                    ; lines are 78 chars long ...
-  (auto-fill-mode t)                      ; ... and wrapped around 
-  (set-input-method "latin-1-prefix"))    ; make " + e => ë etc.
-
-;;  (when (djcb-require-maybe 'filladapt) ; do the intelligent wrapping of lines,...
-;;    (filladapt-mode t))
-;; ... (bullets, numbering) if
-
-					; available
-(add-hook 'text-mode-hook 'djcb-text-mode-hook)
-
-(defun djcb-count-words (&optional begin end)
-  "if there's a region, count words between BEGIN and END; otherwise in buffer"
-  (interactive "r")
-  (let ((b (if mark-active begin (point-min)))
-      (e (if mark-active end (point-max))))
-    (message "Word count: %s" (how-many "\\w+" b e))))
+(add-hook 'text-mode-hook
+  (lambda() 
+    (set-fill-column 78)                    ; lines are 78 chars long ...
+    (auto-fill-mode t)                      ; ... and wrapped around 
+    (set-input-method "latin-1-prefix")))    ; make " + e => ë etc.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -490,38 +475,29 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; email / news
-(defun djcb-post-mode-hook ()
-  (interactive)
-  (djcb-text-mode-hook)    ; inherit text-mode settings 
-  (setq fill-column 72)    ; rfc 1855 for usenet
-  (turn-on-orgstruct)      ; enable org-mode-style structure editing
-;;  (set-face-foreground 'post-bold-face "#ffffff")
-  (when (djcb-require-maybe 'footnote-mode)   ;; give us footnotes
-    (footnote-mode t))
-  (djcb-require-maybe 'boxquote)) ; put text in boxes
+(add-hook 'post-mode-hook
+  (lambda()
+    (auto-fill-mode t)
+    (setq fill-column 72)    ; rfc 1855 for usenet
+    (set-input-method "latin-1-prefix")    ; make " + e => ë etc.
+    (turn-on-orgstruct)      ; enable org-mode-style structure editing
+    (djcb-require-maybe 'boxquote))) ; put text in boxes
 
-(add-hook 'post-mode-hook 'djcb-post-mode-hook)
-
-;; post mode (used when editing mail / news)
 (autoload 'post-mode "post" "mode for e-mail" t)
-(add-to-list 'auto-mode-alist 
-	     '("\\.*mutt-*\\|.article\\|\\.followup" 
-		. post-mode)) 
+(add-to-list 'auto-mode-alist  
+  '("\\.*mutt-*\\|.article\\|\\.followup" . post-mode)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode
 ;; my handy stuff for both html-helper and x(ht)ml mode
-(defun djcb-html-helper-mode-hook ()
-  (interactive)
-  (abbrev-mode t)             ; support abbrevs
-  (auto-fill-mode -1)         ; don't do auto-filling
-
-  ;; my own texdrive, for including TeX formulae
-  ;; http://www.djcbsoftware.nl/code/texdrive/
-  (when (djcb-require-maybe 'texdrive) (texdrive-mode t)))
-
-(add-hook 'html-helper-mode-hook 'djcb-html-helper-mode-hook)
+(add-hook 'html-helper-mode-hook
+  (lambda()
+    (abbrev-mode t)             ; support abbrevs
+    (auto-fill-mode -1)         ; don't do auto-filling
+    ;; my own texdrive, for including TeX formulae
+    ;; http://www.djcbsoftware.nl/code/texdrive/
+    (when (djcb-require-maybe 'texdrive) (texdrive-mode t))))
 (setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -541,43 +517,35 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp
-(defun djcb-emacs-lisp-mode-hook ()
-  (interactive)  
-  
-  (local-set-key (kbd "<f7>") ;; overrides global f7 (compile) 
-    '(lambda()(interactive)
-       (let ((debug-on-error t))
-	 (eval-buffer)))) ; 
-  
-  (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
-  (djcb-require-maybe 'folding)
-  (font-lock-add-keywords nil '(("^[^\n]\\{80\\}\\(.*\\)$"
-				  1 font-lock-warning-face prepend)))
-  (font-lock-add-keywords nil 
-    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\)" 
-	1 font-lock-warning-face prepend)))  
-  (font-lock-add-keywords nil 
-    '(("\\<\\(djcb-require-maybe\\|add-hook\\|setq\\)" 
-	1 font-lock-keyword-face prepend))))
-
-(add-hook 'emacs-lisp-mode-hook 'djcb-emacs-lisp-mode-hook)
+(add-hook 'emacs-lisp-mode-hook 
+  (lambda()
+    (local-set-key (kbd "<f7>") ;; overrides global f7 (compile) 
+      '(lambda()(interactive) (let ((debug-on-error t)) (eval-buffer)))) ; 
+    
+    (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
+    (djcb-require-maybe 'folding)
+    (font-lock-add-keywords nil '(("^[^\n]\\{80\\}\\(.*\\)$"
+				    1 font-lock-warning-face prepend)))
+    (font-lock-add-keywords nil 
+      '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\)" 
+	  1 font-lock-warning-face prepend)))  
+    (font-lock-add-keywords nil 
+      '(("\\<\\(djcb-require-maybe\\|add-hook\\|setq\\)" 
+	  1 font-lock-keyword-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode
 (defalias 'perl-mode 'cperl-mode) ; cperl mode is what we want
-
-(defun djcb-cperl-mode-hook ()
-  (interactive)
-  (eval-when-compile (require 'cperl-mode))
-  (abbrev-mode -1)                  ; turn-off the annoying elecric crap
-  (setq 
-    cperl-hairy nil                  ; parse hairy perl constructs
-    cperl-indent-level 4             ; indent with 4 positions
-    cperl-invalid-face (quote off)   ; don't show stupid underlines
-    cperl-electric-keywords t))      ; complete keywords
-
-(add-hook 'cperl-mode-hook 'djcb-cperl-mode-hook)
+(add-hook 'cperl-mode-hook
+  (lambda()
+    (eval-when-compile (require 'cperl-mode))
+    (abbrev-mode -1)                  ; turn-off the annoying elecric crap
+    (setq 
+      cperl-hairy t                  ; parse hairy perl constructs
+      cperl-indent-level 4             ; indent with 4 positions
+      cperl-invalid-face (quote off)   ; don't show stupid underlines
+      cperl-electric-keywords t)))      ; complete keywords
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
@@ -594,7 +562,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; c-mode / c++-mode
 (defconst djcb-c-style '((c-tab-always-indent . t)))
-
 
 (defun djcb-c-mode-common ()
   (interactive) 
@@ -649,10 +616,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Makefiles
-(defun djcb-makefile-mode-hook ()
-  (interactive)
-  (setq show-trailing-whitespace t))
-(add-hook 'makefile-mode-hook 'djcb-makefile-mode-hook)
+(add-hook 'makefile-mode-hook
+  (lambda()
+    (whitespace-mode t)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -697,7 +663,6 @@
 (autoload 'twitter-status-edit "twitter" nil t)
 (add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying

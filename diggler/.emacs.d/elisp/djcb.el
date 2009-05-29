@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-26 21:33:29 (djcb)>
+;; Time-stamp: <2009-05-27 23:41:43 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; This file is free software licensed under the terms of the
@@ -137,6 +137,13 @@
 				      :background "blue")))))))
 
 
+(defun djcb-count-words (&optional begin end)
+  "if there's a region, count words between BEGIN and END; otherwise in buffer"
+  (interactive "r")
+  (let ((b (if mark-active begin (point-min)))
+      (e (if mark-active end (point-max))))
+    (message "Word count: %s" (how-many "\\w+" b e))))
+
 
 (defun djcb-snip (b e summ)
   "remove selected lines, and replace it with [snip:summary (n lines)]"
@@ -147,9 +154,6 @@
 	      (if (= 0 (length summ)) "" (concat ": " summ))
 	      n 
 	      (if (= 1 n) "" "s")))))
-
-
-
 
 (defun djcb-include-guards ()
   "include the #ifndef/#define/#endif include guards for the current buffer"
@@ -177,7 +181,5 @@
 	(cd olddir))) ; restore   
     ;;  tagfile already exists; update it
     (shell-command "global -u && echo 'updated tagfile'")))
-
- 
 
 (provide 'djcb)

@@ -1,17 +1,23 @@
-Xft.dpi: 96
-Xft.rgba: rgb
-Xft.antialias: 1
-Xft.hinting: 1
+! Time-stamp: <2009-05-21 20:09:02 (djcb)>
 
-!Emacs.font: Consolas-10
-!Emacs*font: -bitstream-bitstream vera sans mono-medium-r-*--*-100-*--*--*- 
-Emacs*font: Deja Vu Sans Mono-10
-!Emacs*font: -*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*
+!! xft
+Xft*dpi:            96
+Xft*rgba:           rgb
+Xft*antialias:      true 
+Xft*autohint:       true 
+Xft*hinting:        full
+Xft*hintstyle:      hintfull
 
+!! emacs; get font names with fc-list
+!Emacs*font: Terminus-11
+!Emacs*font: Inconsolata-9
+!Emacs*font: -*-dejavu sans mono-medium-r-*-*-*-*-*-*-m-*-*-*
+Emacs.font: DejaVu Sans Mono-9
+!Emacs.font: "Bitstream Vera Sans Mono-11"
 Emacs.menuBar: off
 Emacs.toolBar: off
-Emacs.geometry: 85x60+600+300
- 
+Emacs.geometry: 82x40+600+300
+Emacs.FontBackend:  xft
 
 
 

@@ -867,7 +867,7 @@ If no rgb.txt file is found, return nil."
   ;; Only works in Emacs 21 and later.
   (let ((size-list
 	 (loop
-	  for f = face then (face-attribute f :inherit)
+	  for f = face then (or (face-attribute f :inherit) 'unspecified)
 	  until (or (not f) (eq f 'unspecified))
 	  for h = (face-attribute f :height)
 	  collect (if (eq h 'unspecified) nil h))))

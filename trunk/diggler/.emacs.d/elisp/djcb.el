@@ -1,5 +1,5 @@
 ; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-27 23:41:43 (djcb)>
+;; Time-stamp: <2009-05-31 22:24:18 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; This file is free software licensed under the terms of the
@@ -48,8 +48,9 @@
     (when (not (and use-existing
 		 (let ((buf (get-buffer bufname)))
 		   (and buf (buffer-name (switch-to-buffer bufname))))))
-      (ansi-term prg prg))))
-
+      (ansi-term prg prg))
+    (shell-command (concat "killall -SIGWINCH " prg))
+    (message prg)))
 
 ;; color-theme: my own custom colors, for non-console mode
 ;; it all rather dark, and the color differences are rather subtle
@@ -67,6 +68,9 @@
        (default ((t (nil))))
        (button ((t (:italic nil :bold t :foreground "yellow" 
 		     :background "blue" :underline t))))
+       
+       (flyspell-incorrect-face ((nil (:underline "red"))))
+  
        (font-lock-builtin-face ((t (:italic t :foreground "#a96da0"))))
        (font-lock-comment-face ((t (:italic t :foreground "#bbbbbb"))))
        (font-lock-comment-delimiter-face ((t (:foreground "#666666"))))
@@ -181,5 +185,20 @@
 	(cd olddir))) ; restore   
     ;;  tagfile already exists; update it
     (shell-command "global -u && echo 'updated tagfile'")))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun djcb-define-yas-snippets()
+ 
+  (yas/define-snippets 'cc-mode 
+    '( ("for" "for (${int i = 0}; ${i != 10}; ${++i}) {$>\n${0}$>\n}$>" nil)
+       ("main" "int\nmain (int argc, char *argv[])\n{\n$0$>\nreturn 0;$>\n}\n" 
+	 nil)))
+  
+  (yas/define-snippets 'org-mode
+    '( ("imgright"   "#+HTML: <img src=\"image/${0}\" align=\"right\">" nil)
+       ("imgleft"   "#+HTML: <img src=\"image/${0}\" align=\"left\">" nil)
+       ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n" nil))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide 'djcb)

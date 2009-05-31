@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-28 22:28:40 (djcb)>
+;; Time-stamp: <2009-05-31 22:15:43 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -89,6 +89,8 @@
 
 (setq inhibit-startup-message t          ; don't show ...    
   inhibit-startup-echo-area-message t)   ; ... startup messages
+
+(setq require-final-newline t)           ; end files with a newline
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -100,6 +102,7 @@
 (prefer-coding-system 'utf-8)
 (set-language-environment "UTF-8")       ; prefer utf-8 for language settings
 (set-input-method nil)                   ; no funky input for normal editing;
+(setq read-quoted-char-radix 10)         ; use decimal, not octal
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -174,7 +177,7 @@
 ;; highlight the current line
 (when (fboundp 'global-hl-line-mode)
   (global-hl-line-mode t)) ;; turn it on for all modes by default
-;
+
 ;; show-paren-mode: subtle blinking of matching paren (defaults are ugly)
 ;; http://www.emacswiki.org/cgi-bin/wiki/ShowParenMode
 (when (fboundp 'show-paren-mode)
@@ -193,11 +196,13 @@
     uniquify-ignore-buffers-re "^\\*"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list
   '(yas/hippie-try-expand try-expand-all-abbrevs try-expand-dabbrev
-     try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
-     try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+     try-expand-dabbrev-from-kill
+     try-complete-lisp-symbol-partially try-complete-lisp-symbol-partially
+     try-expand-dabbrev-all-buffers))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -253,11 +258,6 @@
 (global-set-key (kbd "C-z") 'undo)   ;; use it like CUA, not like 'suspend'
 
 (global-set-key (kbd "s-b") 'pop-global-mark) ; jump *back* to previous location
-
-;; http://emacs-fu.blogspot.com/2008/12 ... 
-;; ... /cycling-through-your-buffers-with-ctrl.html
-(global-set-key [(control tab)] 'bury-buffer)
-(global-set-key (kbd "s-<tab>") 'hippie-expand) ; Window-Tab for expand
 
 ;; programming/writing stuff; f5-f8 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-set-key (kbd "<f7>") 'compile)                     ;; compile
@@ -320,14 +320,30 @@
 (global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
 (global-set-key (kbd "C-0") '(lambda()(interactive)
 			       (modify-frame-parameters nil `((alpha . 100)))))
+
+;; this depends on smex availability                                              
+(setq smex-save-file "~/.emacs.d/smex.save")                                      
+(when (djcb-require-maybe 'smex)                                                  
+  (smex-initialize)                                                               
+  (global-set-key (kbd "M-X") 'smex))                                             
+
+;; yasnippet 
+(when (djcb-require-maybe 'yasnippet-bundle) ;; not yasnippet-bundle
+     (setq yas/trigger-key [(super tab)])	     
+    yas/next-field-key [(control tab)])
+
+;; hippy expands starts with try-yasnippet-expand
+(global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
+
+;; tab is for indentation, not completion
+(global-set-key (kbd "TAB") 'indent-for-tab-command)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (yas/define-snippets 'org-mode ;; ya-snippets
-  '(
-     ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
+  '( ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
      ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
-     ("codeblock" "#+BEGIN_HTML\n<pre>${0}</pre>\n#+END_HTML\n")))
+     ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -381,6 +397,7 @@
   ido-confirm-unique-completion t) ; wait for RET, even with unique completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
 (defmacro set-key-func (key expr)
@@ -432,6 +449,7 @@
 
 (add-hook 'org-mode-hook
   (lambda()
+    (flyspell-mode t)
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
@@ -458,7 +476,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ya-snippets; it's to be loaded with elpa
-(require 'yasnippet-bundle) ;; not yasnippet-bundle
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

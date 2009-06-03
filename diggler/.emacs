@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-05-31 22:15:43 (djcb)>
+;; Time-stamp: <2009-06-02 21:12:55 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -233,10 +233,12 @@
    "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(setq tetris-score-file "~/.emacs.d/tetris-scores")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when  (require 'color-theme)  ;; use color theme...
-  (when (not djcb-console-p)   ;; ... but not ...
-    (color-theme-djcb-dark)))  ;; ... on console
+(when (require 'color-theme)  ;; use color theme...
+    (color-theme-djcb-dark)) ;; 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -399,6 +401,13 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; spelling
+(setq ispell-program-name "aspell")
+(setq ispell-extra-args '("--sug-mode=ultra"))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
 (defmacro set-key-func (key expr)
   "macro to save me typing"
@@ -449,7 +458,7 @@
 
 (add-hook 'org-mode-hook
   (lambda()
-    (flyspell-mode t)
+    ;;(flyspell-mode t)
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
@@ -693,3 +702,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values (quote ((ispell-dictionary . "dutch") (auto-recompile . t) (outline-minor-mode . t) auto-recompile outline-minor-mode))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )

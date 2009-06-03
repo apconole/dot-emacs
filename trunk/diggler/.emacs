@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-02 21:12:55 (djcb)>
+;; Time-stamp: <2009-06-03 10:08:52 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -372,6 +372,7 @@
        ["What are you doing?" twitter-status-edit])
 
      ("Misc"  ;; submenu
+       ["Save & exit" save-buffers-kill-emacs]
        ["Count words" djcb-count-words]
        ["Show/hide line numbers" linum]
        ["Toggle full-screen" djcb-fullscreen-toggle])))
@@ -702,15 +703,3 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(safe-local-variable-values (quote ((ispell-dictionary . "dutch") (auto-recompile . t) (outline-minor-mode . t) auto-recompile outline-minor-mode))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )

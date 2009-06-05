@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-03 10:08:52 (djcb)>
+;; Time-stamp: <2009-06-05 08:03:32 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -8,21 +8,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; loadpath; this will recursivel add all dirs in 'elisp-path' to load-path
-(defconst elisp-path '("~/.emacs.d/elisp/")) ;; my elisp directories
+(defconst elisp-path '("~/.emacs.d")) ;; my elisp directories
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p)
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
+(defconst djcb-config-dir "~/.emacs.d/config/")
+(defconst djcb-id-tag (concat (user-login-name) "@" (system-name))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'djcb) ;;
+(require 'djcb-funcs) ;;
 (require 'cl) ;; some package require cl
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; my environment vars
-(setq djcb-env 
-  '( ("NNTPSERVER" "news.kolumbus.fi")))
+(setq djcb-env '( ("NNTPSERVER" "news.kolumbus.fi")))
 (dolist (pair djcb-env) (setenv (car pair) (cadr pair)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -54,6 +55,8 @@
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
+(tabbar-mode t)				 ; show tabs
+
 (icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
 (scroll-bar-mode t)                      ; show a scrollbar...
@@ -306,7 +309,7 @@
 (global-set-key (kbd "s-<f9>")
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 (global-set-key (kbd "s-<f11>")
-  (lambda()(interactive)(find-file "~/.emacs.d/elisp/djcb.el")));; djcb
+  (lambda()(interactive)(find-file (concat djcb-config-dir "djcb-funcs.el"))));;
 (global-set-key (kbd "s-<f12>")
   (lambda()(interactive)(find-file "~/.emacs")))                ;; .emacs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -407,6 +410,11 @@
 (setq ispell-extra-args '("--sug-mode=ultra"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'find-func)  
+(find-function-setup-keys)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
@@ -485,7 +493,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ya-snippets; it's to be loaded with elpa
+;; erc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -514,6 +522,14 @@
 (autoload 'post-mode "post" "mode for e-mail" t)
 (add-to-list 'auto-mode-alist  
   '("\\.*mutt-*\\|.article\\|\\.followup" . post-mode)) 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; wanderlust
+(setq wl-init-file (concat djcb-config-dir "djcb-wl.el"))
+(autoload 'wl "wl" "Wanderlust" t)
+(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -575,6 +591,7 @@
       cperl-invalid-face (quote off)   ; don't show stupid underlines
       cperl-electric-keywords t)))      ; complete keywords
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ;; gtags
@@ -700,6 +717,8 @@
 	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

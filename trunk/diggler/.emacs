@@ -13,7 +13,7 @@
 	   (add-to-list 'load-path p)
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
 (defconst djcb-config-dir "~/.emacs.d/config/")
-(defconst djcb-id-tag (concat (user-login-name) "@" (system-name))
+(defconst djcb-id-tag (concat (user-login-name) "@" (system-name)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-05 08:03:32 (djcb)>
+;; Time-stamp: <2009-06-05 17:07:40 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -55,7 +55,6 @@
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
-(tabbar-mode t)				 ; show tabs
 
 (icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
@@ -240,8 +239,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when (require 'color-theme)  ;; use color theme...
-    (color-theme-djcb-dark)) ;; 
-
+  (color-theme-djcb-dark)) ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -294,10 +292,8 @@
 ;; org etc.
 (global-set-key (kbd "C-c r") 'remember)                   ;; remember
 (global-set-key (kbd "C-c w") 'djcb-wikipedia)
-
-
+(global-set-key (kbd "<backtab>") 'bbdb-complete-name) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; start other programs/special buffers with super-fkey ;;;;;;;;;;;;;;;;;;;
 (djcb-program-shortcut "zsh"   (kbd "C-= z") t)   ; the ubershell
 (djcb-program-shortcut "slrn"  (kbd "C-= s") t)   ; console nttp client
@@ -403,7 +399,6 @@
   ido-confirm-unique-completion t) ; wait for RET, even with unique completion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; spelling
 (setq ispell-program-name "aspell")
@@ -414,7 +409,6 @@
 (require 'find-func)  
 (find-function-setup-keys)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; macros to save me some type creating keyboard macros
@@ -526,11 +520,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wanderlust
-(setq wl-init-file (concat djcb-config-dir "djcb-wl.el"))
+(setq wl-init-file "~/.emacs.d/wl/djcb-wl.el")
 (autoload 'wl "wl" "Wanderlust" t)
 (autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
 (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; bbdb
+(setq bbdb-file "~/.emacs.d/bbdb")
+(when (djcb-require-maybe 'bbdb)
+  (bbdb-initialize))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html/html-helper mode

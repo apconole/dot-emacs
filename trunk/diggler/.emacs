@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-05 17:07:40 (djcb)>
+;; Time-stamp: <2009-06-07 13:56:14 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -279,7 +279,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; productivity stuff; f9-f12 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(djcb-program-shortcut "mutt"  (kbd "<f9>") t)             ;; mutt 
+(global-set-key (kbd "<f9>") 'wl)  ;; wanderlust mail/news 
 (global-set-key (kbd "<f11>")  
   (lambda()(interactive)(org-todo-list "ALL")))            ;; todo
 (global-set-key (kbd "<f12>")
@@ -293,14 +293,22 @@
 (global-set-key (kbd "C-c r") 'remember)                   ;; remember
 (global-set-key (kbd "C-c w") 'djcb-wikipedia)
 (global-set-key (kbd "<backtab>") 'bbdb-complete-name) 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; start other programs/special buffers with super-fkey ;;;;;;;;;;;;;;;;;;;
-(djcb-program-shortcut "zsh"   (kbd "C-= z") t)   ; the ubershell
-(djcb-program-shortcut "slrn"  (kbd "C-= s") t)   ; console nttp client
-(djcb-program-shortcut "irssi" (kbd "C-= i") t)   ; console irc client
-(global-set-key (kbd "C-= t") (lambda()(interactive)
-				 (twitter-get-friends-timeline)))
-(djcb-program-shortcut "mutt"  (kbd "C-= m") t)             ;; mutt 
+;; program shortcuts
+(global-set-key (kbd "s-b") 'browse-url)  ;; Browse (W3M)
+(global-set-key (kbd "s-e") 'djcb-erc-start-or-switch) ;; ERC
+(global-set-key (kbd "s-f") 'browse-url-firefox)       ;; Firefox
+(global-set-key (kbd "s-g") 'w3m-goto-url)   ;; Goto-url (W3M)
+(global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
+(global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
+
+(global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
+(global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
+
+
+(djcb-program-shortcut "mutt"  (kbd "s-m") t)   ;; mutt 
+(djcb-program-shortcut "zsh"   (kbd "s-z") t)   ;; the ubershell
 
 (global-set-key (kbd "s-<f9>")
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
@@ -487,15 +495,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; erc
-
+;; w3m / browsing
+(when (djcb-require-maybe 'w3m)
+  (setq 
+    w3m-use-cookies t                           ;; allow cookies
+    w3m-use-title-buffer-name t                 ;; use page title as bufname
+    browse-url-browser-function 'w3m-browse-url ;; use w3m
+    browse-url-new-window-flag t))              ;; in new 'tab'
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; twiki; see http://www.neilvandyke.org/erin-twiki-emacs/
-(autoload 'erin-mode "erin" "mode for twiki documents" t)
-(add-to-list 'auto-mode-alist '("\\.*.twiki$" . erin-mode))
+;; ERC, the emacs IRC client
+(when (djcb-require-maybe 'erc)
+  (require 'djcb-erc))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; htmlize; http://fly.cc.fer.hr/~hniksic/emacs/htmlize.el.html

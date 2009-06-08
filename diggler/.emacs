@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-07 13:56:14 (djcb)>
+;; Time-stamp: <2009-06-08 16:45:29 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -303,6 +303,7 @@
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
 
+(global-set-key (kbd "s-l") 'org-store-link) ;; Agenda
 (global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
 (global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
@@ -502,6 +503,8 @@
     w3m-use-title-buffer-name t                 ;; use page title as bufname
     browse-url-browser-function 'w3m-browse-url ;; use w3m
     browse-url-new-window-flag t))              ;; in new 'tab'
+
+(setq w3m-uri-replace-alist '())
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -537,15 +540,25 @@
 ;; wanderlust
 (setq wl-init-file "~/.emacs.d/wl/djcb-wl.el")
 (autoload 'wl "wl" "Wanderlust" t)
-(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
 (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bbdb
-(setq bbdb-file "~/.emacs.d/bbdb")
-(when (djcb-require-maybe 'bbdb)
-  (bbdb-initialize))
+(setq bbdb-file "~/.emacs.d/bbdb") ;; keep my ~/ clean
+(when (and (djcb-require-maybe 'bbdb) (djcb-require-maybe 'bbdb-wl))
+  (bbdb-initialize)
+  (bbdb-wl-setup)
+  (setq 
+    bbdb-offer-save t           ;; always save
+    bbdb-use-pop-up t           ;; allow pops when addresses are found
+    bbdb/mail-auto-create-p t   ;; auto-create address from mail
+    bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
+    '(( "From" . "noreply-comment@blogger.com"))
+    bbdb-wl-folder-regexp ;; get addresses only from these folders
+    "^\.todo$\\|^\.archive$") ;; 
+  (setq 
+    wl-summary-from-function 'bbdb-wl-from-func))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

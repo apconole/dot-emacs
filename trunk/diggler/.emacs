@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-08 16:45:29 (djcb)>
+;; Time-stamp: <2009-06-10 01:06:59 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -60,6 +60,8 @@
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
 (scroll-bar-mode t)                      ; show a scrollbar...
 (set-scroll-bar-mode 'right)             ; ... on the right
+
+(partial-completion-mode t)		 ; be smart with completion
 
 (setq scroll-margin 1                    ; do smooth scrolling, ...
   scroll-conservatively 0                ; ... the defaults ...
@@ -317,6 +319,10 @@
   (lambda()(interactive)(find-file (concat djcb-config-dir "djcb-funcs.el"))));;
 (global-set-key (kbd "s-<f12>")
   (lambda()(interactive)(find-file "~/.emacs")))                ;; .emacs
+
+;; use super + arrow keys to switch between visible buffers
+(require 'windmove)
+(windmove-default-keybindings 'super)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; zooming/transparancy
@@ -552,13 +558,15 @@
   (setq 
     bbdb-offer-save t           ;; always save
     bbdb-use-pop-up t           ;; allow pops when addresses are found
-    bbdb/mail-auto-create-p t   ;; auto-create address from mail
+        
+    ;; auto-create address from mail
+    bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . "noreply-comment@blogger.com"))
-    bbdb-wl-folder-regexp ;; get addresses only from these folders
-    "^\.todo$\\|^\.archive$") ;; 
+    '(( "From" . ".*noreply.*\\|MAILER-DAEMON.*")))
+
   (setq 
-    wl-summary-from-function 'bbdb-wl-from-func))
+    wl-summary-showto-folder-regexp ".*"
+    wl-summary-from-function 'wl-summary-default-from))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

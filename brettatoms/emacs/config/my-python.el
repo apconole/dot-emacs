@@ -21,18 +21,25 @@
 ;; pymacs
 ;;
 ;; Pymacs has to be on PYTHONPATH for this to work
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
-;;(eval-after-load "pymacs"
-;; '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
+(if (featurep 'pymacs)
+    ; if pymacs is installed then load it
+    (lambda ()
+      (autoload 'pymacs-apply "pymacs")
+      (autoload 'pymacs-call "pymacs")
+      (autoload 'pymacs-eval "pymacs" nil t)
+      (autoload 'pymacs-exec "pymacs" nil t)
+      (autoload 'pymacs-load "pymacs" nil t)
+      ;;(eval-after-load "pymacs"
+      ;; '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
+      ))
 
 (defun my-python-mode-hook ()
   (set (make-local-variable 'compile-command) "python setup.py develop")
-  (pymacs-load "ropemacs" "rope-")
-  (ropemacs-mode t)
+  (if (fboundp 'pymacs-load)
+      ; if pymacs was installed then load ropemacs
+      (lambda ()
+	(pymacs-load "ropemacs" "rope-")
+	(ropemacs-mode t)))
 
   (c-subword-mode t)     ; add camel case as word boundaries
   (delete-selection-mode t)     ; overwrite selection with typing

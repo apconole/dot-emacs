@@ -1,6 +1,10 @@
 ; -*- lisp -*-
 
-; use dave love's pyton.el from http://www.loveshack.ukfsn.org/emacs/
+;(setenv "PYTHONPATH" (concat  (getenv "PYTHONPATH") ":~/python"))
+;(setenv "PYTHONPATH" "~/python")
+
+; use dave love's python.el from http://www.loveshack.ukfsn.org/emacs/
+; should load python.el from ~/emacs/packages/python.el
 (require 'python)
 
 (autoload 'python-mode "python-mode" "Python Mode." t)
@@ -30,13 +34,19 @@
   (pymacs-load "ropemacs" "rope-")
   (ropemacs-mode t)
 
+  (c-subword-mode t)     ; add camel case as word boundaries
+  (delete-selection-mode t)     ; overwrite selection with typing
+
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
   
-  ;; flymake mode
-  (flymake-mode t)
-  (local-set-key (kbd "\C-c e") 'flymake-display-err-menu-for-current-line)
-  (local-set-key (kbd "\C-c `") 'flymake-goto-next-error)
-  (local-set-key (kbd "RET") 'newline-and-indent)
+  ;; ;; flymake mode
+  ;; TODO: disable flymake mode for ediff and other modes where it interferes
+  ;(flymake-mode -1)
+  ;(flymake-mode 1)
+  ;(local-set-key (kbd "\C-c e") 'flymake-display-err-menu-for-current-line)
+  ;(local-set-key (kbd "\C-c `") 'flymake-goto-next-error)
+  
+  ;(local-set-key (kbd "RET") 'newline-and-indent)
 
   ;; indentation
   (setq indent-tabs-mode nil)
@@ -53,22 +63,34 @@
   )
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
+; TODO: was trying to disable flymake-mode when in a ediff buffer by
+; connecting to the ediff-prepare-buffer-hook but it didn't seem to
+; work but i'll leave this here for a while in case i get around to
+; figuring it out later
+;; (defun ediff-hook ()
+;;   (message "HELLO ediff-hook")
+;;   (message (buffer-name))
+;;   (flymake-mode -1))
+;; (add-hook 'ediff-prepare-buffer-hook 'ediff-hook)
+;; 	  ;; (lambda ()
+;; 	  ;;   (flymake-mode -1)))
 
-;; Flymake your Pyflakes
-(require 'flymake)
-;(load-library "flymake-cursor")
+; Flymake and pylint
+;; (require 'flymake)
+;; (load-library "flymake-cursor")
 (when (load "flymake" t)
-  (defun flymake-pyflakes-init ()
+  (defun flymake-pylint-init ()
     (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
+		       'flymake-create-temp-inplace))
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "pyflakes" (list local-file))))
+      (list "epylint" (list local-file))))
+  
   (add-to-list 'flymake-allowed-file-name-masks
-               '("\\.py\\'" flymake-pyflakes-init)))
-(add-hook 'find-file-hook 'flymake-find-file-hook)
+               '("\\.py\\'" flymake-pylint-init)))
 
+(add-hook 'find-file-hook 'flymake-find-file-hook)
 
 (provide 'my-python)
 

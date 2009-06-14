@@ -3,7 +3,13 @@
 ; dot.emacs
 ;
 ; NOTE: to use this file: ln -s ~/<path>/dot.emacs ~/.emacs
-(server-start)
+
+;; Don't start the server unless we can verify that it isn't running.
+(require 'server)
+(when (and (functionp 'server-running-p) (not (server-running-p)))
+  (server-start))
+;(server-start)
+
 ;;
 ;; (defcustom project-list ()
 ;;   "A list if tuples containing (project name, settings)"
@@ -126,6 +132,20 @@
 ;
 (global-set-key (kbd "\C-x g") 'goto-line)
 
+(defun copy-line (&optional arg)
+  "Do a kill-line but copy rather than kill.  This function directly calls
+kill-line, so see documentation of kill-line for how to use it including prefix
+argument and relevant variables.  This function works by temporarily making the
+buffer read-only, so I suggest setting kill-read-only-ok to t."
+  (interactive "P")
+  (toggle-read-only 1)
+  (kill-line arg)
+  (toggle-read-only 0))
+ 
+(setq-default kill-read-only-ok t)
+(global-set-key "\C-c\C-k" 'copy-line)
+
+
 ; EasyPG for GPG support
 
 ;(add-to-list 'load-path (concat package-dir "epg-0.0.16/"))
@@ -155,7 +175,8 @@
 
 ; TODO: We either need to change this binding or change the default
 ; ropemacs binding since it also uses C-c f
-(global-set-key (kbd "\C-c ff") 'igrep-find)
+;(global-set-key (kbd "\C-c ff") 'igrep-find)
+(define-key global-map [f5] 'next-error)
 
 ; allowe recusrive deletes in dired
 (setq dired-recursive-deletes t)
@@ -173,13 +194,17 @@
 ;; new Customize GUI
 ;; see http://www.emacswiki.org/cgi-bin/wiki/CustomizeNewGUI
 ;(require 'cus-new-gui)
-
-;; custom settings files for some modes
 (require 'my-python) ; python-mode settings
 (require 'my-xml) ; html/xml/xhtml mode settings
 (require 'my-css) ; css settings
 (require 'my-org) ; org mode settings
 (require 'my-javascript) 
+
+;; org mode hook
+(defun my-org-mode-hook ()
+     (auto-fill-mode t)
+)
+(add-hook 'org-mode-hook 'my-org-mode-hook)
 
 ;; shell
 (defun my-shell-mode-hook ()
@@ -229,6 +254,9 @@
 (setq savehist-file (concat data-dir "history"))
 (savehist-mode 1)
 
+; NOTE: to make yassnippet work with loveshack's python-mode you
+; have to create a directory or link in the snippets to directory from
+; python-2-mode to python-mode
 (add-to-list 'load-path (concat package-dir "yasnippet"))
 (require 'yasnippet)
 (yas/initialize)

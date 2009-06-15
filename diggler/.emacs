@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-10 01:06:59 (djcb)>
+;; Time-stamp: <2009-06-15 08:16:20 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -300,7 +300,7 @@
 ;; program shortcuts
 (global-set-key (kbd "s-b") 'browse-url)  ;; Browse (W3M)
 (global-set-key (kbd "s-e") 'djcb-erc-start-or-switch) ;; ERC
-(global-set-key (kbd "s-f") 'browse-url-firefox)       ;; Firefox
+(global-set-key (kbd "s-f") 'browse-url-firefox)  ;; Firefox
 (global-set-key (kbd "s-g") 'w3m-goto-url)   ;; Goto-url (W3M)
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
@@ -309,16 +309,20 @@
 (global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
 (global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
-
 (djcb-program-shortcut "mutt"  (kbd "s-m") t)   ;; mutt 
 (djcb-program-shortcut "zsh"   (kbd "s-z") t)   ;; the ubershell
 
-(global-set-key (kbd "s-<f9>")
+;; specific file shortcuts; s-f 
+(global-set-key (kbd "s-S") ;; scratch
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
-(global-set-key (kbd "s-<f11>")
-  (lambda()(interactive)(find-file (concat djcb-config-dir "djcb-funcs.el"))));;
-(global-set-key (kbd "s-<f12>")
-  (lambda()(interactive)(find-file "~/.emacs")))                ;; .emacs
+(global-set-key (kbd "s-E") ;; .emacs
+  (lambda()(interactive)(find-file "~/.emacs"))) 
+(global-set-key (kbd "s-G") ;; gtd.org
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
+(global-set-key (kbd "s-B") ;; gtd.org
+  (lambda()(interactive)(find-file "~/.emacs.d/org/books.org"))) 
+(global-set-key (kbd "s-W") ;; wanderlust
+  (lambda()(interactive)(find-file "~/.emacs.d/wl/djcb-wl.el"))) 
 
 ;; use super + arrow keys to switch between visible buffers
 (require 'windmove)
@@ -416,9 +420,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; spelling
-(setq ispell-program-name "aspell")
-(setq ispell-extra-args '("--sug-mode=ultra"))
+(setq ispell-program-name "aspell"
+  ispell-extra-args '("--sug-mode=ultra"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; newsticker
+(add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
+(setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'find-func)  
@@ -556,13 +570,26 @@
   (bbdb-initialize)
   (bbdb-wl-setup)
   (setq 
-    bbdb-offer-save t           ;; always save
-    bbdb-use-pop-up t           ;; allow pops when addresses are found
-        
+    bbdb-offer-save 1                        ;; 1 means save-without-asking
+
+    bbdb-use-pop-up t                        ;; allow popups for addresses
+    bbdb-popup-target-lines  1               ;; very small
+
+    bbdb-dwim-net-address-allow-redundancy t ;; always use full name
+    bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
+    bbdb-always-add-address t                ;; add new address to existing...
+                                             ;; ...contacts autmatically
+
+    bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
+
+    bbdb-complete-name-allow-cycling t       ;; cycle through matches
+
+    bbbd-message-caching-enabled t           ;; be fast
+
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*noreply.*\\|MAILER-DAEMON.*")))
+    '(( "From" . ".*noreply.*\\|.*DAEMON.*")))
 
   (setq 
     wl-summary-showto-folder-regexp ".*"
@@ -625,9 +652,9 @@
     (abbrev-mode -1)                  ; turn-off the annoying elecric crap
     (setq 
       cperl-hairy t                  ; parse hairy perl constructs
-      cperl-indent-level 4             ; indent with 4 positions
-      cperl-invalid-face (quote off)   ; don't show stupid underlines
-      cperl-electric-keywords t)))      ; complete keywords
+      cperl-indent-level 4           ; indent with 4 positions
+      cperl-invalid-face nil        ; don't show stupid underlines
+      cperl-electric-keywords t)))   ; complete keywords
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
 
@@ -755,8 +782,6 @@
 	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

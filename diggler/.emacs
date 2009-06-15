@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-15 08:16:20 (djcb)>
+;; Time-stamp: <2009-06-15 16:05:18 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -19,12 +19,6 @@
 ;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'djcb-funcs) ;;
 (require 'cl) ;; some package require cl
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; my environment vars
-(setq djcb-env '( ("NNTPSERVER" "news.kolumbus.fi")))
-(dolist (pair djcb-env) (setenv (car pair) (cadr pair)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -327,6 +321,12 @@
 ;; use super + arrow keys to switch between visible buffers
 (require 'windmove)
 (windmove-default-keybindings 'super)
+;; restore window configuration
+(require 'winner)
+(setq winner-dont-bind-my-keys t) ;; winner conflicts with org
+(global-set-key (kbd "<C-s-left>") 'winner-undo)
+(global-set-key (kbd "<C-s-right>") 'winner-redo)
+(winner-mode t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; zooming/transparancy
@@ -348,9 +348,20 @@
   (global-set-key (kbd "M-X") 'smex))                                             
 
 ;; yasnippet 
-(when (djcb-require-maybe 'yasnippet-bundle) ;; not yasnippet-bundle
-     (setq yas/trigger-key [(super tab)])	     
-    yas/next-field-key [(control tab)])
+(when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
+  (setq yas/trigger-key [(super tab)])	     
+  yas/next-field-key [(control tab)])
+
+(djcb-require-maybe 'djcb-yasnippet-bundle)
+(defun djcb-yasnippet-compile-bundle ()
+  "create a bundle of my own snippets"
+  (interactive)
+  (yas/compile-bundle 
+    "~/.emacs.d/elisp/yasnippet-0.5.9/yasnippet.el"
+    "~/.emacs.d/elisp/djcb-yasnippet-bundle.el"
+    '("~/.emacs.d/yasnippets/")
+    "(yas/initialize)"))
+  
 
 ;; hippy expands starts with try-yasnippet-expand
 (global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
@@ -364,6 +375,8 @@
   '( ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
      ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
      ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n")))
+
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -424,14 +437,16 @@
   ispell-extra-args '("--sug-mode=ultra"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; newsticker
 (add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
 (setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; winner-mode
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -572,7 +587,7 @@
   (setq 
     bbdb-offer-save 1                        ;; 1 means save-without-asking
 
-    bbdb-use-pop-up t                        ;; allow popups for addresses
+    bbdb-use-pop-up nil                        ;; allow popups for addresses
     bbdb-popup-target-lines  1               ;; very small
 
     bbdb-dwim-net-address-allow-redundancy t ;; always use full name
@@ -590,7 +605,6 @@
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
     '(( "From" . ".*noreply.*\\|.*DAEMON.*")))
-
   (setq 
     wl-summary-showto-folder-regexp ".*"
     wl-summary-from-function 'wl-summary-default-from))
@@ -736,6 +750,7 @@
 ;; http://www.emacswiki.org/cgi-bin/wiki/ModeCompile
 ;; TODO: don't hide when there are warnings either (not just errors)
 (setq compilation-window-height 12)
+(setq compilation-finish-functions nil)
 (setq compilation-finish-functions 'compile-autoclose)
 (defun compile-autoclose (buffer string)
   (cond ((and (string-match "finished" string)

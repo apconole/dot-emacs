@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-15 16:05:18 (djcb)>
+;; Time-stamp: <2009-06-15 21:33:16 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -225,10 +225,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ms-windows
-(when djcb-win32-p
- (set-default-font
-   "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1"))
+;; default-fonts
+(set-default-font
+  (cond 
+    (djcb-win32-p
+      "-outline-Consolas-normal-r-normal-normal-14-97-96-96-c-*-iso8859-1")
+    ((and (not djcb-console-p) djcb-linux-p)
+      (= 0 (shell-command "fc-list | grep Inconsolata"))
+      "Inconsolata-11")))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq tetris-score-file "~/.emacs.d/tetris-scores")
@@ -294,7 +299,10 @@
 ;; program shortcuts
 (global-set-key (kbd "s-b") 'browse-url)  ;; Browse (W3M)
 (global-set-key (kbd "s-e") 'djcb-erc-start-or-switch) ;; ERC
-(global-set-key (kbd "s-f") 'browse-url-firefox)  ;; Firefox
+
+(global-set-key (kbd "s-f") 'browse-url-firefox)  ;; Firefox...
+(setq browse-url-firefox-new-window-is-tab t)  ;; ... use tabs
+
 (global-set-key (kbd "s-g") 'w3m-goto-url)   ;; Goto-url (W3M)
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
@@ -321,6 +329,7 @@
 ;; use super + arrow keys to switch between visible buffers
 (require 'windmove)
 (windmove-default-keybindings 'super)
+
 ;; restore window configuration
 (require 'winner)
 (setq winner-dont-bind-my-keys t) ;; winner conflicts with org
@@ -442,12 +451,6 @@
 (add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
 (setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; winner-mode
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'find-func)  
@@ -604,10 +607,8 @@
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*noreply.*\\|.*DAEMON.*")))
-  (setq 
-    wl-summary-showto-folder-regexp ".*"
-    wl-summary-from-function 'wl-summary-default-from))
+    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon"))))
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

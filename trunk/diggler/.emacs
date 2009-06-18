@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-15 21:33:16 (djcb)>
+;; Time-stamp: <2009-06-18 07:37:45 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -12,7 +12,12 @@
 (mapcar '(lambda(p)
 	   (add-to-list 'load-path p)
 	   (cd p) (normal-top-level-add-subdirs-to-load-path)) elisp-path)
+
 (defconst djcb-config-dir "~/.emacs.d/config/")
+(defconst djcb-emacs-dir  "~/.emacs.d")
+
+;; id-tag; 'user@machine'; used for machine-specific configuration,
+;; as part of machine-specific configuration files
 (defconst djcb-id-tag (concat (user-login-name) "@" (system-name)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -49,6 +54,8 @@
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
+
+(mouse-avoidance-mode 'proteus)          ; mouse ptr when cursor is too close
 
 (icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
@@ -213,14 +220,14 @@
 (setq holidays-in-diary-buffer      t
   mark-holidays-in-calendar         t
   all-christian-calendar-holidays   t
-  all-islamic-calendar-holidays     t
-  all-hebrew-calendar-holidays      t
+  all-islamic-calendar-holidays     nil
+  all-hebrew-calendar-holidays      nil
   display-time-24hr-format          t
   display-time-day-and-date         nil
   display-time-format               nil
   display-time-use-mail-icon        nil      ; don't show mail icon
-  calendar-latitude  60.09
-  calendar-longitude 24.52
+  calendar-latitude                 60.09
+  calendar-longitude                24.52
   calendar-location-name "Helsinki, Finland")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -280,17 +287,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; productivity stuff; f9-f12 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global-set-key (kbd "<f9>") 'wl)  ;; wanderlust mail/news 
-(global-set-key (kbd "<f11>")  
-  (lambda()(interactive)(org-todo-list "ALL")))            ;; todo
-(global-set-key (kbd "<f12>")
-  (lambda()(interactive)(org-agenda-list)))                ;; agenda
-;; some files
-(global-set-key (kbd "C-<f9>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/remember.org")))
-(global-set-key (kbd "C-<f10>") 
-  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org")))
-;; org etc.
 (global-set-key (kbd "C-c r") 'remember)                   ;; remember
 (global-set-key (kbd "C-c w") 'djcb-wikipedia)
 (global-set-key (kbd "<backtab>") 'bbdb-complete-name) 
@@ -311,8 +307,8 @@
 (global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
 (global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
-(djcb-program-shortcut "mutt"  (kbd "s-m") t)   ;; mutt 
-(djcb-program-shortcut "zsh"   (kbd "s-z") t)   ;; the ubershell
+(djcb-program-shortcut "mutt" (kbd "s-m") t)   ;; mutt 
+(djcb-program-shortcut "zsh"  (kbd "s-z") t)   ;; the ubershell
 
 ;; specific file shortcuts; s-f 
 (global-set-key (kbd "s-S") ;; scratch
@@ -324,7 +320,7 @@
 (global-set-key (kbd "s-B") ;; gtd.org
   (lambda()(interactive)(find-file "~/.emacs.d/org/books.org"))) 
 (global-set-key (kbd "s-W") ;; wanderlust
-  (lambda()(interactive)(find-file "~/.emacs.d/wl/djcb-wl.el"))) 
+  (lambda()(interactive)(find-file wl-init-file))) 
 
 ;; use super + arrow keys to switch between visible buffers
 (require 'windmove)
@@ -576,9 +572,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wanderlust
-(setq wl-init-file "~/.emacs.d/wl/djcb-wl.el")
 (autoload 'wl "wl" "Wanderlust" t)
 (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
+
+(defconst djcb-wl-dir (concat djcb-emacs-dir "/wl"))
+(setq wl-init-file (concat djcb-wl-dir "/wl-djcb.el"))
+
+;; site-specific settings, e.g. eg.
+;; ~/.emacs.d/wl/wl-djcb@mindcrime.el
+(load-library (concat djcb-wl-dir "/wl-" djcb-id-tag ".el"))
+(setq wl-folders-file (concat djcb-wl-dir "/wl-" djcb-id-tag "-folders"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -590,7 +593,8 @@
   (setq 
     bbdb-offer-save 1                        ;; 1 means save-without-asking
 
-    bbdb-use-pop-up nil                        ;; allow popups for addresses
+    bbdb-use-pop-up t                        ;; allow popups for addresses
+    bbdb-electric-p t                        ;; be disposable with SPC
     bbdb-popup-target-lines  1               ;; very small
 
     bbdb-dwim-net-address-allow-redundancy t ;; always use full name
@@ -600,15 +604,34 @@
 
     bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
 
+    bbdb-completion-type nil                 ;; complete on anything
     bbdb-complete-name-allow-cycling t       ;; cycle through matches
 
     bbbd-message-caching-enabled t           ;; be fast
+    bbdb-use-alternate-names t               ;; use AKA
 
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon"))))
- 
+    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon")))
+  
+  ;; integrate with supercite, if possible
+  ;; http://bbdb.sourceforge.net/bbdb.html#SEC56
+  ;; (when (fboundp 'sc-minor-mode)
+  ;;   (bbdb-insinuate-sc)
+  ;;   (setq 
+  ;;     sc-preferred-attribution-list
+  ;;     '("sc-lastchoice" "x-attribution" "sc-consult"
+  ;; 	 "initials" "firstname" "lastname")
+  ;;     sc-attrib-selection-list
+  ;;     '(("sc-from-address"
+  ;; 	 ((".*" . (bbdb/sc-consult-attr
+  ;; 		   (sc-mail-field "sc-from-address"))))))
+
+  ;;     sc-mail-glom-frame
+  ;;     ("^$"  (progn (bbdb/sc-default)
+  ;; 	       (list 'abort '(step . 0)))))))
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-18 13:01:02 (djcb)>
+;; Time-stamp: <2009-06-18 15:40:18 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -285,6 +285,12 @@
 (autoload 'linum "linum" "mode for line numbers" t) 
 (global-set-key (kbd "<S-f9>")   'djcb-fullscreen-toggle)       ;; fullscreen
 (global-set-key (kbd "<S-<f10>")  'package-list-packages)       ;; elpa
+
+;; elscreen
+(global-set-key (kbd "<f12>"    ) 'elscreen-create)
+(global-set-key (kbd "S-<f12>"  ) 'elscreen-kill)  
+(global-set-key (kbd "<s-prior>") 'elscreen-previous) 
+(global-set-key (kbd "<s-next>")  'elscreen-next) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; productivity stuff; f9-f12 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -351,7 +357,6 @@
 			       (modify-frame-parameters nil `((alpha . 100)))))
 
 (global-set-key (kbd "M-X") 'smex) ;; use smex
-(global-set-key (kbd "<C-tab>") 'elscreen-toggle) ;;cycle through elscreen tabs
 
 
 

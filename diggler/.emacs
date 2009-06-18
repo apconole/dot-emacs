@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-18 09:38:50 (djcb)>
+;; Time-stamp: <2009-06-18 13:01:02 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -15,6 +15,7 @@
 
 (defconst djcb-config-dir "~/.emacs.d/config/")
 (defconst djcb-emacs-dir  "~/.emacs.d")
+(defconst djcb-tmp-dir    "~/.emacs.tmp")
 
 ;; id-tag; 'user@machine'; used for machine-specific configuration,
 ;; as part of machine-specific configuration files
@@ -54,6 +55,7 @@
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
+(ruler-mode t)
 
 (mouse-avoidance-mode 'proteus)          ; mouse ptr when cursor is too close
 
@@ -116,21 +118,22 @@
 (setq bookmark-default-file "~/.emacs.d/bookmarks") ;; bookmarks
 ;;
 ;; saveplace: save location in file when saving files
-(setq save-place-file "~/.emacs.d/saveplace") ;; keep my ~/ clean
-(setq-default save-place t)                   ;; activate it for all buffers
-(require 'saveplace)                          ;; get the package
+(setq save-place-file
+  (concat djcb-tmp-dir "/saveplace"))  ;; keep my ~/ clean
+(setq-default save-place t)            ;; activate it for all buffers
+(require 'saveplace)                   ;; get the package
 ;;
 ;; savehist: save some history
 (setq savehist-additional-variables    ;; also save...
   '(search ring regexp-search-ring)    ;; ... my search entries
   savehist-autosave-interval 60        ;; save every minute (default: 5 min)
-  savehist-file "~/.emacs.d/savehist") ;; keep my home clean
+  savehist-file (concat djcb-tmp-dir "/savehist"))   ;; keep my home clean
 (savehist-mode t)                      ;; do customization before activation
 
 ;; recentf
-(when (djcb-require-maybe 'recentf)         ;; save recently used files
-  (setq recentf-save-file "~/.emacs.d/recentf" ;; keep ~/ clean
-    recentf-max-saved-items 100        ;; max save 100
+(when (djcb-require-maybe 'recentf)    ;; save recently used files
+  (setq recentf-save-file (concat djcb-tmp-dir "/recentf") ;; keep ~/ clean
+    recentf-max-saved-items 100          ;; max save 100
     recentf-max-menu-items 15)         ;; max 15 in menu
   (recentf-mode t))                    ;; turn it on
 ;;
@@ -152,9 +155,10 @@
      (file-cache-add-directory-list (list "~/Desktop" "~/Documents"))))
 ;;
 ;; backups
-(setq make-backup-files t ; do make backups
-  backup-by-copying t ; and copy them ...
-  backup-directory-alist '(("." . "~/.emacs.d/backup/")) ; ... here
+(setq djcb-backup-dir (concat djcb-tmp-dir "/backups"))
+(setq make-backup-files t ;; do make backups
+  backup-by-copying t     ;; and copy them here
+  backup-directory-alist '(("." . "~/.emacs.tmp/backups")) ;; FIXME
   version-control t
   kept-new-versions 2
   kept-old-versions 5
@@ -240,10 +244,9 @@
     ((and (not djcb-console-p) djcb-linux-p)
       (= 0 (shell-command "fc-list | grep Inconsolata"))
       "Inconsolata-11")))
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq tetris-score-file "~/.emacs.d/tetris-scores")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq tetris-score-file (concat djcb-tmp-dir "/tetris-scores"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when (require 'color-theme)  ;; use color theme...
@@ -267,7 +270,6 @@
 (global-set-key (kbd "<C-next>")  (lambda()(interactive)(goto-char(point-max))))
 
 (global-set-key (kbd "C-z") 'undo)   ;; use it like CUA, not like 'suspend'
-
 (global-set-key (kbd "s-b") 'pop-global-mark) ; jump *back* to previous location
 
 ;; programming/writing stuff; f5-f8 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,7 +283,6 @@
 (global-set-key (kbd "<S-f6>") 'highlight-changes-visible-mode) ;; changes
 (global-set-key (kbd "<S-f7>") 'whitespace-mode)                ;; show blanks
 (autoload 'linum "linum" "mode for line numbers" t) 
-(global-set-key (kbd "<S-f8>") 'linum)                          ;; line nrs
 (global-set-key (kbd "<S-f9>")   'djcb-fullscreen-toggle)       ;; fullscreen
 (global-set-key (kbd "<S-<f10>")  'package-list-packages)       ;; elpa
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -303,12 +304,15 @@
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
 
-(global-set-key (kbd "s-l") 'org-store-link) ;; Agenda
+;;(global-set-key (kbd "s-l") 'org-store-link)  ;; Agenda
 (global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
 (global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
 (djcb-program-shortcut "mutt" (kbd "s-m") t)   ;; mutt 
 (djcb-program-shortcut "zsh"  (kbd "s-z") t)   ;; the ubershell
+
+(global-set-key (kbd "s-s") 'sr-speedbar-toggle)
+(global-set-key (kbd "s-l") 'linum)                          ;; line nrs
 
 ;; specific file shortcuts; s-f 
 (global-set-key (kbd "s-S") ;; scratch
@@ -346,12 +350,39 @@
 (global-set-key (kbd "C-0") '(lambda()(interactive)
 			       (modify-frame-parameters nil `((alpha . 100)))))
 
-;; this depends on smex availability                                              
-(setq smex-save-file "~/.emacs.d/smex.save")                                      
-(when (djcb-require-maybe 'smex)                                                  
-  (smex-initialize)                                                               
-  (global-set-key (kbd "M-X") 'smex))                                             
+(global-set-key (kbd "M-X") 'smex) ;; use smex
+(global-set-key (kbd "<C-tab>") 'elscreen-toggle) ;;cycle through elscreen tabs
 
+
+
+;; this depends on smex availability                                              
+(setq smex-save-file (concat djcb-tmp-dir "/smex.save"))              
+(when (djcb-require-maybe 'smex)                                                  
+  (smex-initialize))                                                           
+
+ 
+;; hippy expands starts with try-yasnippet-expand
+(global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
+
+;; tab is for indentation, not completion
+(global-set-key (kbd "TAB") 'indent-for-tab-command)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
+(djcb-require-maybe 'elscreen)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(yas/define-snippets 'org-mode ;; ya-snippets
+  '( ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
+     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
+     ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n")))
+
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; yasnippet 
 (when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
   (setq yas/trigger-key [(super tab)])	     
@@ -366,23 +397,6 @@
     "~/.emacs.d/elisp/djcb-yasnippet-bundle.el"
     '("~/.emacs.d/yasnippets/")
     "(yas/initialize)"))
-  
-
-;; hippy expands starts with try-yasnippet-expand
-(global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
-
-;; tab is for indentation, not completion
-(global-set-key (kbd "TAB") 'indent-for-tab-command)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(yas/define-snippets 'org-mode ;; ya-snippets
-  '( ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
-     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
-     ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n")))
-
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; custom menu; http://emacs-fu.blogspot.com/2009/04/adding-custom-menus.html
@@ -420,7 +434,7 @@
 (require 'ido) 
 (ido-mode 'buffers) ;; only for buffers
 (setq 
-  ido-save-directory-list-file "~/.emacs.d/ido.last"
+  ido-save-directory-list-file (concat djcb-tmp-dir "/ido.last")
   ido-ignore-buffers ;; ignore these guys
   '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
   ido-work-directory-list '("~/" "~/Desktop" "~/Documents")
@@ -586,7 +600,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; bbdb
-(setq bbdb-file "~/.emacs.d/bbdb") ;; keep my ~/ clean
+(setq bbdb-file 
+  (concat djcb-emacs-dir "/bbdb-" djcb-id-tag)) ;; keep my ~/ clean
 (when (and (djcb-require-maybe 'bbdb) (djcb-require-maybe 'bbdb-wl))
   (bbdb-initialize)
   (bbdb-wl-setup)

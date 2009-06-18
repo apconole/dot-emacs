@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-18 07:37:45 (djcb)>
+;; Time-stamp: <2009-06-18 09:38:50 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -654,9 +654,10 @@
   "my TeX/LaTeX (auctex) settings"
   (interactive)
   (setq
-    LaTeX-item-ident 2
-    TeX-parse-self   t ; Enable parse on load.
-    TeX-auto-save    t)) ; Enable parse on save.
+    TeX-brace-indent-level 0 ;; don't screw up \index
+    LaTeX-item-ident       2
+    TeX-parse-self         t ; Enable parse on load.
+    TeX-auto-save          t)) ; Enable parse on save.
   
 (add-hook 'tex-mode-hook 'djcb-tex-mode-hook)
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)

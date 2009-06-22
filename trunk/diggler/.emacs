@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-18 15:40:18 (djcb)>
+;; Time-stamp: <2009-06-22 08:18:56 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -22,8 +22,17 @@
 (defconst djcb-id-tag (concat (user-login-name) "@" (system-name)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; djcb-require-maybe  (http://www.emacswiki.org/cgi-bin/wiki/LocateLibrary)
+;; this is useful when this .emacs is used in an env where not all of the
+;; other stuff is available
+(defmacro djcb-require-maybe (feature &optional file)
+  "*Try to require FEATURE, but don't signal an error if `require' fails."
+  `(require ,feature ,file 'noerror))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; load my handy functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'djcb-funcs) ;;
+(djcb-require-maybe 'djcb-funcs) ;; load it it can be found...
 (require 'cl) ;; some package require cl
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -56,9 +65,7 @@
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
 (ruler-mode t)
-
-(mouse-avoidance-mode 'proteus)          ; mouse ptr when cursor is too close
-
+(mouse-avoidance-mode 'jump)             ; mouse ptr when cursor is too close
 (icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
 (scroll-bar-mode t)                      ; show a scrollbar...
@@ -135,7 +142,7 @@
   (setq recentf-save-file (concat djcb-tmp-dir "/recentf") ;; keep ~/ clean
     recentf-max-saved-items 100          ;; max save 100
     recentf-max-menu-items 15)         ;; max 15 in menu
-  (recentf-mode t))                    ;; turn it on
+    (recentf-mode t))                  ;; turn it on
 ;;
 ;; abbrevs (abbreviations)
 (setq abbrev-file-name                 ;; tell emacs where to read abbrev
@@ -216,23 +223,26 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tramp, for remote access
+(require 'tramp)
 (setq tramp-default-method "ssh")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
-(setq holidays-in-diary-buffer      t
+(setq 
+  diary-file  "~/.emacs.d/diary"    ;        ; keep my ~/ clean
+  holidays-in-diary-buffer          t            
   mark-holidays-in-calendar         t
-  all-christian-calendar-holidays   t
-  all-islamic-calendar-holidays     nil
-  all-hebrew-calendar-holidays      nil
-  display-time-24hr-format          t
-  display-time-day-and-date         nil
-  display-time-format               nil
-  display-time-use-mail-icon        nil      ; don't show mail icon
-  calendar-latitude                 60.09
-  calendar-longitude                24.52
-  calendar-location-name "Helsinki, Finland")
+  all-christian-calendar-holidays   t        ;; show christian 
+  all-islamic-calendar-holidays     nil      ;; don't show islamic
+  all-hebrew-calendar-holidays      nil      ;; don't show hebrew
+  display-time-24hr-format          t        ;; use 24h format
+  display-time-day-and-date         nil      ;; don't display time
+  display-time-format               nil      ;;
+  display-time-use-mail-icon        nil      ;; don't show mail icon
+  calendar-latitude                 60.1     ;; my...
+  calendar-longitude                24.5     ;; ...position
+  calendar-location-name "Helsinki")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -244,7 +254,6 @@
     ((and (not djcb-console-p) djcb-linux-p)
       (= 0 (shell-command "fc-list | grep Inconsolata"))
       "Inconsolata-11")))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq tetris-score-file (concat djcb-tmp-dir "/tetris-scores"))
 
@@ -297,6 +306,10 @@
 (global-set-key (kbd "C-c r") 'remember)                   ;; remember
 (global-set-key (kbd "C-c w") 'djcb-wikipedia)
 (global-set-key (kbd "<backtab>") 'bbdb-complete-name) 
+(global-set-key (kbd "C-c l") 'org-store-link)  ;; Agenda
+
+(global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
+(global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; program shortcuts
@@ -309,10 +322,6 @@
 (global-set-key (kbd "s-g") 'w3m-goto-url)   ;; Goto-url (W3M)
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
-
-;;(global-set-key (kbd "s-l") 'org-store-link)  ;; Agenda
-(global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
-(global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
 (djcb-program-shortcut "mutt" (kbd "s-m") t)   ;; mutt 
 (djcb-program-shortcut "zsh"  (kbd "s-z") t)   ;; the ubershell
@@ -357,15 +366,12 @@
 			       (modify-frame-parameters nil `((alpha . 100)))))
 
 (global-set-key (kbd "M-X") 'smex) ;; use smex
-
-
-
 ;; this depends on smex availability                                              
 (setq smex-save-file (concat djcb-tmp-dir "/smex.save"))              
 (when (djcb-require-maybe 'smex)                                                  
   (smex-initialize))                                                           
 
- 
+
 ;; hippy expands starts with try-yasnippet-expand
 (global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
 
@@ -373,21 +379,12 @@
 (global-set-key (kbd "TAB") 'indent-for-tab-command)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
 (djcb-require-maybe 'elscreen)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(yas/define-snippets 'org-mode ;; ya-snippets
-  '( ("imgright" "#+HTML: <img src=\"image/${0}\" align=\"right\">")
-     ("imgleft" "#+HTML: <img src=\"image/${0}\" align=\"left\">")
-     ("codeblock" "#+BEGIN_SRC ${0}\n${1}\n#+END_SRC\n")))
-
- 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; yasnippet 
 (when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
   (setq yas/trigger-key [(super tab)])	     
@@ -487,7 +484,8 @@
 ;; we use org-mode as the backend for remember
 ;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
-(setq org-default-notes-file (concat org-directory "notes.org")
+(setq 
+  org-default-notes-file (concat org-directory "notes.org")
   org-agenda-files (directory-files (concat org-directory "agenda/")
 		     t  "^[^#].*\\.org$") ; ignore backup files
   org-agenda-include-diary t
@@ -495,35 +493,52 @@
   org-agenda-skip-deadline-if-done  t      ; don't show in agenda...
   org-agenda-skip-scheduled-if-done t      ; .. when done
   org-agenda-start-on-weekday nil          ; start agenda view with today
+  
   org-agenda-todo-ignore-deadlines t       ; don't include ... 
   org-agenda-todo-ignore-scheduled t       ; ...timed/agenda items...
   org-agenda-todo-ignore-with-date t       ; ...in the todo list
+
   org-completion-use-ido t                  ; use ido when it makes sense
+
   org-enforce-to-checkbox-dependencies t   ; parents can't be closed... 
   org-enforce-todo-dependencies t          ; ...before their children
   org-hide-leading-stars t		   ; hide leading stars
+  
   org-log-done 'time                       ; log time when marking as DONE
   org-return-follows-link t                ; return follows the link
-  org-tags-column -77                      ; tags at pos 77
+  org-tags-column -78                      ; tags end at pos 78
+
   org-export-with-section-numbers nil	   ; no numbers in export headings
   org-export-with-toc nil                  ; no ToC in export
   org-export-with-author-info nil          ; no author info in export
   org-export-with-creator-info nil         ; no creator info
+  org-export-htmlize-output-type 'css
+  
   org-use-fast-todo-selection t            ; fast todo selection
   org-archive-location (concat org-directory "/archive.org::%s")
-  org-tag-alist '(("birthday" . ?b) ("family" . ?f)
-		   ("finance" . ?g)  ("home" . ?t)
-		   ("hacking" . ?h)  ("sport" . ?s)
-		   ("work" . ?w)     ("tv" . ?v))
-  org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
-			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
   
-  org-export-htmlize-output-type 'css)
-(org-remember-insinuate)
+  org-tag-alist '( ("FAMILY"   .  ?f)
+		   ("FINANCE"  .  ?m)   
+		   ("FRIENDS"  .  ?v)
+		   ("HACKING"  .  ?h)
+		   ("HOME"     .  ?t)
+		   ("MUSIC"    .  ?m)
+		   ("PHONE"    .  ?p)
+		   ("SPORTS"   .  ?s)
+		   ("URGENT"   .  ?u)
+		   ("WORK"     .  ?w))    
+
+  
+  org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
+			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
+		   
+(org-remember-insinuate) ;; integrate remember with org
 
 (add-hook 'org-mode-hook
   (lambda()
     ;;(flyspell-mode t)
+    (longlines-mode t)
+    (setq longlines-auto-wrap t)
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
@@ -550,14 +565,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; w3m / browsing
+(setq w3m-init-file "~/.emacs.d/config/djcb-w3m.el")
 (when (djcb-require-maybe 'w3m)
-  (setq 
-    w3m-use-cookies t                           ;; allow cookies
-    w3m-use-title-buffer-name t                 ;; use page title as bufname
+(setq
     browse-url-browser-function 'w3m-browse-url ;; use w3m
-    browse-url-new-window-flag t))              ;; in new 'tab'
-
-(setq w3m-uri-replace-alist '())
+    browse-url-new-window-flag t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -591,16 +603,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wanderlust
-(autoload 'wl "wl" "Wanderlust" t)
-(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
+(when (djcb-require-maybe 'wl)
+  (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
 
-(defconst djcb-wl-dir (concat djcb-emacs-dir "/wl"))
-(setq wl-init-file (concat djcb-wl-dir "/wl-djcb.el"))
+  (defconst djcb-wl-dir (concat djcb-emacs-dir "/wl"))
+  (setq wl-init-file (concat djcb-wl-dir "/wl-djcb.el"))
 
-;; site-specific settings, e.g. eg.
-;; ~/.emacs.d/wl/wl-djcb@mindcrime.el
-(load-library (concat djcb-wl-dir "/wl-" djcb-id-tag ".el"))
-(setq wl-folders-file (concat djcb-wl-dir "/wl-" djcb-id-tag "-folders"))
+  (djcb-require-maybe 'mime-w3m) ;; use W3M for HTML-email
+
+  ;; site-specific settings, e.g. eg.
+  ;; ~/.emacs.d/wl/wl-djcb@mindcrime.el
+  (load-library (concat djcb-wl-dir "/wl-" djcb-id-tag ".el"))
+  (setq wl-folders-file (concat djcb-wl-dir "/wl-" djcb-id-tag "-folders")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -633,7 +647,7 @@
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon")))
+    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail")))
   
   ;; integrate with supercite, if possible
   ;; http://bbdb.sourceforge.net/bbdb.html#SEC56
@@ -688,7 +702,10 @@
 (add-hook 'emacs-lisp-mode-hook 
   (lambda()
     (local-set-key (kbd "<f7>") ;; overrides global f7 (compile) 
-      '(lambda()(interactive) (let ((debug-on-error t)) (eval-buffer)))) ; 
+      '(lambda()(interactive) 
+	 (let ((debug-on-error t)) 
+	   (eval-buffer)
+	   (message "buffer evaluated")))) ; 
     
     (setq lisp-indent-offset 2) ; indent with two spaces, enough for lisp
     (djcb-require-maybe 'folding)
@@ -845,3 +862,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )

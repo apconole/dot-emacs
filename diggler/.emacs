@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-23 16:52:03 (djcb)>
+;; Time-stamp: <2009-06-23 17:54:57 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -540,7 +540,7 @@
 (add-hook 'org-mode-hook
   (lambda()
     (auto-fill-mode t)
-    (set-fill-column 7
+    (set-fill-column 78)
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
@@ -627,17 +627,16 @@
   (bbdb-initialize)
   (bbdb-wl-setup)
   (setq 
-    bbdb-offer-save 1                        ;; 1 means save-without-asking
-
-    bbdb-use-pop-up t                        ;; allow popups for addresses
-    bbdb-electric-p t                        ;; be disposable with SPC
-    bbdb-popup-target-lines  1               ;; very small
-
-    bbdb-dwim-net-address-allow-redundancy t ;; always use full name
-    bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
-    bbdb-always-add-address t                ;; add new address to existing...
+   bbdb-offer-save 1                        ;; 1 means save-without-asking
+   
+   bbdb-use-pop-up t                        ;; allow popups for addresses
+   bbdb-electric-p t                        ;; be disposable with SPC
+   bbdb-popup-target-lines  1               ;; very small
+   
+   bbdb-dwim-net-address-allow-redundancy t ;; always use full name
+   bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
+   bbdb-always-add-address t                ;; add new address to existing...
                                              ;; ...contacts autmatically
-
     bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
 
     bbdb-completion-type nil                 ;; complete on anything
@@ -649,24 +648,7 @@
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail")))
-  
-  ;; integrate with supercite, if possible
-  ;; http://bbdb.sourceforge.net/bbdb.html#SEC56
-  ;; (when (fboundp 'sc-minor-mode)
-  ;;   (bbdb-insinuate-sc)
-  ;;   (setq 
-  ;;     sc-preferred-attribution-list
-  ;;     '("sc-lastchoice" "x-attribution" "sc-consult"
-  ;; 	 "initials" "firstname" "lastname")
-  ;;     sc-attrib-selection-list
-  ;;     '(("sc-from-address"
-  ;; 	 ((".*" . (bbdb/sc-consult-attr
-  ;; 		   (sc-mail-field "sc-from-address"))))))
-
-  ;;     sc-mail-glom-frame
-  ;;     ("^$"  (progn (bbdb/sc-default)
-  ;; 	       (list 'abort '(step . 0)))))))
+    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail\\twitter\.com")))
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

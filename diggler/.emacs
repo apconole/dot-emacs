@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-23 16:32:41 (djcb)>
+;; Time-stamp: <2009-06-23 16:52:03 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -539,9 +539,8 @@
 
 (add-hook 'org-mode-hook
   (lambda()
-    ;;(flyspell-mode t)
-    (longlines-mode t)
-    (setq longlines-auto-wrap t)
+    (auto-fill-mode t)
+    (set-fill-column 7
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"

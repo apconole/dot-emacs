@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-22 08:18:56 (djcb)>
+;; Time-stamp: <2009-06-23 16:32:41 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -283,6 +283,9 @@
 
 ;; programming/writing stuff; f5-f8 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-set-key (kbd "<f7>") 'compile)                     ;; compile
+(global-set-key (kbd "S-<f7>") 'delete-other-windows)      ;; close ...
+
+
 (global-set-key (kbd "<f8>") 'comment-or-uncomment-region) ;; (un)comment
 ;; for writing
 (global-set-key (kbd "C-<f5>") 'djcb-count-words)               ;; count words
@@ -765,7 +768,9 @@
   (setq 
     compilation-scroll-output 'first-error  ; scroll until first error
     compilation-read-command nil            ; don't need enter
-    compilation-window-height 16            ; keep it readable
+    compilation-window-height 12)           ; keep it readable
+
+  (setq
     c-basic-offset 8                        ; linux kernel style
     c-hungry-delete-key t)                  ; eat as much as possible
   
@@ -812,16 +817,9 @@
 ;; http://www.emacswiki.org/cgi-bin/wiki/ModeCompile
 ;; TODO: don't hide when there are warnings either (not just errors)
 (setq compilation-window-height 12)
-(setq compilation-finish-functions nil)
-(setq compilation-finish-functions 'compile-autoclose)
-(defun compile-autoclose (buffer string)
-  (cond ((and (string-match "finished" string)
-	   (not (string-match "warning" string)))
-	  (message "Build maybe successful: closing window.")
-	  (run-with-timer 2 nil
-	    'delete-window
-	    (get-buffer-window buffer t)))
-    (t (message "Compilation exited abnormally: %s" string))))
+(setq compilation-finish-functions nil) ;; keep it open
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -862,15 +860,3 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("/home/djcb/.emacs.d/org/agenda/birthdays.org" "/home/djcb/.emacs.d/org/agenda/gtd.org" "/home/djcb/.emacs.d/org/agenda/holidays.org" "/home/djcb/.emacs.d/org/agenda/maybe.org" "/home/djcb/.emacs.d/org/agenda/misc.org" "/home/djcb/.emacs.d/org/agenda/weekly.org"))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )

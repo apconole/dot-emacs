@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-24 01:52:38 (djcb)>
+;; Time-stamp: <2009-06-24 17:53:32 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -845,6 +845,33 @@
 	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun djcb-remember-frame ()
+  "turn the current frame into a small popup frame for remember mode;
+this is meant to be called with 
+     emacsclient -c -e '(djcb-remember-frame)'"
+  (modify-frame-parameters nil
+    '( (name . "*Remember*") ;; must be same as in mode-hook below  
+       (width .  80)
+       (height . 10)
+       (vertical-scroll-bars . nil)
+       (menu-bar-lines . nil)
+       (tool-bar-lines . nil)))
+  (org-remember)
+  (delete-other-windows)) 
+
+;; when we're in such a remember-frame, close it when done.
+(add-hook 'org-remember-mode-hook
+  (lambda()
+    (define-key org-remember-mode-map (kbd "C-c C-c")
+      '(lambda()(interactive)
+	 (let ((remember-frame-p 
+		 (string= (frame-parameter nil 'name) "*Remember*")))
+	   (when remember-frame-p (make-frame-invisible))  ;; hide quickly
+	   (org-remember-finalize)
+	   (when remember-frame-p (delete-frame)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

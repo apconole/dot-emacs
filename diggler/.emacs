@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-23 17:54:57 (djcb)>
+;; Time-stamp: <2009-06-24 01:52:38 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -74,7 +74,7 @@
 (partial-completion-mode t)		 ; be smart with completion
 
 (setq scroll-margin 1                    ; do smooth scrolling, ...
-  scroll-conservatively 0                ; ... the defaults ...
+  scroll-conservatively 100000           ; ... the defaults ...
   scroll-up-aggressively 0.01            ; ... are very ...
   scroll-down-aggressively 0.01)         ; ... annoying
 
@@ -488,7 +488,6 @@
 ;;(org-remember-insinuate)
 (setq org-directory "~/.emacs.d/org/")
 (setq 
-  org-default-notes-file (concat org-directory "notes.org")
   org-agenda-files (directory-files (concat org-directory "agenda/")
 		     t  "^[^#].*\\.org$") ; ignore backup files
   org-agenda-include-diary t
@@ -500,7 +499,7 @@
   org-agenda-todo-ignore-deadlines t       ; don't include ... 
   org-agenda-todo-ignore-scheduled t       ; ...timed/agenda items...
   org-agenda-todo-ignore-with-date t       ; ...in the todo list
-
+  
   org-completion-use-ido t                  ; use ido when it makes sense
 
   org-enforce-to-checkbox-dependencies t   ; parents can't be closed... 
@@ -530,12 +529,20 @@
 		   ("SPORTS"   .  ?s)
 		   ("URGENT"   .  ?u)
 		   ("WORK"     .  ?w))    
-
   
-  org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "WAITING(w)" 
-			"VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
-		   
+  org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "INFO(i)" 
+			"WAITING(w)" "VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
+)
+
 (org-remember-insinuate) ;; integrate remember with org
+(setq 
+  org-default-notes-file (concat org-directory "agenda/remember.org")
+  org-remember-templates
+  '(
+     ("Todo" ?t "* TODO %u %?\n" nil "Tasks")
+     ("Link" ?l "* INFO %u %?\n %a\n" nil "Links")
+     ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Noters")))
+
 
 (add-hook 'org-mode-hook
   (lambda()

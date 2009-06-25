@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-24 17:53:32 (djcb)>
+;; Time-stamp: <2009-06-25 01:13:41 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -64,7 +64,7 @@
 ;; general settings
 (menu-bar-mode  t)                       ; show the menu...
 (tool-bar-mode -1)                       ; ... but not the the toolbar
-(ruler-mode t)
+;;(ruler-mode t)
 (mouse-avoidance-mode 'jump)             ; mouse ptr when cursor is too close
 (icomplete-mode t)			 ; completion in minibuffer
 (setq icomplete-prospects-height 2)      ; don't spam my minibuffer
@@ -332,6 +332,9 @@
 (global-set-key (kbd "s-s") 'sr-speedbar-toggle)
 (global-set-key (kbd "s-l") 'linum)                          ;; line nrs
 
+(global-set-key (kbd "s-W") ;; wanderlust
+  (lambda()(interactive)(find-file wl-init-file))) 
+
 ;; specific file shortcuts; s-f 
 (global-set-key (kbd "s-S") ;; scratch
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
@@ -339,10 +342,12 @@
   (lambda()(interactive)(find-file "~/.emacs"))) 
 (global-set-key (kbd "s-G") ;; gtd.org
   (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/gtd.org"))) 
+(global-set-key (kbd "s-R") ;; remember.org
+  (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/remember.org"))) 
 (global-set-key (kbd "s-B") ;; gtd.org
   (lambda()(interactive)(find-file "~/.emacs.d/org/books.org"))) 
-(global-set-key (kbd "s-W") ;; wanderlust
-  (lambda()(interactive)(find-file wl-init-file))) 
+
+
 
 ;; use super + arrow keys to switch between visible buffers
 (require 'windmove)
@@ -383,8 +388,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
-(djcb-require-maybe 'elscreen)
+;;(setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
+;;(djcb-require-maybe 'elscreen)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -496,6 +501,8 @@
   org-agenda-skip-scheduled-if-done t      ; .. when done
   org-agenda-start-on-weekday nil          ; start agenda view with today
   
+  org-agenda-skip-unavailable-files t      ; don't ask, just skip
+
   org-agenda-todo-ignore-deadlines t       ; don't include ... 
   org-agenda-todo-ignore-scheduled t       ; ...timed/agenda items...
   org-agenda-todo-ignore-with-date t       ; ...in the todo list
@@ -531,9 +538,8 @@
 		   ("WORK"     .  ?w))    
   
   org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "INFO(i)" 
-			"WAITING(w)" "VIEW(v)" "|" "DONE(d)" "CANCELLED(c)"))
-)
-
+			"WAITING(w)" "VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
+  
 (org-remember-insinuate) ;; integrate remember with org
 (setq 
   org-default-notes-file (concat org-directory "agenda/remember.org")
@@ -541,8 +547,7 @@
   '(
      ("Todo" ?t "* TODO %u %?\n" nil "Tasks")
      ("Link" ?l "* INFO %u %?\n %a\n" nil "Links")
-     ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Noters")))
-
+     ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Notes")))
 
 (add-hook 'org-mode-hook
   (lambda()
@@ -553,6 +558,35 @@
       '(("\\<\\(FIXME\\)"
 	  1 font-lock-warning-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun djcb-remember-frame ()
+  "turn the current frame into a small popup frame for remember mode;
+this is meant to be called with 
+     emacsclient -c -e '(djcb-remember-frame)'"
+  (modify-frame-parameters nil
+    '( (name . "*Remember*") ;; must be same as in mode-hook below  
+       (width .  80)
+       (height . 10)
+       (vertical-scroll-bars . nil)
+       (menu-bar-lines . nil)
+       (tool-bar-lines . nil)))
+  (org-remember)
+  (when (fboundp 'x-focus-frame) (x-focus-frame nil)) ;; X only....
+  (delete-other-windows)) 
+
+;; when we're in such a remember-frame, close it when done.
+(add-hook 'org-remember-mode-hook
+  (lambda()
+    (define-key org-remember-mode-map (kbd "C-c C-c")
+      '(lambda()(interactive)
+	 (let ((remember-frame-p 
+		 (string= (frame-parameter nil 'name) "*Remember*")))
+	   (when remember-frame-p (make-frame-invisible))  ;; hide quickly
+	   (org-remember-finalize)
+	   (when remember-frame-p (delete-frame)))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;some special purpose modes
@@ -847,31 +881,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun djcb-remember-frame ()
-  "turn the current frame into a small popup frame for remember mode;
-this is meant to be called with 
-     emacsclient -c -e '(djcb-remember-frame)'"
-  (modify-frame-parameters nil
-    '( (name . "*Remember*") ;; must be same as in mode-hook below  
-       (width .  80)
-       (height . 10)
-       (vertical-scroll-bars . nil)
-       (menu-bar-lines . nil)
-       (tool-bar-lines . nil)))
-  (org-remember)
-  (delete-other-windows)) 
 
-;; when we're in such a remember-frame, close it when done.
-(add-hook 'org-remember-mode-hook
-  (lambda()
-    (define-key org-remember-mode-map (kbd "C-c C-c")
-      '(lambda()(interactive)
-	 (let ((remember-frame-p 
-		 (string= (frame-parameter nil 'name) "*Remember*")))
-	   (when remember-frame-p (make-frame-invisible))  ;; hide quickly
-	   (org-remember-finalize)
-	   (when remember-frame-p (delete-frame)))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

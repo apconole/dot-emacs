@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-25 01:13:41 (djcb)>
+;; Time-stamp: <2009-06-26 17:20:22 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -53,58 +53,57 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the modeline
-(line-number-mode t)                     ; show line numbers
-(column-number-mode t)                   ; show column numbers
+(line-number-mode t)                     ;; show line numbers
+(column-number-mode t)                   ;; show column numbers
 (when (fboundp size-indication-mode)
-  (size-indication-mode t))              ; show file size (emacs 22+)
-(display-time-mode -1)                   ; don't show the time
+  (size-indication-mode t))              ;; show file size (emacs 22+)
+(display-time-mode -1)                   ;; don't show the time
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general settings
-(menu-bar-mode  t)                       ; show the menu...
-(tool-bar-mode -1)                       ; ... but not the the toolbar
+(menu-bar-mode  t)                       ;; show the menu...
+(tool-bar-mode -1)                       ;; ... but not the the toolbar
 ;;(ruler-mode t)
-(mouse-avoidance-mode 'jump)             ; mouse ptr when cursor is too close
-(icomplete-mode t)			 ; completion in minibuffer
-(setq icomplete-prospects-height 2)      ; don't spam my minibuffer
-(scroll-bar-mode t)                      ; show a scrollbar...
-(set-scroll-bar-mode 'right)             ; ... on the right
+(mouse-avoidance-mode 'jump)             ;; mouse ptr when cursor is too close
+(icomplete-mode t)			 ;; completion in minibuffer
+(setq icomplete-prospects-height 2)      ;; don't spam my minibuffer
+(scroll-bar-mode t)                      ;; show a scrollbar...
+(set-scroll-bar-mode 'right)             ;; ... on the right
 
-(partial-completion-mode t)		 ; be smart with completion
+(partial-completion-mode t)		 ;; be smart with completion
 
-(setq scroll-margin 1                    ; do smooth scrolling, ...
-  scroll-conservatively 100000           ; ... the defaults ...
-  scroll-up-aggressively 0.01            ; ... are very ...
-  scroll-down-aggressively 0.01)         ; ... annoying
+(setq scroll-margin 1                    ;; do smooth scrolling, ...
+  scroll-conservatively 100000           ;; ... the defaults ...
+  scroll-up-aggressively 0.01            ;; ... are very ...
+  scroll-down-aggressively 0.01)         ;; ... annoying
+(when (fboundp 'set-fringe-mode)         ;; emacs22+ 
+  (set-fringe-mode 1))                   ;; space left of col1 in pixels
 
-(when (fboundp 'set-fringe-mode)         ; emacs22+ 
-  (set-fringe-mode 1))                   ; space left of col1 in pixels
+(transient-mark-mode t)                  ;; make the current 'selection' visible
+(delete-selection-mode t)                ;; delete the selection with a keypress
+(setq x-select-enable-clipboard t        ;; copy-paste should work ...
+  interprogram-paste-function            ;; ...with...
+  'x-cut-buffer-or-selection-value)      ;; ...other X clients
 
-(transient-mark-mode t)                  ; make the current 'selection' visible
-(delete-selection-mode t)                ; delete the selection with a keypress
-(setq x-select-enable-clipboard t        ; copy-paste should work ...
-  interprogram-paste-function            ; ...with...
-  'x-cut-buffer-or-selection-value)      ; ...other X clients
+(setq search-highlight t                 ;; highlight when searching... 
+  query-replace-highlight t)             ;; ...and replacing
+(fset 'yes-or-no-p 'y-or-n-p)            ;; enable y/n answers to yes/no 
 
-(setq search-highlight t                 ; highlight when searching... 
-  query-replace-highlight t)             ; ...and replacing
-(fset 'yes-or-no-p 'y-or-n-p)            ; enable y/n answers to yes/no 
+(global-font-lock-mode t)                ;; always do syntax highlighting 
 
-(global-font-lock-mode t)                ; always do syntax highlighting 
+(setq completion-ignore-case t           ;; ignore case when completing...
+  read-file-name-completion-ignore-case t) ;; ...filenames too
 
-(setq completion-ignore-case t           ; ignore case when completing...
-  read-file-name-completion-ignore-case t) ; ...filenames too
+(put 'narrow-to-region 'disabled nil)    ;; enable...
+(put 'erase-buffer 'disabled nil)        ;; ... useful things
+(when (fboundp file-name-shadow-mode)    ;; emacs22+
+  (file-name-shadow-mode t))             ;; be smart about filenames in mbuf
 
-(put 'narrow-to-region 'disabled nil)    ; enable...
-(put 'erase-buffer 'disabled nil)        ; ... useful things
-(when (fboundp file-name-shadow-mode)    ; emacs22+
-  (file-name-shadow-mode t))             ; be smart about filenames in mbuf
+(setq inhibit-startup-message t          ;; don't show ...    
+  inhibit-startup-echo-area-message t)   ;; ... startup messages
 
-(setq inhibit-startup-message t          ; don't show ...    
-  inhibit-startup-echo-area-message t)   ; ... startup messages
-
-(setq require-final-newline t)           ; end files with a newline
+(setq require-final-newline t)           ;; end files with a newline
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -243,6 +242,8 @@
   calendar-latitude                 60.1     ;; my...
   calendar-longitude                24.5     ;; ...position
   calendar-location-name "Helsinki")
+(calendar-set-date-style 'iso)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -496,34 +497,34 @@
   org-agenda-files (directory-files (concat org-directory "agenda/")
 		     t  "^[^#].*\\.org$") ; ignore backup files
   org-agenda-include-diary t
-  org-agenda-show-all-dates t              ; shows days without items
-  org-agenda-skip-deadline-if-done  t      ; don't show in agenda...
-  org-agenda-skip-scheduled-if-done t      ; .. when done
-  org-agenda-start-on-weekday nil          ; start agenda view with today
+  org-agenda-show-all-dates t              ;; shows days without items
+  org-agenda-skip-deadline-if-done  t      ;; don't show in agenda...
+  org-agenda-skip-scheduled-if-done t      ;; .. when done
+  org-agenda-start-on-weekday nil          ;; start agenda view with today
   
-  org-agenda-skip-unavailable-files t      ; don't ask, just skip
+  org-agenda-skip-unavailable-files t      ;; don't ask, just skip
 
-  org-agenda-todo-ignore-deadlines t       ; don't include ... 
-  org-agenda-todo-ignore-scheduled t       ; ...timed/agenda items...
-  org-agenda-todo-ignore-with-date t       ; ...in the todo list
+  org-agenda-todo-ignore-deadlines t       ;; don't include ... 
+  org-agenda-todo-ignore-scheduled t       ;; ...timed/agenda items...
+  org-agenda-todo-ignore-with-date t       ;; ...in the todo list
   
-  org-completion-use-ido t                  ; use ido when it makes sense
+  org-completion-use-ido t                 ;; use ido when it makes sense
 
-  org-enforce-to-checkbox-dependencies t   ; parents can't be closed... 
-  org-enforce-todo-dependencies t          ; ...before their children
-  org-hide-leading-stars t		   ; hide leading stars
+  org-enforce-to-checkbox-dependencies t   ;; parents can't be closed... 
+  org-enforce-todo-dependencies t          ;; ...before their children
+  org-hide-leading-stars t		   ;; hide leading stars
   
-  org-log-done 'time                       ; log time when marking as DONE
-  org-return-follows-link t                ; return follows the link
-  org-tags-column -78                      ; tags end at pos 78
+  org-log-done 'time                       ;; log time when marking as DONE
+  org-return-follows-link t                ;; return follows the link
+  org-tags-column -78                      ;; tags end at pos 78
 
-  org-export-with-section-numbers nil	   ; no numbers in export headings
-  org-export-with-toc nil                  ; no ToC in export
-  org-export-with-author-info nil          ; no author info in export
-  org-export-with-creator-info nil         ; no creator info
-  org-export-htmlize-output-type 'css
+  org-export-with-section-numbers nil	   ;; no numbers in export headings
+  org-export-with-toc nil                  ;; no ToC in export
+  org-export-with-author-info nil          ;; no author info in export
+  org-export-with-creator-info nil         ;; no creator info
+  org-export-htmlize-output-type 'css      ;; separate css
   
-  org-use-fast-todo-selection t            ; fast todo selection
+  org-use-fast-todo-selection t            ;; fast todo selection
   org-archive-location (concat org-directory "/archive.org::%s")
   
   org-tag-alist '( ("FAMILY"   .  ?f)
@@ -538,8 +539,9 @@
 		   ("WORK"     .  ?w))    
   
   org-todo-keywords '((type "TODO(t)" "STARTED(s)" "MAYBE(m)" "INFO(i)" 
-			"WAITING(w)" "VIEW(v)" "|" "DONE(d)" "CANCELLED(c)")))
-  
+			"MEETING(e)" "WAITING(w)" "VIEW(v)"  "|" 
+			"DONE(d)" "CANCELLED(c)")))
+
 (org-remember-insinuate) ;; integrate remember with org
 (setq 
   org-default-notes-file (concat org-directory "agenda/remember.org")
@@ -585,6 +587,10 @@ this is meant to be called with
 	   (when remember-frame-p (make-frame-invisible))  ;; hide quickly
 	   (org-remember-finalize)
 	   (when remember-frame-p (delete-frame)))))))
+
+;; show appointments
+(setq appt-display-format 'window) ;; show in separate window
+(appt-activate t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -668,15 +674,15 @@ this is meant to be called with
   (bbdb-initialize)
   (bbdb-wl-setup)
   (setq 
-   bbdb-offer-save 1                        ;; 1 means save-without-asking
-   
-   bbdb-use-pop-up t                        ;; allow popups for addresses
-   bbdb-electric-p t                        ;; be disposable with SPC
-   bbdb-popup-target-lines  1               ;; very small
-   
-   bbdb-dwim-net-address-allow-redundancy t ;; always use full name
-   bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
-   bbdb-always-add-address t                ;; add new address to existing...
+    bbdb-offer-save 1                        ;; 1 means save-without-asking
+    
+    bbdb-use-pop-up t                        ;; allow popups for addresses
+    bbdb-electric-p t                        ;; be disposable with SPC
+    bbdb-popup-target-lines  1               ;; very small
+    
+    bbdb-dwim-net-address-allow-redundancy t ;; always use full name
+    bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
+    bbdb-always-add-address t                ;; add new address to existing...
                                              ;; ...contacts autmatically
     bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
 
@@ -685,6 +691,8 @@ this is meant to be called with
 
     bbbd-message-caching-enabled t           ;; be fast
     bbdb-use-alternate-names t               ;; use AKA
+
+    bbdb-elided-display t                    ;; single-line addresses
 
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
@@ -879,7 +887,5 @@ this is meant to be called with
 	      (outline-minor-mode . t)
 	      auto-recompile outline-minor-mode)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

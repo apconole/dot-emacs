@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-06-29 08:06:59 (djcb)>
+;; Time-stamp: <2009-07-05 14:18:27 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -209,6 +209,11 @@
     uniquify-separator ":"
     uniquify-after-kill-buffer-p t
     uniquify-ignore-buffers-re "^\\*"))
+
+;; put something different in the scratch buffer
+(setq initial-scratch-message
+  (format ";; scratch buffer created %s\n;; happy hacking\n\n"
+    (format-time-string "%Y-%m-%d at %T")))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -228,7 +233,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; time/date/calendar stuff
-(require 'calendar)
+;;(require 'calendar)
 (setq 
   diary-file  "~/.emacs.d/diary"    ;        ; keep my ~/ clean
   holidays-in-diary-buffer          t            
@@ -243,7 +248,7 @@
   calendar-latitude                 60.1     ;; my...
   calendar-longitude                24.5     ;; ...position
   calendar-location-name "Helsinki")
-(calendar-set-date-style 'iso)
+;;(calendar-set-date-style 'iso)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -391,7 +396,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;(setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
-;;(djcb-require-maybe 'elscreen)
+(djcb-require-maybe 'elscreen)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -470,8 +475,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; newsticker
-(add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
-(setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
+;;(add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
+;;(setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -590,8 +595,8 @@ this is meant to be called with
 	   (when remember-frame-p (delete-frame)))))))
 
 ;; show appointments
-(setq appt-display-format 'window) ;; show in separate window
-(appt-activate t)
+;;(setq appt-display-format 'window) ;; show in separate window
+;;(appt-activate t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -698,7 +703,7 @@ this is meant to be called with
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail\\twitter\.com")))
+    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter")))
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -849,8 +854,6 @@ this is meant to be called with
 ;; TODO: don't hide when there are warnings either (not just errors)
 (setq compilation-window-height 12)
 (setq compilation-finish-functions nil) ;; keep it open
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -890,15 +893,3 @@ this is meant to be called with
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; FIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(safe-local-variable-values (quote ((outline-minor-mode . t)))))
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- )

@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-07-05 14:18:27 (djcb)>
+;; Time-stamp: <2009-07-19 20:47:46 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -158,7 +158,7 @@
 (eval-after-load "filecache" 
   '(progn (message "Loading file cache...")
      (file-cache-add-directory "~/")
-     (file-cache-add-directory-list (list "~/Desktop" "~/Documents"))))
+     (file-cache-add-directory-list '("~/Desktop" "~/Documents"))))
 ;;
 ;; backups
 (setq djcb-backup-dir (concat djcb-tmp-dir "/backups"))
@@ -225,6 +225,23 @@
      try-expand-dabbrev-all-buffers))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;; anything ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(when 
+  (and
+    (djcb-require-maybe 'anything-config)
+    (djcb-require-maybe 'anything))
+  (setq anything-save-configuration-functions
+    '(set-window-configuration . current-window-configuration)  
+    anything-idle-delay 0.3
+    anything-input-idle-delay 0
+    anything-candidate-number-limit 25)
+  (when (djcb-require-maybe 'anything-gtags)
+    (setq anything-gtags-classify t))
+  (when (djcb-require-maybe 'anything-c-yasnippet)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tramp, for remote access
 (require 'tramp) 
@@ -248,7 +265,6 @@
   calendar-latitude                 60.1     ;; my...
   calendar-longitude                24.5     ;; ...position
   calendar-location-name "Helsinki")
-;;(calendar-set-date-style 'iso)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -265,8 +281,9 @@
 (setq tetris-score-file (concat djcb-tmp-dir "/tetris-scores"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when (require 'color-theme)  ;; use color theme...
-  (color-theme-djcb-dark)) ;; 
+(when (djcb-require-maybe 'color-theme)  ;; use color theme...
+  (when (djcb-require-maybe 'color-theme-djcb)
+    (color-theme-djcb-dark))) ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -339,6 +356,8 @@
 (global-set-key (kbd "s-s") 'sr-speedbar-toggle)
 (global-set-key (kbd "s-l") 'linum)                          ;; line nrs
 
+(global-set-key (kbd "s-/") 'anything)
+
 (global-set-key (kbd "s-W") ;; wanderlust
   (lambda()(interactive)(find-file wl-init-file))) 
 
@@ -386,7 +405,6 @@
 (when (djcb-require-maybe 'smex)                                                  
   (smex-initialize))                                                           
 
-
 ;; hippy expands starts with try-yasnippet-expand
 (global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
 
@@ -396,7 +414,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;(setq elscreen-prefix-key (kbd "s-q")) ; 'q' for 'quick jump to'
-(djcb-require-maybe 'elscreen)
+(when (djcb-require-maybe 'elscreen)
+  (djcb-require-maybe 'elscreen-wl)) ;; wanderlust
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -555,12 +574,15 @@
   '(
      ("Todo" ?t "* TODO %u %?\n" nil "Tasks")
      ("Link" ?l "* INFO %u %?\n %a\n" nil "Links")
-     ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Notes")))
+     ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Notes")
+     (?w "* %^{Title}\n\n  Source: %u, %c\n\n  %i" nil "Notes")))
+
 
 (add-hook 'org-mode-hook
   (lambda()
     (auto-fill-mode t)
     (set-fill-column 78)
+    (calendar-set-date-style 'iso)
     (add-hook 'before-save-hook 'org-agenda-to-appt t t)
     (font-lock-add-keywords nil
       '(("\\<\\(FIXME\\)"
@@ -703,7 +725,9 @@ this is meant to be called with
     ;; auto-create address from mail
     bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
     bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
-    '(( "From" . ".*no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter")))
+    ;; NOTE: there can be only one entry per header (such as To, From)
+    ;; http://flex.ee.uec.ac.jp/texi/bbdb/bbdb_11.html
+    '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter")))
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -757,6 +781,13 @@ this is meant to be called with
       '(("\\<\\(djcb-require-maybe\\|add-hook\\|setq\\)" 
 	  1 font-lock-keyword-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Guile (Quack)
+(add-hook 'scheme-mode-hook
+  (when (djcb-require-maybe 'quack)
+    (setq quack-default-program "guile")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; perl/cperl mode

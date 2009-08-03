@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-08-03 00:32:53 (djcb)>
+;; Time-stamp: <2009-08-03 08:59:00 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -68,7 +68,7 @@
 (mouse-avoidance-mode 'jump)             ;; mouse ptr when cursor is too close
 (icomplete-mode t)			 ;; completion in minibuffer
 (setq 
-  icomplete-prospects-height 2           ;; don't spam my minibuffer
+  icomplete-prospects-height 1           ;; don't spam my minibuffer
   icomplete-compute-delay 0)             ;; don't wait
 (djcb-require-maybe 'icomplete+)
 
@@ -929,12 +929,9 @@ this is meant to be called with
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; identi.ca
-(autoload 'twitter-get-friends-timeline "twitter" nil t)
-(autoload 'twitter-status-edit "twitter" nil t)
-(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
+(when (djcb-require-maybe 'identica-mode)
+  (setq identica-username "djcb"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying

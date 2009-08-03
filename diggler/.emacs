@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-07-19 20:47:46 (djcb)>
+;; Time-stamp: <2009-08-03 00:32:53 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -67,11 +67,15 @@
 ;;(ruler-mode t)
 (mouse-avoidance-mode 'jump)             ;; mouse ptr when cursor is too close
 (icomplete-mode t)			 ;; completion in minibuffer
-(setq icomplete-prospects-height 2)      ;; don't spam my minibuffer
+(setq 
+  icomplete-prospects-height 2           ;; don't spam my minibuffer
+  icomplete-compute-delay 0)             ;; don't wait
+(djcb-require-maybe 'icomplete+)
+
+(setq enable-recursive-minibuffers t)    ;; allow mb cmds in the mb
+
 (scroll-bar-mode t)                      ;; show a scrollbar...
 (set-scroll-bar-mode 'right)             ;; ... on the right
-
-(partial-completion-mode t)		 ;; be smart with completion
 
 (setq scroll-margin 1                    ;; do smooth scrolling, ...
   scroll-conservatively 100000           ;; ... the defaults ...
@@ -234,11 +238,7 @@
     '(set-window-configuration . current-window-configuration)  
     anything-idle-delay 0.3
     anything-input-idle-delay 0
-    anything-candidate-number-limit 25)
-  (when (djcb-require-maybe 'anything-gtags)
-    (setq anything-gtags-classify t))
-  (when (djcb-require-maybe 'anything-c-yasnippet)))
-
+    anything-candidate-number-limit 25))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -265,6 +265,8 @@
   calendar-latitude                 60.1     ;; my...
   calendar-longitude                24.5     ;; ...position
   calendar-location-name "Helsinki")
+(add-hook 'calendar-mode-hook
+  (calendar-set-date-style 'iso))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -357,11 +359,14 @@
 (global-set-key (kbd "s-l") 'linum)                          ;; line nrs
 
 (global-set-key (kbd "s-/") 'anything)
+(global-set-key (kbd "s-d") 'toggle-debug-on-error)
 
-(global-set-key (kbd "s-W") ;; wanderlust
-  (lambda()(interactive)(find-file wl-init-file))) 
+
+
 
 ;; specific file shortcuts; s-f 
+(global-set-key (kbd "s-W") ;; wanderlust
+  (lambda()(interactive)(find-file wl-init-file))) 
 (global-set-key (kbd "s-S") ;; scratch
   (lambda()(interactive)(switch-to-buffer "*scratch*")))
 (global-set-key (kbd "s-E") ;; .emacs
@@ -372,6 +377,8 @@
   (lambda()(interactive)(find-file "~/.emacs.d/org/agenda/remember.org"))) 
 (global-set-key (kbd "s-B") ;; gtd.org
   (lambda()(interactive)(find-file "~/.emacs.d/org/books.org"))) 
+
+
 
 
 
@@ -493,12 +500,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; newsticker
-;;(add-hook 'newsticker-mode-hook 'imenu-add-menubar-index) ;; add a menu
-;;(setq newsticker-html-renderer 'w3m-region) ;; use w3m for HTML rendering
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'find-func)  
 (find-function-setup-keys)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -525,6 +526,7 @@
   org-agenda-show-all-dates t              ;; shows days without items
   org-agenda-skip-deadline-if-done  t      ;; don't show in agenda...
   org-agenda-skip-scheduled-if-done t      ;; .. when done
+  org-agenda-ndays 7                       ;; show one week
   org-agenda-start-on-weekday nil          ;; start agenda view with today
   
   org-agenda-skip-unavailable-files t      ;; don't ask, just skip
@@ -577,15 +579,20 @@
      ("Note" ?n "* INFO %u %^{Title}\n %?\n" nil "Notes")
      (?w "* %^{Title}\n\n  Source: %u, %c\n\n  %i" nil "Notes")))
 
+(defun djcb-org-agenda-to-appt ()
+  "update appointment reminders"
+  (interactive)
+  (setq appt-time-msg-list nil) ;; clear the old stuff
+  (org-agenda-to-appt)
+  (appt-activate t))
 
 (add-hook 'org-mode-hook
   (lambda()
     (auto-fill-mode t)
     (set-fill-column 78)
     (calendar-set-date-style 'iso)
-    (add-hook 'before-save-hook 'org-agenda-to-appt t t)
-    (font-lock-add-keywords nil
-      '(("\\<\\(FIXME\\)"
+    (add-hook 'before-save-hook 'djcb-org-agenda-to-appt)
+    (font-lock-add-keywords nil '(("\\<\\(FIXME\\)"
 	  1 font-lock-warning-face prepend)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -649,13 +656,11 @@ this is meant to be called with
     browse-url-new-window-flag t))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ERC, the emacs IRC client
 (when (djcb-require-maybe 'erc)
   (require 'djcb-erc))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; htmlize; http://fly.cc.fer.hr/~hniksic/emacs/htmlize.el.html
@@ -682,10 +687,9 @@ this is meant to be called with
 ;; wanderlust
 (when (djcb-require-maybe 'wl)
   (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
-
   (defconst djcb-wl-dir (concat djcb-emacs-dir "/wl"))
   (setq wl-init-file (concat djcb-wl-dir "/wl-djcb.el"))
-
+  
   (djcb-require-maybe 'mime-w3m) ;; use W3M for HTML-email
 
   ;; site-specific settings, e.g. eg.
@@ -825,7 +829,7 @@ this is meant to be called with
   (c-set-style "linux" djcb-c-style)
   (hs-minor-mode t) ; hide-show
   (font-lock-add-keywords nil 
-    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
+    '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\)" 
 	1 font-lock-warning-face prepend)))  
   ;; highlight some stuff; this is for _all_ c modes
   (font-lock-add-keywords nil 
@@ -849,7 +853,8 @@ this is meant to be called with
 	       (expand-file-name default-directory)))
     (when (djcb-require-maybe 'gtags) 
       (gtags-mode t)
-      (djcb-gtags-create-or-update)))  
+      (djcb-gtags-create-or-update)))
+  
   (when (djcb-require-maybe 'doxymacs)
     (doxymacs-mode t)
     (doxymacs-font-lock))
@@ -876,7 +881,8 @@ this is meant to be called with
 ;;  Makefiles
 (add-hook 'makefile-mode-hook
   (lambda()
-    (whitespace-mode t)))
+    (require 'show-wspace)
+    (show-ws-highlight-trailing-whitespace)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -913,6 +919,22 @@ this is meant to be called with
 (autoload 'twitter-status-edit "twitter" nil t)
 (add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; http://www.busydoingnothing.co.uk/twitter-el/
+(autoload 'twitter-get-friends-timeline "twitter" nil t)
+(autoload 'twitter-status-edit "twitter" nil t)
+(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; identi.ca
+(autoload 'twitter-get-friends-timeline "twitter" nil t)
+(autoload 'twitter-status-edit "twitter" nil t)
+(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; safe locals; we mark these as 'safe', so emacs22+ won't give us annoying

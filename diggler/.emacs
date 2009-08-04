@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-08-03 08:59:00 (djcb)>
+;; Time-stamp: <2009-08-04 01:24:01 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -223,11 +223,11 @@
 
 ;;;;;;; hippie-expand ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq hippie-expand-try-functions-list
-  '(yas/hippie-try-expand try-expand-all-abbrevs try-expand-dabbrev
-     try-expand-dabbrev-from-kill
-     try-complete-lisp-symbol-partially try-complete-lisp-symbol-partially
-     try-expand-dabbrev-all-buffers))
+  '(yas/hippie-try-expand try-expand-all-abbrevs ))
+     ;;     try-complete-lisp-symbol-partially
+;;     ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;; anything ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when 
@@ -265,8 +265,6 @@
   calendar-latitude                 60.1     ;; my...
   calendar-longitude                24.5     ;; ...position
   calendar-location-name "Helsinki")
-(add-hook 'calendar-mode-hook
-  (calendar-set-date-style 'iso))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -334,9 +332,7 @@
 ;; productivity stuff; f9-f12 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-set-key (kbd "C-c r") 'remember)                   ;; remember
 (global-set-key (kbd "C-c w") 'djcb-wikipedia)
-(global-set-key (kbd "<backtab>") 'bbdb-complete-name) 
 (global-set-key (kbd "C-c l") 'org-store-link)  ;; Agenda
-
 (global-set-key (kbd "s-a") 'org-agenda-list) ;; Agenda
 (global-set-key (kbd "s-n") 'org-todo-list)   ;; todo-list (NextActions)
 
@@ -413,10 +409,30 @@
   (smex-initialize))                                                           
 
 ;; hippy expands starts with try-yasnippet-expand
-(global-set-key [(control tab)] 'hippie-expand) ; Ctrl-Tab for expand
+(defun smart-tab ()
+  "This smart tab interactives minibuffer compliant: it acts as usual in
+    the minibuffer. Else, if mark is active, indents region. Else if
+    point is at the end of a symbol, expands it. Else indents the
+    current line."
+  (interactive)
+  (if (minibufferp)
+    (unless (minibuffer-complete) (hippie-expand nil))
+    (if mark-active 
+      (indent-region (region-beginning) (region-end))
+      (if (looking-back "^\\(To\\|From\\|Cc\\|Bcc\\): .*")
+	(bbdb-complete-name)
+	(if (looking-at "\\_>")
+	  (yas/expand)
+	  (indent-for-tab-command))))))
+
+
+	;; (if (looking-at "\\_>")
+	;;   (hippie-expand nil)
+	;;  (indent-for-tab-command))))))
 
 ;; tab is for indentation, not completion
-(global-set-key (kbd "TAB") 'indent-for-tab-command)
+(global-set-key (kbd "<tab>") 'smart-tab)
+;;(global-set-key (kbd "<tab>") 'indent-for-tab-command)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -425,21 +441,22 @@
   (djcb-require-maybe 'elscreen-wl)) ;; wanderlust
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; yasnippet 
-(when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
-  (setq yas/trigger-key [(super tab)])	     
-  yas/next-field-key [(control tab)])
+;; (when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
+;;   (setq yas/trigger-key [(super tab)])	     
+;;   yas/next-field-key [(control tab)])
 
-(djcb-require-maybe 'djcb-yasnippet-bundle)
-(defun djcb-yasnippet-compile-bundle ()
-  "create a bundle of my own snippets"
-  (interactive)
-  (yas/compile-bundle 
-    "~/.emacs.d/elisp/yasnippet-0.5.9/yasnippet.el"
-    "~/.emacs.d/elisp/djcb-yasnippet-bundle.el"
-    '("~/.emacs.d/yasnippets/")
-    "(yas/initialize)"))
+;; (djcb-require-maybe 'djcb-yasnippet-bundle)
+;; (defun djcb-yasnippet-compile-bundle ()
+;;   "create a bundle of my own snippets"
+;;   (interactive)
+;;   (yas/compile-bundle 
+;;     "~/.emacs.d/elisp/yasnippet-0.5.9/yasnippet.el"
+;;     "~/.emacs.d/elisp/djcb-yasnippet-bundle.el"
+;;     '("~/.emacs.d/yasnippets/")
+;;     "(yas/initialize)"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; custom menu; http://emacs-fu.blogspot.com/2009/04/adding-custom-menus.html

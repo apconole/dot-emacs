@@ -1,5 +1,5 @@
 ;; -*-mode: Emacs-Lisp; outline-minor-mode:t-*-
-;; Time-stamp: <2009-08-04 01:24:01 (djcb)>
+;; Time-stamp: <2009-08-09 13:46:10 (djcb)>
 
 ;; Copyright (C) 1996-2009  Dirk-Jan C. Binnema.
 ;; URL: http://www.djcbsoftware.nl/dot-emacs.html
@@ -277,6 +277,7 @@
       (= 0 (shell-command "fc-list | grep Inconsolata"))
       "Inconsolata-11")))
 (set-default-font "Envy Code R-10")
+;;(set-default-font "Inconsolata-12")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq tetris-score-file (concat djcb-tmp-dir "/tetris-scores"))
 
@@ -294,6 +295,8 @@
   `(global-set-key ,key 
      '(lambda() (interactive) 
 	(djcb-term-start-or-switch ,name ,use-existing))))
+
+(global-set-key (kbd "RET") 'newline-and-indent)
 
 (global-set-key (kbd "<delete>")    'delete-char)  ; delete == delete    
 (global-set-key (kbd "M-g")         'goto-line)    ; M-g  'goto-line
@@ -346,6 +349,7 @@
 
 (global-set-key (kbd "s-g") 'w3m-goto-url)   ;; Goto-url (W3M)
 (global-set-key (kbd "s-t") 'twitter-get-friends-timeline) ;; Twitter
+(global-set-key (kbd "s-i") 'identica-mode-start) ;; Twitter
 (global-set-key (kbd "s-w") 'wl)            ;; Wanderlust
 
 (djcb-program-shortcut "mutt" (kbd "s-m") t)   ;; mutt 
@@ -425,7 +429,6 @@
 	  (yas/expand)
 	  (indent-for-tab-command))))))
 
-
 	;; (if (looking-at "\\_>")
 	;;   (hippie-expand nil)
 	;;  (indent-for-tab-command))))))
@@ -433,6 +436,9 @@
 ;; tab is for indentation, not completion
 (global-set-key (kbd "<tab>") 'smart-tab)
 ;;(global-set-key (kbd "<tab>") 'indent-for-tab-command)
+
+(when (djcb-require-maybe 'company)
+  (company-mode t)) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -442,7 +448,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; yasnippet 
 ;; (when (djcb-require-maybe 'yasnippet-bundle) ;; note: yasnippet-bundle
 ;;   (setq yas/trigger-key [(super tab)])	     
@@ -781,6 +787,10 @@ this is meant to be called with
 (add-hook 'LaTeX-mode-hook 'djcb-tex-mode-hook)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Elisp
 (add-hook 'emacs-lisp-mode-hook 
@@ -928,13 +938,6 @@ this is meant to be called with
     (local-set-key (kbd "<C-f1>") 
       '(lambda()(interactive)
 	 (shell-command "killall -SIGWINCH mutt slrn irssi zsh")))))    
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; http://www.busydoingnothing.co.uk/twitter-el/
-(autoload 'twitter-get-friends-timeline "twitter" nil t)
-(autoload 'twitter-status-edit "twitter" nil t)
-(add-hook 'twitter-status-edit-mode-hook 'longlines-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

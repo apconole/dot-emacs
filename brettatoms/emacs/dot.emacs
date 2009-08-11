@@ -50,6 +50,20 @@
 (add-to-list 'load-path package-dir)
 (add-to-list 'load-path config-dir)
 
+;
+; default frame values
+;
+(setq default-frame-alist 
+      '((height . 39)
+	(width . 80)
+	))
+
+(defun font-existsp (font)
+    (if (null (x-list-fonts font))
+        nil t))
+(if (font-existsp "Inconsolata")
+    (add-to-list 'default-frame-alist '(font . "Inconsolata-14")))
+
 ;; Put autosave files (ie #foo#) in one place, *not* scattered all over the
 ;; file system! (The make-autosave-file-name function is invoked to determine
 ;; the filename of an autosave file.)
@@ -71,6 +85,21 @@
 	  (if buffer-file-name
 	      (concat "#" (file-name-nondirectory buffer-file-name) "#")
 	    (expand-file-name (concat "#%" (buffer-name) "#")))))
+
+
+(defun duplicate-current-line ()
+  (interactive)
+  (beginning-of-line nil)
+  (let ((b (point)))
+    (end-of-line nil)
+    (copy-region-as-kill b (point)))
+  (beginning-of-line 2)
+  (open-line 1)
+  (yank)
+  (back-to-indentation))
+
+(global-set-key "\C-cd" 'duplicate-current-line)
+
 
 ;; add occur to searching to get all occurences of search string
 (define-key isearch-mode-map (kbd "C-o")
@@ -105,11 +134,6 @@
 
 ; copy and paste with clipboard
 (setq x-select-enable-clipboard t)
-
-; geometry
-; TODO: this should be dependent on the screen resolution
-(add-to-list 'default-frame-alist '(height . 39))
-(add-to-list 'default-frame-alist '(width . 80))
 
 ; scroll bar on the right
 (set-scroll-bar-mode 'right)

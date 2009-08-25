@@ -87,20 +87,6 @@
 	    (expand-file-name (concat "#%" (buffer-name) "#")))))
 
 
-(defun duplicate-current-line ()
-  (interactive)
-  (beginning-of-line nil)
-  (let ((b (point)))
-    (end-of-line nil)
-    (copy-region-as-kill b (point)))
-  (beginning-of-line 2)
-  (open-line 1)
-  (yank)
-  (back-to-indentation))
-
-(global-set-key "\C-cd" 'duplicate-current-line)
-
-
 ;; add occur to searching to get all occurences of search string
 (define-key isearch-mode-map (kbd "C-o")
   (lambda ()
@@ -156,18 +142,39 @@
 ;
 (global-set-key (kbd "\C-x g") 'goto-line)
 
-(defun copy-line (&optional arg)
-  "Do a kill-line but copy rather than kill.  This function directly calls
-kill-line, so see documentation of kill-line for how to use it including prefix
-argument and relevant variables.  This function works by temporarily making the
-buffer read-only, so I suggest setting kill-read-only-ok to t."
-  (interactive "P")
-  (toggle-read-only 1)
-  (kill-line arg)
-  (toggle-read-only 0))
- 
-(setq-default kill-read-only-ok t)
-(global-set-key "\C-c\C-k" 'copy-line)
+(defun duplicate-current-line ()
+  (interactive)
+  (beginning-of-line nil)
+  (let ((b (point)))
+    (end-of-line nil)
+    (copy-region-as-kill b (point)))
+  (beginning-of-line 2)
+  (open-line 1)
+  (yank)
+  (back-to-indentation))
+
+(global-set-key "\C-cd" 'duplicate-current-line)
+
+
+(defun kill-forward-whitespace ()
+  "Kill the whitespace from the current position until the next
+non-whitespace character"
+  (interactive)
+  (let ((start-point (point))
+	(end (skip-chars-forward " \t\n\r")))
+    (kill-region start-point (+ end start-point))
+  ))
+
+(global-set-key "\C-cw" 'kill-whitespace)
+
+(defun copy-line ()
+  "Save the current line"
+  (interactive)
+  ;(set-marker (mark-marker) (point) (current-buffer))
+  (kill-ring-save (line-beginning-position) (line-end-position))
+  ;(line-end-position)
+  )
+(global-set-key "\C-ck" 'copy-line)
 
 
 ; EasyPG for GPG support
@@ -208,6 +215,18 @@ buffer read-only, so I suggest setting kill-read-only-ok to t."
 ; title format
 (setq frame-title-format "%b - emacs")
 
+; edit files with sudo using tramp
+(defun sudo-edit (&optional arg)
+  (interactive "p")
+  (if arg
+      (find-file (concat "/sudo:root@localhost:" (ido-read-file-name "File: ")))
+    (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+ 
+(defun sudo-edit-current-file ()
+  (interactive)
+  (find-alternate-file (concat "/sudo:root@localhost:" 
+			       (buffer-file-name (current-buffer)))))
+(global-set-key (kbd "C-c C-r") 'sudo-edit-current-file)
 
 ; ***********************************************************
 ;

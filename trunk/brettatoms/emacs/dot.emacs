@@ -165,7 +165,7 @@ non-whitespace character"
     (kill-region start-point (+ end start-point))
   ))
 
-(global-set-key "\C-cw" 'kill-whitespace)
+(global-set-key "\C-cw" 'kill-forward-whitespace)
 
 (defun copy-line ()
   "Save the current line"

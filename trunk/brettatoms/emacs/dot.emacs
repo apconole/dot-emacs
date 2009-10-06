@@ -10,32 +10,6 @@
   (server-start))
 ;(server-start)
 
-;;
-;; (defcustom project-list ()
-;;   "A list if tuples containing (project name, settings)"
-;;   :type 'list
-;; )
-
-; TODO: should provide some default variables that we reset when we call this
-; function so that if the project settings intialized them then we know that
-; we should use them, e.g. project-default-file could provide a file name for
-; the default file to open when loading the project
-;; (setq project-list '(("bauble-trunk" "~/devel/bauble/trunk/.emacs-prj")
-;; 		     ))
-;; (defun open-project ()
-;;   (interactive)
-;;   (let (completions '())
-;;     (dolist (element project-list completions)
-;;       (setq completions (cons (car element) completions))
-;;     )
-;;     (load-file
-;;      (cadr (assoc (completing-read "Project name: " completions nil t)
-;; 		 project-list)))
-;;     )
-;; )
-;; 
-;; (global-set-key (kbd "\C-c p") 'open-project)
-
 ; my emacs config directory
 (setq data-dir (expand-file-name "~/emacs/"))
 (add-to-list 'load-path data-dir)
@@ -137,6 +111,8 @@
 ; don't use this anyways
 (global-set-key (kbd "C-\\") 'goto-last-change)
 
+; don't do completion cycling in eshell
+(setq eshell-cmpl-cycle-completions nil)
 ;
 ; key bindings
 ;
@@ -228,6 +204,14 @@ non-whitespace character"
 			       (buffer-file-name (current-buffer)))))
 (global-set-key (kbd "C-c C-r") 'sudo-edit-current-file)
 
+
+; eproject - primarily used for setting up python projects, see
+; config/my-python.el
+(require 'eproject)
+;(global-set-key (kbd "\C-c p f") 'eproject-ifind-file)
+;(setq prj-last-open nil)
+
+
 ; ***********************************************************
 ;
 ; package customizations
@@ -243,6 +227,31 @@ non-whitespace character"
 (require 'my-org) ; org mode settings
 (require 'my-javascript) 
 
+;;; EXPERIMENTAL ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (require 'my-cedet)
+
+;; (add-to-list 'load-path (concat package-dir "slime"))  ; your SLIME directory
+;; (setq inferior-lisp-program "/opt/sbcl/bin/sbcl") ; your Lisp system
+;; (require 'slime)
+;; (slime-setup)
+
+(add-to-list 'load-path (concat package-dir "completion-ui"))
+(require 'completion-ui)
+;(auto-completion-mode t)
+;(global-set-key (kbd "C-,") 'complete-etags)
+
+;; (require 'auto-complete)
+;; (global-auto-complete-mode t)
+;; (setq ac-auto-start nil)
+;; (global-set-key "\M-/" 'ac-start)
+;; (define-key ac-complete-mode-map "\M-/" 'ac-stop)
+;(setq ac-dwim t)
+
+(require 'etags-select)
+;(global-set-key (kbd "C-,") 'complete-etags)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; org mode hook
 (defun my-org-mode-hook ()
      (auto-fill-mode t)
@@ -251,12 +260,13 @@ non-whitespace character"
 
 ;; shell
 (defun my-shell-mode-hook ()
-  ; for now turn off the colors until we figure out how to something
-  ; agreeable
-  ;(ansi-color-for-comint-mode-filter)
-  (ansi-color-for-comint-mode-on) ; allow ansi colors escape sequences
-
-  (local-set-key (kbd "C-z") 'self-insert-command) ; send C-z to shell
+  (require 'ansi-color)
+    ; filter colors from out since we don't use the same background
+  ; color as a terminal and it looks weird
+  (ansi-color-for-comint-mode-filter) ; require ansi-color
+  (local-set-key (kbd "\C-p") 'comint-previous-input)
+  (local-set-key (kbd "\C-n") 'comint-previous-input)
+  (local-set-key (kbd "\C-z") 'self-insert-command) ; send C-z to shell
 )
 (add-hook 'shell-mode-hook 'my-shell-mode-hook)
 
@@ -305,22 +315,6 @@ non-whitespace character"
 (yas/initialize)
 (yas/load-directory (concat package-dir "yasnippet/snippets"))
 
-; TODO: we need to figure out the best way for project management and
-; settings, there seem to be two projects called eproject
-
-;eproject
-;(add-to-list 'load-path (concat package-dir "eproject"))
-;(require 'eproject)
-;; (define-project-type python (generic)
-;;   (look-for "setup.py")
-;;   :relevant-files ("\\.py$" "\\.t$" ""))
-;; (global-set-key (kbd "\C-c p f") 'eproject-ifind-file)
-;(setq prj-last-open nil)
-
-;; (add-hook 'python-project-file-visit-hook
-;; 	  (if (file-exists-p 'python-project
-;; )
-
 ;; buffer management
 ; uniquify has to be loaded after Pymacs or we get lots of
 ; max-lisp-eval-depth errors
@@ -351,3 +345,4 @@ non-whitespace character"
   (message (concat "** Could not load custom file: " custom-file))
   )
 
+(load-file (concat data-dir "ubc.el"))
